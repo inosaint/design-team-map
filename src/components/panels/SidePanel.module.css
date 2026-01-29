@@ -1,0 +1,184 @@
+.panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 320px;
+  height: 100%;
+  background-color: var(--bg-secondary);
+  border-left: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  animation: slideIn 0.2s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.panel.closing {
+  animation: slideOut 0.15s ease-in forwards;
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.headerTitle {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-height: 36px;
+  justify-content: center;
+}
+
+.header h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.growthTag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.growthTag.success {
+  background-color: var(--success-light);
+  color: #15803d;
+}
+
+.growthTag.neutral {
+  background-color: var(--gray-100);
+  color: var(--text-secondary);
+}
+
+.growthTag.muted {
+  background-color: var(--gray-100);
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-4);
+}
+
+.field {
+  margin-bottom: var(--space-4);
+}
+
+.fieldWithAction {
+  margin-bottom: var(--space-4);
+}
+
+.fieldWithAction .fieldRow {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-end;
+}
+
+.fieldWithAction .fieldRow .select {
+  flex: 1;
+}
+
+.disconnectBtn {
+  padding: var(--space-2);
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  width: 38px;
+}
+
+.disconnectBtn:hover {
+  background-color: var(--danger);
+  border-color: var(--danger);
+  color: white;
+}
+
+.notesInput {
+  resize: vertical;
+  min-height: 60px;
+  font-family: inherit;
+}
+
+.infoBox {
+  margin-top: var(--space-4);
+  padding: var(--space-3);
+  background-color: var(--gray-50);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+}
+
+.infoBox h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-2);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.infoBox p {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.eligible {
+  color: var(--success) !important;
+}
+
+.notEligible {
+  color: var(--text-secondary) !important;
+}
+
+.maxLevel {
+  color: var(--text-muted) !important;
+  font-style: italic;
+}
+
+.footer {
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-top: 1px solid var(--border-color);
+}
+
+.footer .btn {
+  flex: 1;
+}
