@@ -361,3 +361,32 @@ h4 { font-size: 14px; }
 .animate-slideIn {
   animation: slideIn 0.2s ease-out;
 }
+
+/* Print styles for PDF export */
+@media print {
+  body {
+    background: white !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide toolbar and controls when printing */
+  .react-flow__controls,
+  .react-flow__minimap,
+  [class*="toolbar"],
+  [class*="Toolbar"] {
+    display: none !important;
+  }
+
+  /* Make the chart fill the page */
+  #flow-chart-container {
+    width: 100vw !important;
+    height: 100vh !important;
+  }
+
+  /* Ensure nodes print with colors */
+  .react-flow__node {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

@@ -184,10 +184,34 @@ export default function SidePanel() {
   const availableLevels = getAvailableLevels(settings);
   const showTrackSelection = levelRequiresTrack(formData.level, settings);
 
+  // Get growth status text for the tag
+  const getGrowthStatusTag = () => {
+    if (selectedNode.isPlannedHire) return null;
+    if (promotionInfo.eligible) {
+      return { text: 'Ready for promotion', type: 'success' };
+    }
+    if (promotionInfo.yearsUntilEligible > 0) {
+      return {
+        text: `${promotionInfo.yearsUntilEligible.toFixed(1)}y to next level`,
+        type: 'neutral',
+      };
+    }
+    return { text: 'At max level', type: 'muted' };
+  };
+
+  const growthTag = getGrowthStatusTag();
+
   return (
     <div className={`${styles.panel} ${isClosing ? styles.closing : ''}`}>
       <div className={styles.header}>
-        <h3>{selectedNode.isPlannedHire ? 'Planned Hire' : 'Team Member'}</h3>
+        <div className={styles.headerTitle}>
+          <h3>{selectedNode.isPlannedHire ? 'Planned Hire' : 'Team Member'}</h3>
+          {growthTag && (
+            <span className={`${styles.growthTag} ${styles[growthTag.type]}`}>
+              {growthTag.text}
+            </span>
+          )}
+        </div>
         <button className="btn btn-ghost btn-icon" onClick={closePanel}>
           ×
         </button>
@@ -391,25 +415,6 @@ export default function SidePanel() {
           />
         </div>
 
-        {/* Promotion eligibility info */}
-        {!selectedNode.isPlannedHire && (
-          <div className={styles.infoBox}>
-            <h4>Growth Status</h4>
-            {promotionInfo.eligible ? (
-              <p className={styles.eligible}>
-                Eligible for promotion to{' '}
-                {getLevelName(selectedNode.level + 1, settings, selectedNode.track)}
-              </p>
-            ) : promotionInfo.yearsUntilEligible > 0 ? (
-              <p className={styles.notEligible}>
-                {promotionInfo.yearsUntilEligible.toFixed(1)} years until
-                eligible for {getLevelName(selectedNode.level + 1, settings, selectedNode.track)}
-              </p>
-            ) : (
-              <p className={styles.maxLevel}>At maximum level</p>
-            )}
-          </div>
-        )}
       </div>
 
       <div className={styles.footer}>

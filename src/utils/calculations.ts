@@ -298,3 +298,142 @@ export function wouldCreateCircularReference(
   const chain = getReportingChain(proposedManagerId, nodes);
   return chain.some((node) => node.id === nodeId);
 }
+
+/**
+ * Auto-arrange nodes in a hierarchical tree layout
+ * Returns a map of node IDs to their new positions
+ */
+export function calculateAutoArrangePositions(
+  nodes: TeamNode[]
+): Map<string, { x: number; y: number }> {
+  const positions = new Map<string, { x: number; y: number }>();
+
+  if (nodes.length === 0) return positions;
+
+  // Configuration
+  const nodeWidth = 180;
+  const nodeHeight = 100;
+  const horizontalGap = 40;
+  const verticalGap = 80;
+  const startX = 100;
+  const startY = 100;
+
+  // Find root nodes (no manager)
+  const rootNodes = nodes.filter((n) => !n.managerId);
+  const nodesWithManager = nodes.filter((n) => n.managerId);
+
+  // Build children map
+  const childrenMap = new Map<string, TeamNode[]>();
+  nodes.forEach((node) => {
+    if (node.managerId) {
+      const children = childrenMap.get(node.managerId) || [];
+      children.push(node);
+      childrenMap.set(node.managerId, children);
+    }
+  });
+
+  // Calculate subtree width for each node
+  const subtreeWidths = new Map<string, number>();
+
+  function calculateSubtreeWidth(nodeId: string): number {
+    if (subtreeWidths.has(nodeId)) {
+      return subtreeWidths.get(nodeId)!;
+    }
+
+    const children = childrenMap.get(nodeId) || [];
+    if (children.length === 0) {
+      subtreeWidths.set(nodeId, nodeWidth);
+      return nodeWidth;
+    }
+
+    const childrenWidth = children.reduce((sum, child) => {
+      return sum + calculateSubtreeWidth(child.id);
+    }, 0) + (children.length - 1) * horizontalGap;
+
+    const width = Math.max(nodeWidth, childrenWidth);
+    subtreeWidths.set(nodeId, width);
+    return width;
+  }
+
+  // Calculate widths for all nodes
+  nodes.forEach((node) => calculateSubtreeWidth(node.id));
+
+  // Position nodes recursively
+  function positionNode(
+    node: TeamNode,
+    centerX: number,
+    y: number
+  ): void {
+    // Position this node at center
+    positions.set(node.id, {
+      x: centerX - nodeWidth / 2,
+      y,
+    });
+
+    // Position children
+    const children = childrenMap.get(node.id) || [];
+    if (children.length === 0) return;
+
+    // Calculate total children width
+    const totalChildrenWidth = children.reduce((sum, child) => {
+      return sum + subtreeWidths.get(child.id)!;
+    }, 0) + (children.length - 1) * horizontalGap;
+
+    // Start position for first child
+    let childX = centerX - totalChildrenWidth / 2;
+
+    children.forEach((child) => {
+      const childWidth = subtreeWidths.get(child.id)!;
+      const childCenterX = childX + childWidth / 2;
+
+      positionNode(child, childCenterX, y + nodeHeight + verticalGap);
+
+      childX += childWidth + horizontalGap;
+    });
+  }
+
+  // Handle root nodes
+  if (rootNodes.length > 0) {
+    // Calculate total width of all root trees
+    const totalRootWidth = rootNodes.reduce((sum, root) => {
+      return sum + subtreeWidths.get(root.id)!;
+    }, 0) + (rootNodes.length - 1) * horizontalGap * 2;
+
+    let rootX = startX;
+
+    rootNodes.forEach((root) => {
+      const rootWidth = subtreeWidths.get(root.id)!;
+      const rootCenterX = rootX + rootWidth / 2;
+
+      positionNode(root, rootCenterX, startY);
+
+      rootX += rootWidth + horizontalGap * 2;
+    });
+  }
+
+  // Handle orphan nodes (nodes whose manager doesn't exist)
+  const positionedIds = new Set(positions.keys());
+  const orphans = nodesWithManager.filter((n) => {
+    // Check if this node has been positioned (its manager exists in the tree)
+    return !positionedIds.has(n.id);
+  });
+
+  if (orphans.length > 0) {
+    // Find the rightmost position
+    let maxX = startX;
+    positions.forEach((pos) => {
+      maxX = Math.max(maxX, pos.x + nodeWidth);
+    });
+
+    // Position orphans in a row at the bottom
+    let orphanX = maxX + horizontalGap * 2;
+    let orphanY = startY;
+
+    orphans.forEach((orphan) => {
+      positions.set(orphan.id, { x: orphanX, y: orphanY });
+      orphanX += nodeWidth + horizontalGap;
+    });
+  }
+
+  return positions;
+}

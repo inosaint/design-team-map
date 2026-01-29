@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import html2canvas from 'html2canvas';
 import { useStore } from '../../store/useStore';
 import type { LevelConfig, DesignerTypeConfig } from '../../types';
 import { DEFAULT_SETTINGS } from '../../types';
@@ -106,13 +107,44 @@ export default function SettingsPanel() {
   };
 
   const handleExportPDF = () => {
-    // PDF export would require a library like jspdf or html2canvas
-    alert('PDF export coming soon! For now, use your browser\'s print function (Ctrl/Cmd + P) and save as PDF.');
+    // Close the settings modal first
+    toggleSettings();
+
+    // Use browser print with a slight delay to let modal close
+    setTimeout(() => {
+      window.print();
+    }, 200);
   };
 
-  const handleExportImage = () => {
-    // Image export would require html2canvas or similar
-    alert('Image export coming soon! For now, use a screenshot tool to capture the canvas.');
+  const handleExportImage = async () => {
+    const element = document.getElementById('flow-chart-container');
+    if (!element) {
+      alert('Could not find the chart to export. Please try again.');
+      return;
+    }
+
+    try {
+      // Close settings modal first for cleaner export
+      toggleSettings();
+
+      // Wait for modal to close
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      const canvas = await html2canvas(element, {
+        backgroundColor: '#fafafa',
+        scale: 2, // Higher resolution
+        useCORS: true,
+        logging: false,
+      });
+
+      const link = document.createElement('a');
+      link.download = `design-team-map-${new Date().toISOString().split('T')[0]}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Failed to export image. Please try again.');
+    }
   };
 
   const handleClearAll = () => {

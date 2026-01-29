@@ -3,7 +3,7 @@ import { useStore } from '../store/useStore';
 import styles from './Toolbar.module.css';
 
 export default function Toolbar() {
-  const { addTeamMember, addPlannedHire, toggleSettings, settings, nodes } =
+  const { addTeamMember, addPlannedHire, toggleSettings, autoArrangeNodes, settings, nodes } =
     useStore();
   const [showAddMenu, setShowAddMenu] = useState(false);
 
@@ -84,6 +84,15 @@ export default function Toolbar() {
             </div>
           )}
         </div>
+
+        <button
+          className="btn btn-secondary"
+          onClick={autoArrangeNodes}
+          disabled={nodes.length === 0}
+          title="Auto-arrange nodes"
+        >
+          Arrange
+        </button>
 
         <button className="btn btn-secondary" onClick={toggleSettings}>
           Settings

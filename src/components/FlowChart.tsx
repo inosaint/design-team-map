@@ -236,7 +236,7 @@ function FlowChartInner() {
   );
 
   return (
-    <div className={styles.flowChart}>
+    <div id="flow-chart-container" className={styles.flowChart}>
       <ReactFlow
         nodes={nodes}
         edges={edges}

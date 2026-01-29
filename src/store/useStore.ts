@@ -10,6 +10,7 @@ import type {
   NodePosition,
 } from '../types';
 import { DEFAULT_SETTINGS } from '../types';
+import { calculateAutoArrangePositions } from '../utils/calculations';
 
 interface TeamMapState {
   // Data
@@ -36,6 +37,7 @@ interface TeamMapState {
   // Position Actions
   updateNodePosition: (id: string, position: { x: number; y: number }) => void;
   updateNodePositions: (positions: NodePosition[]) => void;
+  autoArrangeNodes: () => void;
 
   // Vertical Actions
   addVertical: (name: string, position: { x: number; y: number }) => string;
@@ -193,6 +195,12 @@ export const useStore = create<TeamMapState>()(
           });
           return { nodePositions: newPositions };
         });
+      },
+
+      autoArrangeNodes: () => {
+        const state = get();
+        const newPositions = calculateAutoArrangePositions(state.nodes);
+        set({ nodePositions: newPositions });
       },
 
       // Vertical Actions
