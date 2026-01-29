@@ -1,0 +1,95 @@
+.edge {
+  transition: stroke 0.15s ease, stroke-width 0.15s ease;
+}
+
+.edge:hover {
+  stroke: var(--primary) !important;
+  stroke-width: 2px !important;
+}
+
+.edge.selected {
+  stroke: var(--primary) !important;
+  stroke-width: 2px !important;
+}
+
+.edge.danger {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.warningWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.warningLabel {
+  width: 18px;
+  height: 18px;
+  background-color: var(--danger);
+  color: white;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-primary);
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: transform 0.15s ease;
+}
+
+.warningLabel:hover {
+  transform: scale(1.1);
+}
+
+.tooltip {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 8px;
+  padding: 6px 10px;
+  background-color: var(--gray-900);
+  color: var(--gray-100);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  border-radius: 6px;
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  animation: tooltipFadeIn 0.15s ease-out;
+}
+
+.tooltip::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-bottom-color: var(--gray-900);
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}

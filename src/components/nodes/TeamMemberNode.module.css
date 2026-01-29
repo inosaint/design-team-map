@@ -1,0 +1,146 @@
+.node {
+  background-color: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  min-width: 160px;
+  max-width: 200px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+  position: relative;
+}
+
+.node:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.node.selected {
+  box-shadow: 0 0 0 2px var(--primary), var(--shadow-md);
+}
+
+.node.planned {
+  border-style: dashed;
+  background-color: var(--bg-primary);
+}
+
+.node.overCapacity {
+  border-color: var(--danger) !important;
+}
+
+.node.promotionEligible {
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.4), 0 0 24px rgba(34, 197, 94, 0.2);
+  animation: promotionGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes promotionGlow {
+  from {
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.3), 0 0 16px rgba(34, 197, 94, 0.15);
+  }
+  to {
+    box-shadow: 0 0 16px rgba(34, 197, 94, 0.5), 0 0 32px rgba(34, 197, 94, 0.25);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-1) var(--space-2);
+  border-radius: calc(var(--border-radius) - 2px) calc(var(--border-radius) - 2px) 0 0;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.level {
+  color: var(--gray-800);
+}
+
+.type {
+  color: var(--gray-700);
+  background-color: rgba(255, 255, 255, 0.6);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 9px;
+}
+
+.content {
+  padding: var(--space-2) var(--space-3);
+}
+
+.name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.experience {
+  color: var(--text-muted);
+}
+
+.tentative {
+  color: var(--primary);
+  font-style: italic;
+}
+
+.reportBadge {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--gray-100);
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.reportBadge.danger {
+  background-color: var(--danger-light);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.promotionBadge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 16px;
+  height: 16px;
+  background-color: var(--success);
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg-secondary);
+}
+
+.handle {
+  width: 8px !important;
+  height: 8px !important;
+  background-color: var(--gray-300) !important;
+  border: 2px solid var(--bg-secondary) !important;
+}
+
+.handle:hover {
+  background-color: var(--primary) !important;
+}
