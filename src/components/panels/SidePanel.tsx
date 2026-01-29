@@ -59,7 +59,7 @@ export default function SidePanel() {
     yearsOfExperience: 0,
     joiningDate: '',
     tentativeDate: '',
-    managerId: '' as string | null,
+    managerId: undefined as string | null | undefined,
     notes: '',
     gender: undefined as Gender | undefined,
   });
@@ -79,7 +79,7 @@ export default function SidePanel() {
         tentativeDate: selectedNode.isPlannedHire
           ? selectedNode.tentativeDate || ''
           : '',
-        managerId: selectedNode.managerId || null,
+        managerId: selectedNode.managerId, // preserve undefined vs null
         notes: selectedNode.notes || '',
         gender: selectedNode.gender,
       });
@@ -337,33 +337,35 @@ export default function SidePanel() {
           </div>
         )}
 
-        <div className={formData.managerId ? styles.fieldWithAction : styles.field}>
+        <div className={typeof formData.managerId === 'string' ? styles.fieldWithAction : styles.field}>
           <label className="label">Reports To</label>
           <div className={styles.fieldRow}>
             <select
               name="managerId"
               className="select"
-              value={formData.managerId || ''}
-              onChange={(e) =>
+              value={formData.managerId === null ? '__TOP_LEVEL__' : (formData.managerId || '')}
+              onChange={(e) => {
+                const value = e.target.value;
                 setFormData((prev) => ({
                   ...prev,
-                  managerId: e.target.value || null,
-                }))
-              }
+                  managerId: value === '__TOP_LEVEL__' ? null : (value || undefined),
+                }));
+              }}
             >
-              <option value="">No manager (top level)</option>
+              <option value="">Select manager...</option>
+              <option value="__TOP_LEVEL__">No manager (top level)</option>
               {potentialManagers.map((node) => (
                 <option key={node.id} value={node.id}>
                   {node.name} - {getLevelName(node.level, settings, node.track)}
                 </option>
               ))}
             </select>
-            {formData.managerId && (
+            {typeof formData.managerId === 'string' && (
               <button
                 className={styles.disconnectBtn}
                 onClick={() => {
                   removeManager(selectedNode.id);
-                  setFormData((prev) => ({ ...prev, managerId: null }));
+                  setFormData((prev) => ({ ...prev, managerId: undefined }));
                 }}
                 title="Disconnect from manager"
               >

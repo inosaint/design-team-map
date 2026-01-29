@@ -4,7 +4,7 @@ import type { LevelConfig, DesignerTypeConfig } from '../../types';
 import { DEFAULT_SETTINGS } from '../../types';
 import styles from './SettingsPanel.module.css';
 
-type TabType = 'levels' | 'types' | 'rules' | 'export' | 'data';
+type TabType = 'levels' | 'types' | 'rules' | 'import-export';
 
 export default function SettingsPanel() {
   const { isSettingsOpen, toggleSettings, settings, updateSettings, exportData, importData, clearAll } =
@@ -150,16 +150,10 @@ export default function SettingsPanel() {
             Rules
           </button>
           <button
-            className={`${styles.tab} ${activeTab === 'data' ? styles.active : ''}`}
-            onClick={() => setActiveTab('data')}
+            className={`${styles.tab} ${activeTab === 'import-export' ? styles.active : ''}`}
+            onClick={() => setActiveTab('import-export')}
           >
-            Data
-          </button>
-          <button
-            className={`${styles.tab} ${activeTab === 'export' ? styles.active : ''}`}
-            onClick={() => setActiveTab('export')}
-          >
-            Export
+            Import/Export
           </button>
         </div>
 
@@ -172,7 +166,7 @@ export default function SettingsPanel() {
                   className={styles.linkBtn}
                   onClick={() => setActiveTab('rules')}
                 >
-                  Change in Rules →
+                  Customize →
                 </button>
               </p>
 
@@ -337,9 +331,8 @@ export default function SettingsPanel() {
                         className={styles.removeBtn}
                         onClick={() => handleRemoveType(index)}
                         disabled={settings.designerTypes.length <= 1}
-                        style={{ alignSelf: 'flex-end', marginBottom: '2px' }}
                       >
-                        x
+                        ×
                       </button>
                     </div>
                   </div>
@@ -402,8 +395,6 @@ export default function SettingsPanel() {
                 />
               </div>
 
-              <div className="divider" style={{ margin: 'var(--space-4) 0' }} />
-
               <div className={styles.toggleField}>
                 <div className={styles.toggleInfo}>
                   <label className="label">Show Gender Field</label>
@@ -444,14 +435,23 @@ export default function SettingsPanel() {
             </div>
           )}
 
-          {activeTab === 'data' && (
+          {activeTab === 'import-export' && (
             <div className={styles.section}>
-              <p className={styles.sectionDesc}>
-                Manage your team map data.
-              </p>
+              <div className={styles.field}>
+                <label className="label">Export</label>
+                <p className={styles.fieldDesc}>
+                  Download your team map data
+                </p>
+                <button className="btn btn-secondary" onClick={handleExportJSON}>
+                  Export JSON
+                </button>
+                <p className={styles.fieldHint}>
+                  Other formats (PDF, Image) coming soon
+                </p>
+              </div>
 
               <div className={styles.field}>
-                <label className="label">Import Data</label>
+                <label className="label">Import</label>
                 <p className={styles.fieldDesc}>
                   Import a previously exported JSON file
                 </p>
@@ -460,10 +460,8 @@ export default function SettingsPanel() {
                 </button>
               </div>
 
-              <div className="divider" style={{ margin: 'var(--space-4) 0' }} />
-
               <div className={styles.field}>
-                <label className="label">Danger Zone</label>
+                <label className="label">Delete Data</label>
                 <p className={styles.fieldDesc}>
                   These actions cannot be undone
                 </p>
@@ -477,45 +475,6 @@ export default function SettingsPanel() {
                   <button className="btn btn-danger" onClick={handleClearAll}>
                     Clear All Data
                   </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'export' && (
-            <div className={styles.section}>
-              <p className={styles.sectionDesc}>
-                Export your team map in various formats.
-              </p>
-
-              <div className={styles.exportGrid}>
-                <div className={styles.exportCard}>
-                  <div className={styles.exportIcon}>{ }</div>
-                  <div className={styles.exportInfo}>
-                    <div className={styles.exportTitle}>JSON</div>
-                    <div className={styles.exportDesc}>Full data backup, can be imported later</div>
-                  </div>
-                  <button className="btn btn-secondary" onClick={handleExportJSON}>
-                    Export
-                  </button>
-                </div>
-
-                <div className={`${styles.exportCard} ${styles.disabled}`}>
-                  <div className={styles.exportIcon}>PDF</div>
-                  <div className={styles.exportInfo}>
-                    <div className={styles.exportTitle}>PDF</div>
-                    <div className={styles.exportDesc}>Print-ready document format</div>
-                  </div>
-                  <span className={styles.comingSoon}>Coming Soon</span>
-                </div>
-
-                <div className={`${styles.exportCard} ${styles.disabled}`}>
-                  <div className={styles.exportIcon}>IMG</div>
-                  <div className={styles.exportInfo}>
-                    <div className={styles.exportTitle}>Image</div>
-                    <div className={styles.exportDesc}>PNG/JPG for sharing and presentations</div>
-                  </div>
-                  <span className={styles.comingSoon}>Coming Soon</span>
                 </div>
               </div>
             </div>
