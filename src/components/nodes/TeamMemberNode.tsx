@@ -23,7 +23,9 @@ function TeamMemberNode({ data, selected }: TeamMemberNodeProps) {
   const typeAbbr = getDesignerTypeAbbreviation(teamNode.designerType, settings);
 
   const isPlanned = teamNode.isPlannedHire;
-  const isTopLevel = !teamNode.managerId; // No manager means top-level (head of design)
+  // managerId === null means explicitly top-level (head of design)
+  // managerId === undefined means unassigned (new card, can have manager)
+  const isTopLevel = teamNode.managerId === null;
 
   // Find the highest level number in settings to determine if this is leadership
   const maxLevel = Math.max(...settings.levels.map((l) => l.level));

@@ -28,7 +28,7 @@ export default function Toolbar() {
       designerType: defaultType,
       level: 1,
       yearsOfExperience: 0,
-      managerId: null,
+      managerId: undefined, // undefined = unassigned, can have manager
     });
     setShowAddMenu(false);
   };
@@ -40,7 +40,7 @@ export default function Toolbar() {
       designerType: defaultType,
       level: 1,
       tentativeDate: 'Q1 2025',
-      managerId: null,
+      managerId: undefined, // undefined = unassigned, can have manager
     });
     setShowAddMenu(false);
   };

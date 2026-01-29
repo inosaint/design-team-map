@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import html2canvas from 'html2canvas';
 import { useStore } from '../../store/useStore';
 import type { LevelConfig, DesignerTypeConfig } from '../../types';
 import { DEFAULT_SETTINGS } from '../../types';
@@ -107,49 +106,6 @@ export default function SettingsPanel() {
       }
     };
     input.click();
-  };
-
-  const handleExportPDF = () => {
-    // Close the settings modal first
-    toggleSettings();
-
-    // Use browser print with a slight delay to let modal close
-    setTimeout(() => {
-      window.print();
-    }, 200);
-  };
-
-  const handleExportImage = async () => {
-    const element = document.getElementById('flow-chart-container');
-    if (!element) {
-      alert('Could not find the chart to export. Please try again.');
-      return;
-    }
-
-    try {
-      // Close settings modal first for cleaner export
-      toggleSettings();
-
-      // Wait for modal to close
-      await new Promise(resolve => setTimeout(resolve, 200));
-
-      const canvas = await html2canvas(element, {
-        backgroundColor: '#fafafa',
-        scale: 2, // Higher resolution
-        useCORS: true,
-        logging: false,
-      });
-
-      const teamName = settings.teamName || 'design-team';
-      const safeName = teamName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-      const link = document.createElement('a');
-      link.download = `${safeName}-${new Date().toISOString().split('T')[0]}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    } catch (error) {
-      console.error('Export failed:', error);
-      alert('Failed to export image. Please try again.');
-    }
   };
 
   const handleClearAll = () => {
@@ -544,26 +500,22 @@ export default function SettingsPanel() {
                   </button>
                 </div>
 
-                <div className={styles.exportCard}>
+                <div className={`${styles.exportCard} ${styles.disabled}`}>
                   <div className={styles.exportIcon}>PDF</div>
                   <div className={styles.exportInfo}>
                     <div className={styles.exportTitle}>PDF</div>
                     <div className={styles.exportDesc}>Print-ready document format</div>
                   </div>
-                  <button className="btn btn-secondary" onClick={handleExportPDF}>
-                    Export
-                  </button>
+                  <span className={styles.comingSoon}>Coming Soon</span>
                 </div>
 
-                <div className={styles.exportCard}>
+                <div className={`${styles.exportCard} ${styles.disabled}`}>
                   <div className={styles.exportIcon}>IMG</div>
                   <div className={styles.exportInfo}>
                     <div className={styles.exportTitle}>Image</div>
                     <div className={styles.exportDesc}>PNG/JPG for sharing and presentations</div>
                   </div>
-                  <button className="btn btn-secondary" onClick={handleExportImage}>
-                    Export
-                  </button>
+                  <span className={styles.comingSoon}>Coming Soon</span>
                 </div>
               </div>
             </div>
