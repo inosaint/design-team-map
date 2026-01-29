@@ -4,7 +4,7 @@ import type { LevelConfig, DesignerTypeConfig } from '../../types';
 import { DEFAULT_SETTINGS } from '../../types';
 import styles from './SettingsPanel.module.css';
 
-type TabType = 'levels' | 'types' | 'rules' | 'import-export';
+type TabType = 'levels' | 'types' | 'advanced' | 'about' | 'import-export';
 
 export default function SettingsPanel() {
   const { isSettingsOpen, toggleSettings, settings, updateSettings, exportData, importData, clearAll } =
@@ -144,10 +144,16 @@ export default function SettingsPanel() {
             Types
           </button>
           <button
-            className={`${styles.tab} ${activeTab === 'rules' ? styles.active : ''}`}
-            onClick={() => setActiveTab('rules')}
+            className={`${styles.tab} ${activeTab === 'advanced' ? styles.active : ''}`}
+            onClick={() => setActiveTab('advanced')}
           >
-            Rules
+            Advanced
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'about' ? styles.active : ''}`}
+            onClick={() => setActiveTab('about')}
+          >
+            About
           </button>
           <button
             className={`${styles.tab} ${activeTab === 'import-export' ? styles.active : ''}`}
@@ -164,7 +170,7 @@ export default function SettingsPanel() {
                 Configure career levels and promotion requirements. IC/Manager tracks split at level {settings.trackSplitLevel}.{' '}
                 <button
                   className={styles.linkBtn}
-                  onClick={() => setActiveTab('rules')}
+                  onClick={() => setActiveTab('advanced')}
                 >
                   Customize →
                 </button>
@@ -344,7 +350,7 @@ export default function SettingsPanel() {
             </div>
           )}
 
-          {activeTab === 'rules' && (
+          {activeTab === 'advanced' && (
             <div className={styles.section}>
               <p className={styles.sectionDesc}>
                 Configure team structure rules and display options.
@@ -426,6 +432,62 @@ export default function SettingsPanel() {
                   />
                   <span className={styles.toggleSlider}></span>
                 </label>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'about' && (
+            <div className={styles.section}>
+              <div className={styles.aboutHeader}>
+                <h3 className={styles.aboutTitle}>Design Team Map</h3>
+                <span className={styles.version}>v0.1.0</span>
+              </div>
+
+              <p className={styles.aboutDesc}>
+                A tool for visualizing and planning design team structures, career progression, and growth opportunities.
+              </p>
+
+              <div className={styles.aboutLinks}>
+                <a
+                  href="https://creativecommons.org/licenses/by-nc-sa/4.0/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.aboutLink}
+                >
+                  CC BY-NC-SA 4.0 License
+                </a>
+                <a
+                  href="https://github.com/inosaint/design-team-map/issues"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.aboutLink}
+                >
+                  Report a Bug
+                </a>
+              </div>
+
+              <div className={styles.attributions}>
+                <h4 className={styles.attributionsTitle}>Built with</h4>
+                <ul className={styles.attributionsList}>
+                  <li>
+                    <a href="https://reactflow.dev" target="_blank" rel="noopener noreferrer">
+                      React Flow
+                    </a>
+                    <span className={styles.attributionLicense}>MIT License</span>
+                  </li>
+                  <li>
+                    <a href="https://zustand-demo.pmnd.rs" target="_blank" rel="noopener noreferrer">
+                      Zustand
+                    </a>
+                    <span className={styles.attributionLicense}>MIT License</span>
+                  </li>
+                  <li>
+                    <a href="https://html2canvas.hertzen.com" target="_blank" rel="noopener noreferrer">
+                      html2canvas
+                    </a>
+                    <span className={styles.attributionLicense}>MIT License</span>
+                  </li>
+                </ul>
               </div>
             </div>
           )}
