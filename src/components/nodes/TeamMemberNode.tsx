@@ -1,0 +1,87 @@
+import { memo } from 'react';
+import { Handle, Position } from '@xyflow/react';
+import type { NodeProps } from '@xyflow/react';
+import type { FlowNodeData, PlannedHire } from '../../types';
+import { useStore } from '../../store/useStore';
+import {
+  getLevelColor,
+  getLevelName,
+  getDesignerTypeAbbreviation,
+} from '../../utils/calculations';
+import styles from './TeamMemberNode.module.css';
+
+type TeamMemberNodeProps = NodeProps & {
+  data: FlowNodeData;
+};
+
+function TeamMemberNode({ data, selected }: TeamMemberNodeProps) {
+  const { teamNode, reportCount, isOverCapacity, promotionEligible } = data;
+  const settings = useStore((state) => state.settings);
+
+  const levelColor = getLevelColor(teamNode.level, settings);
+  const levelName = getLevelName(teamNode.level, settings);
+  const typeAbbr = getDesignerTypeAbbreviation(teamNode.designerType, settings);
+
+  const isPlanned = teamNode.isPlannedHire;
+
+  return (
+    <div
+      className={`${styles.node} ${isPlanned ? styles.planned : ''} ${
+        selected ? styles.selected : ''
+      } ${isOverCapacity ? styles.overCapacity : ''}`}
+      style={{
+        borderColor: selected ? 'var(--primary)' : levelColor,
+        backgroundColor: isPlanned ? 'transparent' : undefined,
+      }}
+    >
+      <Handle
+        type="target"
+        position={Position.Top}
+        className={styles.handle}
+      />
+
+      <div className={styles.header} style={{ backgroundColor: levelColor }}>
+        <span className={styles.level}>{levelName}</span>
+        <span className={styles.type}>{typeAbbr}</span>
+      </div>
+
+      <div className={styles.content}>
+        <div className={styles.name}>{teamNode.name}</div>
+        <div className={styles.meta}>
+          {!isPlanned && teamNode.yearsOfExperience !== undefined && (
+            <span className={styles.experience}>
+              {teamNode.yearsOfExperience}y exp
+            </span>
+          )}
+          {isPlanned && (teamNode as PlannedHire).tentativeDate && (
+            <span className={styles.tentative}>{(teamNode as PlannedHire).tentativeDate}</span>
+          )}
+        </div>
+      </div>
+
+      {reportCount > 0 && (
+        <div
+          className={`${styles.reportBadge} ${
+            isOverCapacity ? styles.danger : ''
+          }`}
+        >
+          {reportCount} report{reportCount !== 1 ? 's' : ''}
+        </div>
+      )}
+
+      {promotionEligible && !isPlanned && (
+        <div className={styles.promotionBadge} title="Eligible for promotion">
+          *
+        </div>
+      )}
+
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        className={styles.handle}
+      />
+    </div>
+  );
+}
+
+export default memo(TeamMemberNode);
