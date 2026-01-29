@@ -24,6 +24,21 @@
   }
 }
 
+.panel.closing {
+  animation: slideOut 0.15s ease-in forwards;
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+}
+
 .header {
   display: flex;
   align-items: center;
@@ -46,6 +61,47 @@
 
 .field {
   margin-bottom: var(--space-4);
+}
+
+.fieldWithAction {
+  margin-bottom: var(--space-4);
+}
+
+.fieldWithAction .fieldRow {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-end;
+}
+
+.fieldWithAction .fieldRow .select {
+  flex: 1;
+}
+
+.disconnectBtn {
+  padding: var(--space-2);
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  width: 38px;
+}
+
+.disconnectBtn:hover {
+  background-color: var(--danger);
+  border-color: var(--danger);
+  color: white;
+}
+
+.notesInput {
+  resize: vertical;
+  min-height: 60px;
+  font-family: inherit;
 }
 
 .infoBox {

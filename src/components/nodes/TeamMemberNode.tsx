@@ -28,7 +28,9 @@ function TeamMemberNode({ data, selected }: TeamMemberNodeProps) {
     <div
       className={`${styles.node} ${isPlanned ? styles.planned : ''} ${
         selected ? styles.selected : ''
-      } ${isOverCapacity ? styles.overCapacity : ''}`}
+      } ${isOverCapacity ? styles.overCapacity : ''} ${
+        promotionEligible && !isPlanned ? styles.promotionEligible : ''
+      }`}
       style={{
         borderColor: selected ? 'var(--primary)' : levelColor,
         backgroundColor: isPlanned ? 'transparent' : undefined,
@@ -61,12 +63,6 @@ function TeamMemberNode({ data, selected }: TeamMemberNodeProps) {
           }`}
         >
           {reportCount} report{reportCount !== 1 ? 's' : ''}
-        </div>
-      )}
-
-      {promotionEligible && !isPlanned && (
-        <div className={styles.promotionBadge} title="Eligible for promotion">
-          *
         </div>
       )}
 

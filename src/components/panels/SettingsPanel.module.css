@@ -216,3 +216,115 @@
   opacity: 0.3;
   cursor: not-allowed;
 }
+
+/* Export grid */
+.exportGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.exportCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background-color: var(--gray-50);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+}
+
+.exportIcon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary-light);
+  color: var(--primary);
+  border-radius: var(--border-radius);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.exportInfo {
+  flex: 1;
+}
+
+.exportTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.exportDesc {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Toggle switch */
+.toggleField {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.toggleField:last-child {
+  border-bottom: none;
+}
+
+.toggleInfo {
+  flex: 1;
+}
+
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggleSlider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--gray-300);
+  transition: 0.2s;
+  border-radius: 24px;
+}
+
+.toggleSlider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.2s;
+  border-radius: 50%;
+  box-shadow: var(--shadow);
+}
+
+.toggle input:checked + .toggleSlider {
+  background-color: var(--primary);
+}
+
+.toggle input:checked + .toggleSlider:before {
+  transform: translateX(20px);
+}

@@ -6,8 +6,15 @@ import {
   getAvailableLevels,
   levelRequiresTrack,
 } from '../../utils/calculations';
-import type { CareerTrack } from '../../types';
+import type { CareerTrack, Gender } from '../../types';
 import styles from './SidePanel.module.css';
+
+// Disconnect icon SVG
+const DisconnectIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 6L6 18M6 6l12 12" />
+  </svg>
+);
 
 // Debounce delay in ms
 const DEBOUNCE_DELAY = 300;
@@ -19,12 +26,30 @@ export default function SidePanel() {
     settings,
     updateNode,
     deleteNode,
+    removeManager,
     convertToHired,
     nodes,
   } = useStore();
 
   const selectedNode = useSelectedNode();
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isClosing, setIsClosing] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Handle open/close animations
+  useEffect(() => {
+    if (isPanelOpen && selectedNode) {
+      setIsVisible(true);
+      setIsClosing(false);
+    } else if (isVisible && !isPanelOpen) {
+      setIsClosing(true);
+      const timer = setTimeout(() => {
+        setIsVisible(false);
+        setIsClosing(false);
+      }, 150); // Match animation duration
+      return () => clearTimeout(timer);
+    }
+  }, [isPanelOpen, selectedNode, isVisible]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -35,6 +60,8 @@ export default function SidePanel() {
     joiningDate: '',
     tentativeDate: '',
     managerId: '' as string | null,
+    notes: '',
+    gender: undefined as Gender | undefined,
   });
 
   // Sync form data when selected node changes
@@ -53,6 +80,8 @@ export default function SidePanel() {
           ? selectedNode.tentativeDate || ''
           : '',
         managerId: selectedNode.managerId || null,
+        notes: selectedNode.notes || '',
+        gender: selectedNode.gender,
       });
     }
   }, [selectedNode]);
@@ -67,7 +96,9 @@ export default function SidePanel() {
       level: formData.level,
       track: levelRequiresTrack(formData.level, settings) ? formData.track : undefined,
       yearsOfExperience: formData.yearsOfExperience,
-      managerId: formData.managerId || null,
+      managerId: formData.managerId,
+      notes: formData.notes,
+      gender: formData.gender,
     };
 
     if (selectedNode.isPlannedHire) {
@@ -98,7 +129,7 @@ export default function SidePanel() {
     };
   }, [formData, selectedNode, saveChanges]);
 
-  if (!isPanelOpen || !selectedNode) {
+  if (!isVisible || !selectedNode) {
     return null;
   }
 
@@ -154,7 +185,7 @@ export default function SidePanel() {
   const showTrackSelection = levelRequiresTrack(formData.level, settings);
 
   return (
-    <div className={styles.panel}>
+    <div className={`${styles.panel} ${isClosing ? styles.closing : ''}`}>
       <div className={styles.header}>
         <h3>{selectedNode.isPlannedHire ? 'Planned Hire' : 'Team Member'}</h3>
         <button className="btn btn-ghost btn-icon" onClick={closePanel}>
@@ -258,26 +289,64 @@ export default function SidePanel() {
           />
         </div>
 
-        <div className={styles.field}>
+        {settings.showGender && (
+          <div className={styles.field}>
+            <label className="label">Gender</label>
+            <select
+              name="gender"
+              className="select"
+              value={formData.gender || ''}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  gender: (e.target.value || undefined) as Gender | undefined,
+                }))
+              }
+            >
+              <option value="">Not specified</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="non-binary">Non-binary</option>
+              <option value="other">Other</option>
+              <option value="prefer-not-to-say">Prefer not to say</option>
+            </select>
+          </div>
+        )}
+
+        <div className={formData.managerId ? styles.fieldWithAction : styles.field}>
           <label className="label">Reports To</label>
-          <select
-            name="managerId"
-            className="select"
-            value={formData.managerId || ''}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                managerId: e.target.value || null,
-              }))
-            }
-          >
-            <option value="">No manager (top level)</option>
-            {potentialManagers.map((node) => (
-              <option key={node.id} value={node.id}>
-                {node.name} - {getLevelName(node.level, settings, node.track)}
-              </option>
-            ))}
-          </select>
+          <div className={styles.fieldRow}>
+            <select
+              name="managerId"
+              className="select"
+              value={formData.managerId || ''}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  managerId: e.target.value || null,
+                }))
+              }
+            >
+              <option value="">No manager (top level)</option>
+              {potentialManagers.map((node) => (
+                <option key={node.id} value={node.id}>
+                  {node.name} - {getLevelName(node.level, settings, node.track)}
+                </option>
+              ))}
+            </select>
+            {formData.managerId && (
+              <button
+                className={styles.disconnectBtn}
+                onClick={() => {
+                  removeManager(selectedNode.id);
+                  setFormData((prev) => ({ ...prev, managerId: null }));
+                }}
+                title="Disconnect from manager"
+              >
+                <DisconnectIcon />
+              </button>
+            )}
+          </div>
         </div>
 
         {selectedNode.isPlannedHire ? (
@@ -304,6 +373,23 @@ export default function SidePanel() {
             />
           </div>
         )}
+
+        <div className={styles.field}>
+          <label className="label">Notes</label>
+          <textarea
+            name="notes"
+            className={`input ${styles.notesInput}`}
+            value={formData.notes}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                notes: e.target.value,
+              }))
+            }
+            placeholder="Add notes..."
+            rows={3}
+          />
+        </div>
 
         {/* Promotion eligibility info */}
         {!selectedNode.isPlannedHire && (

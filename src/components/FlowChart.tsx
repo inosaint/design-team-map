@@ -3,13 +3,14 @@ import {
   ReactFlow,
   Background,
   Controls,
+  MiniMap,
   useNodesState,
   useEdgesState,
   useReactFlow,
   ReactFlowProvider,
   BackgroundVariant,
 } from '@xyflow/react';
-import type { Node, Connection, NodeTypes, EdgeTypes } from '@xyflow/react';
+import type { Node, Edge, Connection, NodeTypes, EdgeTypes } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 import { useStore } from '../store/useStore';
@@ -59,6 +60,7 @@ function FlowChartInner() {
     selectNode,
     updateNodePosition,
     setNodeManager,
+    removeManager,
   } = useStore();
 
   const { fitView } = useReactFlow();
@@ -224,6 +226,15 @@ function FlowChartInner() {
     [updateNodePosition]
   );
 
+  // Delete edge (remove manager relationship) on click
+  const onEdgeClick = useCallback(
+    (_: React.MouseEvent, edge: Edge) => {
+      // edge.target is the node that reports to the manager (edge.source)
+      removeManager(edge.target);
+    },
+    [removeManager]
+  );
+
   return (
     <div className={styles.flowChart}>
       <ReactFlow
@@ -233,6 +244,7 @@ function FlowChartInner() {
         onEdgesChange={handleEdgesChange}
         onConnect={onConnect}
         onNodeClick={onNodeClick}
+        onEdgeClick={onEdgeClick}
         onPaneClick={onPaneClick}
         onNodeDragStop={onNodeDragStop}
         nodeTypes={nodeTypes}
@@ -252,6 +264,15 @@ function FlowChartInner() {
           color="var(--gray-300)"
         />
         <Controls showInteractive={false} />
+        {settings.showMinimap && (
+          <MiniMap
+            nodeStrokeWidth={3}
+            style={{
+              backgroundColor: 'var(--bg-secondary)',
+              border: '1px solid var(--border-color)',
+            }}
+          />
+        )}
       </ReactFlow>
     </div>
   );

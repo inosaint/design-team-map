@@ -4,13 +4,13 @@ import type { LevelConfig, DesignerTypeConfig } from '../../types';
 import { DEFAULT_SETTINGS } from '../../types';
 import styles from './SettingsPanel.module.css';
 
+type TabType = 'levels' | 'types' | 'rules' | 'export' | 'data' | 'advanced';
+
 export default function SettingsPanel() {
   const { isSettingsOpen, toggleSettings, settings, updateSettings, exportData, importData, clearAll } =
     useStore();
 
-  const [activeTab, setActiveTab] = useState<'levels' | 'types' | 'general'>(
-    'levels'
-  );
+  const [activeTab, setActiveTab] = useState<TabType>('levels');
 
   if (!isSettingsOpen) return null;
 
@@ -73,7 +73,7 @@ export default function SettingsPanel() {
     updateSettings({ designerTypes: newTypes });
   };
 
-  const handleExport = () => {
+  const handleExportJSON = () => {
     const data = exportData();
     const blob = new Blob([JSON.stringify(data, null, 2)], {
       type: 'application/json',
@@ -103,6 +103,16 @@ export default function SettingsPanel() {
       }
     };
     input.click();
+  };
+
+  const handleExportPDF = () => {
+    // PDF export would require a library like jspdf or html2canvas
+    alert('PDF export coming soon! For now, use your browser\'s print function (Ctrl/Cmd + P) and save as PDF.');
+  };
+
+  const handleExportImage = () => {
+    // Image export would require html2canvas or similar
+    alert('Image export coming soon! For now, use a screenshot tool to capture the canvas.');
   };
 
   const handleClearAll = () => {
@@ -138,13 +148,31 @@ export default function SettingsPanel() {
             className={`${styles.tab} ${activeTab === 'types' ? styles.active : ''}`}
             onClick={() => setActiveTab('types')}
           >
-            Designer Types
+            Types
           </button>
           <button
-            className={`${styles.tab} ${activeTab === 'general' ? styles.active : ''}`}
-            onClick={() => setActiveTab('general')}
+            className={`${styles.tab} ${activeTab === 'rules' ? styles.active : ''}`}
+            onClick={() => setActiveTab('rules')}
           >
-            General
+            Rules
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'export' ? styles.active : ''}`}
+            onClick={() => setActiveTab('export')}
+          >
+            Export
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'data' ? styles.active : ''}`}
+            onClick={() => setActiveTab('data')}
+          >
+            Data
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'advanced' ? styles.active : ''}`}
+            onClick={() => setActiveTab('advanced')}
+          >
+            Advanced
           </button>
         </div>
 
@@ -157,7 +185,7 @@ export default function SettingsPanel() {
 
               <div className={styles.levelsList}>
                 {settings.levels.map((level, index) => (
-                  <div key={level.level} className={styles.levelItem}>
+                  <div key={index} className={styles.levelItem}>
                     <div className={styles.levelHeader}>
                       <span className={styles.levelNumber}>L{level.level}</span>
                       <button
@@ -285,12 +313,16 @@ export default function SettingsPanel() {
             </div>
           )}
 
-          {activeTab === 'general' && (
+          {activeTab === 'rules' && (
             <div className={styles.section}>
+              <p className={styles.sectionDesc}>
+                Configure team structure rules and thresholds.
+              </p>
+
               <div className={styles.field}>
                 <label className="label">Span of Control Threshold</label>
                 <p className={styles.fieldDesc}>
-                  Maximum direct reports before showing warning (default: 6)
+                  Maximum direct reports before showing warning (research suggests 6-8 is optimal)
                 </p>
                 <input
                   type="number"
@@ -307,24 +339,94 @@ export default function SettingsPanel() {
                 />
               </div>
 
-              <div className="divider" />
-
               <div className={styles.field}>
-                <label className="label">Data Management</label>
-                <div className={styles.buttonGroup}>
-                  <button className="btn btn-secondary" onClick={handleExport}>
-                    Export JSON
+                <label className="label">Track Split Level</label>
+                <p className={styles.fieldDesc}>
+                  Level at which IC and Manager tracks diverge
+                </p>
+                <input
+                  type="number"
+                  className="input"
+                  value={settings.trackSplitLevel}
+                  onChange={(e) =>
+                    updateSettings({
+                      trackSplitLevel: parseInt(e.target.value) || 4,
+                    })
+                  }
+                  min="1"
+                  max="10"
+                  style={{ maxWidth: '100px' }}
+                />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'export' && (
+            <div className={styles.section}>
+              <p className={styles.sectionDesc}>
+                Export your team map in various formats.
+              </p>
+
+              <div className={styles.exportGrid}>
+                <div className={styles.exportCard}>
+                  <div className={styles.exportIcon}>{ }</div>
+                  <div className={styles.exportInfo}>
+                    <div className={styles.exportTitle}>JSON</div>
+                    <div className={styles.exportDesc}>Full data backup, can be imported later</div>
+                  </div>
+                  <button className="btn btn-secondary" onClick={handleExportJSON}>
+                    Export
                   </button>
-                  <button className="btn btn-secondary" onClick={handleImport}>
-                    Import JSON
+                </div>
+
+                <div className={styles.exportCard}>
+                  <div className={styles.exportIcon}>PDF</div>
+                  <div className={styles.exportInfo}>
+                    <div className={styles.exportTitle}>PDF</div>
+                    <div className={styles.exportDesc}>Print-ready document format</div>
+                  </div>
+                  <button className="btn btn-secondary" onClick={handleExportPDF}>
+                    Export
+                  </button>
+                </div>
+
+                <div className={styles.exportCard}>
+                  <div className={styles.exportIcon}>IMG</div>
+                  <div className={styles.exportInfo}>
+                    <div className={styles.exportTitle}>Image</div>
+                    <div className={styles.exportDesc}>PNG/JPG for sharing and presentations</div>
+                  </div>
+                  <button className="btn btn-secondary" onClick={handleExportImage}>
+                    Export
                   </button>
                 </div>
               </div>
+            </div>
+          )}
 
-              <div className="divider" />
+          {activeTab === 'data' && (
+            <div className={styles.section}>
+              <p className={styles.sectionDesc}>
+                Manage your team map data.
+              </p>
+
+              <div className={styles.field}>
+                <label className="label">Import Data</label>
+                <p className={styles.fieldDesc}>
+                  Import a previously exported JSON file
+                </p>
+                <button className="btn btn-secondary" onClick={handleImport}>
+                  Import JSON
+                </button>
+              </div>
+
+              <div className="divider" style={{ margin: 'var(--space-4) 0' }} />
 
               <div className={styles.field}>
                 <label className="label">Danger Zone</label>
+                <p className={styles.fieldDesc}>
+                  These actions cannot be undone
+                </p>
                 <div className={styles.buttonGroup}>
                   <button
                     className="btn btn-secondary"
@@ -336,6 +438,52 @@ export default function SettingsPanel() {
                     Clear All Data
                   </button>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'advanced' && (
+            <div className={styles.section}>
+              <p className={styles.sectionDesc}>
+                Advanced display options.
+              </p>
+
+              <div className={styles.toggleField}>
+                <div className={styles.toggleInfo}>
+                  <label className="label">Show Gender Field</label>
+                  <p className={styles.fieldDesc}>
+                    Enable gender field for team members (useful for diversity tracking)
+                  </p>
+                </div>
+                <label className={styles.toggle}>
+                  <input
+                    type="checkbox"
+                    checked={settings.showGender || false}
+                    onChange={(e) =>
+                      updateSettings({ showGender: e.target.checked })
+                    }
+                  />
+                  <span className={styles.toggleSlider}></span>
+                </label>
+              </div>
+
+              <div className={styles.toggleField}>
+                <div className={styles.toggleInfo}>
+                  <label className="label">Show Minimap</label>
+                  <p className={styles.fieldDesc}>
+                    Display a minimap for easier navigation on large team maps
+                  </p>
+                </div>
+                <label className={styles.toggle}>
+                  <input
+                    type="checkbox"
+                    checked={settings.showMinimap || false}
+                    onChange={(e) =>
+                      updateSettings({ showMinimap: e.target.checked })
+                    }
+                  />
+                  <span className={styles.toggleSlider}></span>
+                </label>
               </div>
             </div>
           )}

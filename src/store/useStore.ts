@@ -29,6 +29,7 @@ interface TeamMapState {
   updateNode: (id: string, updates: Partial<TeamNode>) => void;
   deleteNode: (id: string) => void;
   setNodeManager: (nodeId: string, managerId: string | null) => void;
+  removeManager: (nodeId: string) => void;
   setNodeVertical: (nodeId: string, verticalId: string | undefined) => void;
   convertToHired: (plannedHireId: string, joiningDate?: string) => void;
 
@@ -132,6 +133,14 @@ export const useStore = create<TeamMapState>()(
         set((state) => ({
           nodes: state.nodes.map((node): TeamNode =>
             node.id === nodeId ? ({ ...node, managerId } as TeamNode) : node
+          ),
+        }));
+      },
+
+      removeManager: (nodeId) => {
+        set((state) => ({
+          nodes: state.nodes.map((node): TeamNode =>
+            node.id === nodeId ? ({ ...node, managerId: null } as TeamNode) : node
           ),
         }));
       },

@@ -3,6 +3,8 @@
 // Career track type - IC (Individual Contributor) or Manager
 export type CareerTrack = 'ic' | 'manager';
 
+export type Gender = 'male' | 'female' | 'non-binary' | 'other' | 'prefer-not-to-say';
+
 export interface TeamMember {
   id: string;
   name: string;
@@ -13,6 +15,8 @@ export interface TeamMember {
   joiningDate?: string; // ISO date string, optional
   managerId?: string | null; // null for top-level, undefined for unassigned
   verticalId?: string;
+  notes?: string; // Personal notes about the team member
+  gender?: Gender; // Optional, only shown if enabled in settings
   isPlannedHire: false;
 }
 
@@ -26,6 +30,8 @@ export interface PlannedHire {
   tentativeDate?: string; // "Q1 2025", "March 2025", etc.
   managerId?: string | null;
   verticalId?: string;
+  notes?: string; // Notes about the planned hire
+  gender?: Gender; // Optional, only shown if enabled in settings
   isPlannedHire: true;
 }
 
@@ -58,6 +64,9 @@ export interface Settings {
   spanOfControlThreshold: number; // Default: 6
   trackSplitLevel: number; // Level at which IC/Manager tracks diverge (default: 4)
   companyName?: string;
+  // Advanced options
+  showGender?: boolean;
+  showMinimap?: boolean;
 }
 
 export interface NodePosition {
@@ -112,4 +121,6 @@ export const DEFAULT_SETTINGS: Settings = {
   designerTypes: DEFAULT_DESIGNER_TYPES,
   spanOfControlThreshold: 6,
   trackSplitLevel: 4,
+  showGender: false,
+  showMinimap: false,
 };

@@ -37,7 +37,8 @@ export default function Toolbar() {
   return (
     <div className={styles.toolbar}>
       <div className={styles.left}>
-        <h1 className={styles.title}>Design Team Map</h1>
+        <img src="/design-team-mapper.svg" alt="Logo" className={styles.logo} />
+        <h1 className={styles.title}>Design Team Mapper</h1>
         <div className={styles.stats}>
           <span className={styles.stat}>
             <strong>{teamCount}</strong> members

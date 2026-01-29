@@ -31,6 +31,7 @@ export function isOverCapacity(
  * Get the level configuration for a specific level and track
  * For levels below trackSplitLevel, track is ignored
  * For levels at or above trackSplitLevel, track should match if available
+ * Falls back gracefully when exact matches aren't found
  */
 export function getLevelConfig(
   level: number,
@@ -38,26 +39,36 @@ export function getLevelConfig(
   track?: CareerTrack,
   trackSplitLevel?: number
 ): LevelConfig | undefined {
-  // Try to find exact match first (level + track)
+  // First, find all levels matching this number
+  const matchingLevels = levels.filter((l) => l.level === level);
+
+  if (matchingLevels.length === 0) {
+    return undefined;
+  }
+
+  // If only one match, return it regardless of track
+  if (matchingLevels.length === 1) {
+    return matchingLevels[0];
+  }
+
+  // Try to find exact match (level + track)
   if (track) {
-    const exactMatch = levels.find((l) => l.level === level && l.track === track);
+    const exactMatch = matchingLevels.find((l) => l.track === track);
     if (exactMatch) return exactMatch;
   }
 
-  // If below split level or no split level, look for shared level (no track)
-  if (!trackSplitLevel || level < trackSplitLevel) {
-    const sharedMatch = levels.find((l) => l.level === level && !l.track);
-    if (sharedMatch) return sharedMatch;
-  }
+  // Look for shared level (no track)
+  const sharedMatch = matchingLevels.find((l) => !l.track);
+  if (sharedMatch) return sharedMatch;
 
   // For levels at or above split, try IC track first if no track specified
   if (trackSplitLevel && level >= trackSplitLevel && !track) {
-    const icMatch = levels.find((l) => l.level === level && l.track === 'ic');
+    const icMatch = matchingLevels.find((l) => l.track === 'ic');
     if (icMatch) return icMatch;
   }
 
-  // Fallback: find any level with matching number
-  return levels.find((l) => l.level === level);
+  // Fallback: return first matching level
+  return matchingLevels[0];
 }
 
 /**
@@ -78,17 +89,24 @@ export function getLevelsForTrack(
 
 /**
  * Get available levels for selection (grouped by track for UI)
+ * Now handles levels without track assignment more gracefully
  */
 export function getAvailableLevels(settings: Settings): {
   shared: LevelConfig[];
   ic: LevelConfig[];
   manager: LevelConfig[];
 } {
+  // Shared levels: no track OR levels below trackSplitLevel without track
   const shared = settings.levels.filter(
-    (l) => !l.track && l.level < settings.trackSplitLevel
+    (l) => !l.track || l.level < settings.trackSplitLevel
   );
   const ic = settings.levels.filter((l) => l.track === 'ic');
   const manager = settings.levels.filter((l) => l.track === 'manager');
+
+  // If there are no track-specific levels, include all levels in shared
+  if (ic.length === 0 && manager.length === 0) {
+    return { shared: settings.levels, ic: [], manager: [] };
+  }
 
   return { shared, ic, manager };
 }
