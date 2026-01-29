@@ -18,8 +18,8 @@ function TeamMemberNode({ data, selected }: TeamMemberNodeProps) {
   const { teamNode, reportCount, isOverCapacity, promotionEligible } = data;
   const settings = useStore((state) => state.settings);
 
-  const levelColor = getLevelColor(teamNode.level, settings);
-  const levelName = getLevelName(teamNode.level, settings);
+  const levelColor = getLevelColor(teamNode.level, settings, teamNode.track);
+  const levelName = getLevelName(teamNode.level, settings, teamNode.track);
   const typeAbbr = getDesignerTypeAbbreviation(teamNode.designerType, settings);
 
   const isPlanned = teamNode.isPlannedHire;
@@ -47,16 +47,11 @@ function TeamMemberNode({ data, selected }: TeamMemberNodeProps) {
 
       <div className={styles.content}>
         <div className={styles.name}>{teamNode.name}</div>
-        <div className={styles.meta}>
-          {!isPlanned && teamNode.yearsOfExperience !== undefined && (
-            <span className={styles.experience}>
-              {teamNode.yearsOfExperience}y exp
-            </span>
-          )}
-          {isPlanned && (teamNode as PlannedHire).tentativeDate && (
+        {isPlanned && (teamNode as PlannedHire).tentativeDate && (
+          <div className={styles.meta}>
             <span className={styles.tentative}>{(teamNode as PlannedHire).tentativeDate}</span>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {reportCount > 0 && (

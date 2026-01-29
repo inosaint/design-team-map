@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import {
   BaseEdge,
   getBezierPath,
@@ -24,6 +24,7 @@ function ReportingEdge({
   selected,
 }: ReportingEdgeProps) {
   const isOverCapacity = data?.isOverCapacity || false;
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
@@ -55,15 +56,21 @@ function ReportingEdge({
       {isOverCapacity && (
         <EdgeLabelRenderer>
           <div
-            className={styles.warningLabel}
+            className={styles.warningWrapper}
             style={{
               position: 'absolute',
               transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
               pointerEvents: 'all',
             }}
-            title="Manager has too many direct reports"
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
           >
-            !
+            <div className={styles.warningLabel}>!</div>
+            {showTooltip && (
+              <div className={styles.tooltip}>
+                Span of control exceeded
+              </div>
+            )}
           </div>
         </EdgeLabelRenderer>
       )}

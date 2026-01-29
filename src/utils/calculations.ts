@@ -1,4 +1,4 @@
-import type { TeamNode, Settings, LevelConfig } from '../types';
+import type { TeamNode, Settings, LevelConfig, CareerTrack } from '../types';
 
 /**
  * Calculate the number of direct reports for each manager
@@ -28,13 +28,69 @@ export function isOverCapacity(
 }
 
 /**
- * Get the level configuration for a specific level
+ * Get the level configuration for a specific level and track
+ * For levels below trackSplitLevel, track is ignored
+ * For levels at or above trackSplitLevel, track should match if available
  */
 export function getLevelConfig(
   level: number,
-  levels: LevelConfig[]
+  levels: LevelConfig[],
+  track?: CareerTrack,
+  trackSplitLevel?: number
 ): LevelConfig | undefined {
+  // Try to find exact match first (level + track)
+  if (track) {
+    const exactMatch = levels.find((l) => l.level === level && l.track === track);
+    if (exactMatch) return exactMatch;
+  }
+
+  // If below split level or no split level, look for shared level (no track)
+  if (!trackSplitLevel || level < trackSplitLevel) {
+    const sharedMatch = levels.find((l) => l.level === level && !l.track);
+    if (sharedMatch) return sharedMatch;
+  }
+
+  // For levels at or above split, try IC track first if no track specified
+  if (trackSplitLevel && level >= trackSplitLevel && !track) {
+    const icMatch = levels.find((l) => l.level === level && l.track === 'ic');
+    if (icMatch) return icMatch;
+  }
+
+  // Fallback: find any level with matching number
   return levels.find((l) => l.level === level);
+}
+
+/**
+ * Get all level configs for a track (shared levels + track-specific levels)
+ */
+export function getLevelsForTrack(
+  levels: LevelConfig[],
+  track: CareerTrack,
+  trackSplitLevel: number
+): LevelConfig[] {
+  return levels.filter((l) => {
+    if (l.level < trackSplitLevel) {
+      return !l.track; // Shared levels
+    }
+    return l.track === track;
+  });
+}
+
+/**
+ * Get available levels for selection (grouped by track for UI)
+ */
+export function getAvailableLevels(settings: Settings): {
+  shared: LevelConfig[];
+  ic: LevelConfig[];
+  manager: LevelConfig[];
+} {
+  const shared = settings.levels.filter(
+    (l) => !l.track && l.level < settings.trackSplitLevel
+  );
+  const ic = settings.levels.filter((l) => l.track === 'ic');
+  const manager = settings.levels.filter((l) => l.track === 'manager');
+
+  return { shared, ic, manager };
 }
 
 /**
@@ -51,7 +107,15 @@ export function calculatePromotionEligibility(
 
   const currentLevel = node.level;
   const nextLevel = currentLevel + 1;
-  const nextLevelConfig = getLevelConfig(nextLevel, settings.levels);
+  const track = node.track;
+
+  // Get next level config based on track
+  const nextLevelConfig = getLevelConfig(
+    nextLevel,
+    settings.levels,
+    track,
+    settings.trackSplitLevel
+  );
 
   // No next level exists
   if (!nextLevelConfig) {
@@ -63,7 +127,12 @@ export function calculatePromotionEligibility(
   // Calculate total years needed for current level
   let totalYearsNeeded = 0;
   for (let i = 1; i <= currentLevel; i++) {
-    const levelConfig = getLevelConfig(i, settings.levels);
+    const levelConfig = getLevelConfig(
+      i,
+      settings.levels,
+      i >= settings.trackSplitLevel ? track : undefined,
+      settings.trackSplitLevel
+    );
     if (levelConfig) {
       totalYearsNeeded += levelConfig.minYearsFromPrevious;
     }
@@ -103,19 +172,44 @@ export function getDesignerTypeName(
 }
 
 /**
- * Get the level name
+ * Get the level name for a node
  */
-export function getLevelName(level: number, settings: Settings): string {
-  const levelConfig = getLevelConfig(level, settings.levels);
+export function getLevelName(
+  level: number,
+  settings: Settings,
+  track?: CareerTrack
+): string {
+  const levelConfig = getLevelConfig(
+    level,
+    settings.levels,
+    track,
+    settings.trackSplitLevel
+  );
   return levelConfig?.name || `Level ${level}`;
 }
 
 /**
- * Get the level color
+ * Get the level color for a node
  */
-export function getLevelColor(level: number, settings: Settings): string {
-  const levelConfig = getLevelConfig(level, settings.levels);
+export function getLevelColor(
+  level: number,
+  settings: Settings,
+  track?: CareerTrack
+): string {
+  const levelConfig = getLevelConfig(
+    level,
+    settings.levels,
+    track,
+    settings.trackSplitLevel
+  );
   return levelConfig?.color || '#e4e4e7';
+}
+
+/**
+ * Check if a level requires track selection
+ */
+export function levelRequiresTrack(level: number, settings: Settings): boolean {
+  return level >= settings.trackSplitLevel;
 }
 
 /**

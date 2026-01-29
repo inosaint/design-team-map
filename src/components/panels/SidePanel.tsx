@@ -1,10 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useStore, useSelectedNode } from '../../store/useStore';
 import {
   getLevelName,
   calculatePromotionEligibility,
+  getAvailableLevels,
+  levelRequiresTrack,
 } from '../../utils/calculations';
+import type { CareerTrack } from '../../types';
 import styles from './SidePanel.module.css';
+
+// Debounce delay in ms
+const DEBOUNCE_DELAY = 300;
 
 export default function SidePanel() {
   const {
@@ -18,11 +24,13 @@ export default function SidePanel() {
   } = useStore();
 
   const selectedNode = useSelectedNode();
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [formData, setFormData] = useState({
     name: '',
     designerType: '',
     level: 1,
+    track: undefined as CareerTrack | undefined,
     yearsOfExperience: 0,
     joiningDate: '',
     tentativeDate: '',
@@ -36,6 +44,7 @@ export default function SidePanel() {
         name: selectedNode.name,
         designerType: selectedNode.designerType,
         level: selectedNode.level,
+        track: selectedNode.track,
         yearsOfExperience: selectedNode.yearsOfExperience || 0,
         joiningDate: selectedNode.isPlannedHire
           ? ''
@@ -47,6 +56,47 @@ export default function SidePanel() {
       });
     }
   }, [selectedNode]);
+
+  // Auto-save with debounce
+  const saveChanges = useCallback(() => {
+    if (!selectedNode) return;
+
+    const updates: Record<string, unknown> = {
+      name: formData.name,
+      designerType: formData.designerType,
+      level: formData.level,
+      track: levelRequiresTrack(formData.level, settings) ? formData.track : undefined,
+      yearsOfExperience: formData.yearsOfExperience,
+      managerId: formData.managerId || null,
+    };
+
+    if (selectedNode.isPlannedHire) {
+      updates.tentativeDate = formData.tentativeDate;
+    } else {
+      updates.joiningDate = formData.joiningDate;
+    }
+
+    updateNode(selectedNode.id, updates);
+  }, [selectedNode, formData, settings, updateNode]);
+
+  // Debounced save effect
+  useEffect(() => {
+    if (!selectedNode) return;
+
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    debounceRef.current = setTimeout(() => {
+      saveChanges();
+    }, DEBOUNCE_DELAY);
+
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, [formData, selectedNode, saveChanges]);
 
   if (!isPanelOpen || !selectedNode) {
     return null;
@@ -62,22 +112,23 @@ export default function SidePanel() {
     }));
   };
 
-  const handleSave = () => {
-    const updates: Record<string, unknown> = {
-      name: formData.name,
-      designerType: formData.designerType,
-      level: formData.level,
-      yearsOfExperience: formData.yearsOfExperience,
-      managerId: formData.managerId || null,
-    };
+  const handleLevelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newLevel = parseInt(e.target.value);
+    const requiresTrack = levelRequiresTrack(newLevel, settings);
 
-    if (selectedNode.isPlannedHire) {
-      updates.tentativeDate = formData.tentativeDate;
-    } else {
-      updates.joiningDate = formData.joiningDate;
-    }
+    setFormData((prev) => ({
+      ...prev,
+      level: newLevel,
+      // Auto-select IC track if moving to a level that requires track
+      track: requiresTrack && !prev.track ? 'ic' : (requiresTrack ? prev.track : undefined),
+    }));
+  };
 
-    updateNode(selectedNode.id, updates);
+  const handleTrackChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFormData((prev) => ({
+      ...prev,
+      track: e.target.value as CareerTrack,
+    }));
   };
 
   const handleDelete = () => {
@@ -98,12 +149,16 @@ export default function SidePanel() {
     (n) => n.id !== selectedNode.id && n.managerId !== selectedNode.id
   );
 
+  // Get available levels grouped by track
+  const availableLevels = getAvailableLevels(settings);
+  const showTrackSelection = levelRequiresTrack(formData.level, settings);
+
   return (
     <div className={styles.panel}>
       <div className={styles.header}>
         <h3>{selectedNode.isPlannedHire ? 'Planned Hire' : 'Team Member'}</h3>
         <button className="btn btn-ghost btn-icon" onClick={closePanel}>
-          x
+          ×
         </button>
       </div>
 
@@ -143,15 +198,52 @@ export default function SidePanel() {
             name="level"
             className="select"
             value={formData.level}
-            onChange={handleChange}
+            onChange={handleLevelChange}
           >
-            {settings.levels.map((level) => (
-              <option key={level.level} value={level.level}>
-                {level.name}
-              </option>
-            ))}
+            {availableLevels.shared.length > 0 && (
+              <optgroup label="Shared Levels">
+                {availableLevels.shared.map((level) => (
+                  <option key={`shared-${level.level}`} value={level.level}>
+                    {level.name}
+                  </option>
+                ))}
+              </optgroup>
+            )}
+            {availableLevels.ic.length > 0 && (
+              <optgroup label="IC Track">
+                {availableLevels.ic.map((level) => (
+                  <option key={`ic-${level.level}`} value={level.level}>
+                    {level.name}
+                  </option>
+                ))}
+              </optgroup>
+            )}
+            {availableLevels.manager.length > 0 && (
+              <optgroup label="Manager Track">
+                {availableLevels.manager.map((level) => (
+                  <option key={`manager-${level.level}`} value={level.level}>
+                    {level.name}
+                  </option>
+                ))}
+              </optgroup>
+            )}
           </select>
         </div>
+
+        {showTrackSelection && (
+          <div className={styles.field}>
+            <label className="label">Career Track</label>
+            <select
+              name="track"
+              className="select"
+              value={formData.track || 'ic'}
+              onChange={handleTrackChange}
+            >
+              <option value="ic">Individual Contributor</option>
+              <option value="manager">Manager</option>
+            </select>
+          </div>
+        )}
 
         <div className={styles.field}>
           <label className="label">Years of Experience</label>
@@ -182,7 +274,7 @@ export default function SidePanel() {
             <option value="">No manager (top level)</option>
             {potentialManagers.map((node) => (
               <option key={node.id} value={node.id}>
-                {node.name} - {getLevelName(node.level, settings)}
+                {node.name} - {getLevelName(node.level, settings, node.track)}
               </option>
             ))}
           </select>
@@ -220,12 +312,12 @@ export default function SidePanel() {
             {promotionInfo.eligible ? (
               <p className={styles.eligible}>
                 Eligible for promotion to{' '}
-                {getLevelName(selectedNode.level + 1, settings)}
+                {getLevelName(selectedNode.level + 1, settings, selectedNode.track)}
               </p>
             ) : promotionInfo.yearsUntilEligible > 0 ? (
               <p className={styles.notEligible}>
                 {promotionInfo.yearsUntilEligible.toFixed(1)} years until
-                eligible for {getLevelName(selectedNode.level + 1, settings)}
+                eligible for {getLevelName(selectedNode.level + 1, settings, selectedNode.track)}
               </p>
             ) : (
               <p className={styles.maxLevel}>At maximum level</p>
@@ -245,9 +337,6 @@ export default function SidePanel() {
         )}
         <button className="btn btn-danger" onClick={handleDelete}>
           Remove
-        </button>
-        <button className="btn btn-primary" onClick={handleSave}>
-          Save
         </button>
       </div>
     </div>

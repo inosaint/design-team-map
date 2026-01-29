@@ -1,10 +1,14 @@
 // Core types for Design Team Map
 
+// Career track type - IC (Individual Contributor) or Manager
+export type CareerTrack = 'ic' | 'manager';
+
 export interface TeamMember {
   id: string;
   name: string;
   designerType: string;
   level: number;
+  track?: CareerTrack; // Only relevant for levels >= trackSplitLevel
   yearsOfExperience: number;
   joiningDate?: string; // ISO date string, optional
   managerId?: string | null; // null for top-level, undefined for unassigned
@@ -17,6 +21,7 @@ export interface PlannedHire {
   name: string; // Can be "TBD" or role name
   designerType: string;
   level: number;
+  track?: CareerTrack; // Only relevant for levels >= trackSplitLevel
   yearsOfExperience?: number; // Optional for planned hires
   tentativeDate?: string; // "Q1 2025", "March 2025", etc.
   managerId?: string | null;
@@ -38,6 +43,7 @@ export interface LevelConfig {
   name: string;
   color: string;
   minYearsFromPrevious: number; // Min years needed to reach this level from previous
+  track?: CareerTrack; // undefined = shared level (before split), 'ic' or 'manager' = track-specific
 }
 
 export interface DesignerTypeConfig {
@@ -50,6 +56,7 @@ export interface Settings {
   levels: LevelConfig[];
   designerTypes: DesignerTypeConfig[];
   spanOfControlThreshold: number; // Default: 6
+  trackSplitLevel: number; // Level at which IC/Manager tracks diverge (default: 4)
   companyName?: string;
 }
 
@@ -76,12 +83,18 @@ export interface FlowEdgeData {
 
 // Default configurations
 export const DEFAULT_LEVELS: LevelConfig[] = [
+  // Shared levels (before split)
   { level: 1, name: 'Designer I', color: '#FED7AA', minYearsFromPrevious: 0 },
   { level: 2, name: 'Designer II', color: '#FDBA74', minYearsFromPrevious: 1.5 },
   { level: 3, name: 'Designer III', color: '#FB923C', minYearsFromPrevious: 3 },
-  { level: 4, name: 'Senior Designer', color: '#F97316', minYearsFromPrevious: 3 },
-  { level: 5, name: 'Staff Designer', color: '#EA580C', minYearsFromPrevious: 4 },
-  { level: 6, name: 'Design Lead', color: '#C2410C', minYearsFromPrevious: 4 },
+  // IC Track (from level 4)
+  { level: 4, name: 'Senior Designer', color: '#F97316', minYearsFromPrevious: 3, track: 'ic' },
+  { level: 5, name: 'Staff Designer', color: '#EA580C', minYearsFromPrevious: 4, track: 'ic' },
+  { level: 6, name: 'Principal Designer', color: '#C2410C', minYearsFromPrevious: 4, track: 'ic' },
+  // Manager Track (from level 4)
+  { level: 4, name: 'Design Manager', color: '#86EFAC', minYearsFromPrevious: 3, track: 'manager' },
+  { level: 5, name: 'Senior Design Manager', color: '#4ADE80', minYearsFromPrevious: 4, track: 'manager' },
+  { level: 6, name: 'Design Director', color: '#22C55E', minYearsFromPrevious: 4, track: 'manager' },
 ];
 
 export const DEFAULT_DESIGNER_TYPES: DesignerTypeConfig[] = [
@@ -98,4 +111,5 @@ export const DEFAULT_SETTINGS: Settings = {
   levels: DEFAULT_LEVELS,
   designerTypes: DEFAULT_DESIGNER_TYPES,
   spanOfControlThreshold: 6,
+  trackSplitLevel: 4,
 };

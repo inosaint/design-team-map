@@ -3,7 +3,6 @@ import {
   ReactFlow,
   Background,
   Controls,
-  MiniMap,
   useNodesState,
   useEdgesState,
   BackgroundVariant,
@@ -187,15 +186,6 @@ export default function FlowChart() {
           color="var(--gray-300)"
         />
         <Controls showInteractive={false} />
-        <MiniMap
-          nodeColor={(node) => {
-            const data = node.data as unknown as FlowNodeData;
-            if (data?.isOverCapacity) return 'var(--danger)';
-            if (data?.teamNode?.isPlannedHire) return 'var(--gray-300)';
-            return 'var(--primary)';
-          }}
-          maskColor="rgba(0, 0, 0, 0.1)"
-        />
       </ReactFlow>
     </div>
   );
