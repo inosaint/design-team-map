@@ -194,16 +194,16 @@ export default function SettingsPanel() {
             Rules
           </button>
           <button
-            className={`${styles.tab} ${activeTab === 'export' ? styles.active : ''}`}
-            onClick={() => setActiveTab('export')}
-          >
-            Export
-          </button>
-          <button
             className={`${styles.tab} ${activeTab === 'data' ? styles.active : ''}`}
             onClick={() => setActiveTab('data')}
           >
             Data
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'export' ? styles.active : ''}`}
+            onClick={() => setActiveTab('export')}
+          >
+            Export
           </button>
         </div>
 
@@ -488,6 +488,44 @@ export default function SettingsPanel() {
             </div>
           )}
 
+          {activeTab === 'data' && (
+            <div className={styles.section}>
+              <p className={styles.sectionDesc}>
+                Manage your team map data.
+              </p>
+
+              <div className={styles.field}>
+                <label className="label">Import Data</label>
+                <p className={styles.fieldDesc}>
+                  Import a previously exported JSON file
+                </p>
+                <button className="btn btn-secondary" onClick={handleImport}>
+                  Import JSON
+                </button>
+              </div>
+
+              <div className="divider" style={{ margin: 'var(--space-4) 0' }} />
+
+              <div className={styles.field}>
+                <label className="label">Danger Zone</label>
+                <p className={styles.fieldDesc}>
+                  These actions cannot be undone
+                </p>
+                <div className={styles.buttonGroup}>
+                  <button
+                    className="btn btn-secondary"
+                    onClick={handleResetSettings}
+                  >
+                    Reset Settings
+                  </button>
+                  <button className="btn btn-danger" onClick={handleClearAll}>
+                    Clear All Data
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {activeTab === 'export' && (
             <div className={styles.section}>
               <p className={styles.sectionDesc}>
@@ -525,44 +563,6 @@ export default function SettingsPanel() {
                   </div>
                   <button className="btn btn-secondary" onClick={handleExportImage}>
                     Export
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'data' && (
-            <div className={styles.section}>
-              <p className={styles.sectionDesc}>
-                Manage your team map data.
-              </p>
-
-              <div className={styles.field}>
-                <label className="label">Import Data</label>
-                <p className={styles.fieldDesc}>
-                  Import a previously exported JSON file
-                </p>
-                <button className="btn btn-secondary" onClick={handleImport}>
-                  Import JSON
-                </button>
-              </div>
-
-              <div className="divider" style={{ margin: 'var(--space-4) 0' }} />
-
-              <div className={styles.field}>
-                <label className="label">Danger Zone</label>
-                <p className={styles.fieldDesc}>
-                  These actions cannot be undone
-                </p>
-                <div className={styles.buttonGroup}>
-                  <button
-                    className="btn btn-secondary"
-                    onClick={handleResetSettings}
-                  >
-                    Reset Settings
-                  </button>
-                  <button className="btn btn-danger" onClick={handleClearAll}>
-                    Clear All Data
                   </button>
                 </div>
               </div>
