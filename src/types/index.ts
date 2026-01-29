@@ -63,7 +63,7 @@ export interface Settings {
   designerTypes: DesignerTypeConfig[];
   spanOfControlThreshold: number; // Default: 6
   trackSplitLevel: number; // Level at which IC/Manager tracks diverge (default: 4)
-  companyName?: string;
+  teamName?: string; // Name of the org/team for the map title
   // Advanced options
   showGender?: boolean;
   showMinimap?: boolean;
@@ -121,6 +121,7 @@ export const DEFAULT_SETTINGS: Settings = {
   designerTypes: DEFAULT_DESIGNER_TYPES,
   spanOfControlThreshold: 6,
   trackSplitLevel: 4,
+  teamName: 'Design Team',
   showGender: false,
   showMinimap: false,
 };

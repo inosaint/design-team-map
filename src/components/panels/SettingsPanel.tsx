@@ -5,7 +5,7 @@ import type { LevelConfig, DesignerTypeConfig } from '../../types';
 import { DEFAULT_SETTINGS } from '../../types';
 import styles from './SettingsPanel.module.css';
 
-type TabType = 'levels' | 'types' | 'rules' | 'export' | 'data' | 'advanced';
+type TabType = 'levels' | 'types' | 'rules' | 'export' | 'data';
 
 export default function SettingsPanel() {
   const { isSettingsOpen, toggleSettings, settings, updateSettings, exportData, importData, clearAll } =
@@ -77,13 +77,15 @@ export default function SettingsPanel() {
 
   const handleExportJSON = () => {
     const data = exportData();
+    const teamName = settings.teamName || 'design-team';
+    const safeName = teamName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     const blob = new Blob([JSON.stringify(data, null, 2)], {
       type: 'application/json',
     });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `design-team-map-${new Date().toISOString().split('T')[0]}.json`;
+    a.download = `${safeName}-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -138,8 +140,10 @@ export default function SettingsPanel() {
         logging: false,
       });
 
+      const teamName = settings.teamName || 'design-team';
+      const safeName = teamName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       const link = document.createElement('a');
-      link.download = `design-team-map-${new Date().toISOString().split('T')[0]}.png`;
+      link.download = `${safeName}-${new Date().toISOString().split('T')[0]}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
     } catch (error) {
@@ -200,12 +204,6 @@ export default function SettingsPanel() {
             onClick={() => setActiveTab('data')}
           >
             Data
-          </button>
-          <button
-            className={`${styles.tab} ${activeTab === 'advanced' ? styles.active : ''}`}
-            onClick={() => setActiveTab('advanced')}
-          >
-            Advanced
           </button>
         </div>
 
@@ -405,7 +403,7 @@ export default function SettingsPanel() {
           {activeTab === 'rules' && (
             <div className={styles.section}>
               <p className={styles.sectionDesc}>
-                Configure team structure rules and thresholds.
+                Configure team structure rules and display options.
               </p>
 
               <div className={styles.field}>
@@ -446,6 +444,46 @@ export default function SettingsPanel() {
                   max="10"
                   style={{ maxWidth: '100px' }}
                 />
+              </div>
+
+              <div className="divider" style={{ margin: 'var(--space-4) 0' }} />
+
+              <div className={styles.toggleField}>
+                <div className={styles.toggleInfo}>
+                  <label className="label">Show Gender Field</label>
+                  <p className={styles.fieldDesc}>
+                    Enable gender field for team members (useful for diversity tracking)
+                  </p>
+                </div>
+                <label className={styles.toggle}>
+                  <input
+                    type="checkbox"
+                    checked={settings.showGender || false}
+                    onChange={(e) =>
+                      updateSettings({ showGender: e.target.checked })
+                    }
+                  />
+                  <span className={styles.toggleSlider}></span>
+                </label>
+              </div>
+
+              <div className={styles.toggleField}>
+                <div className={styles.toggleInfo}>
+                  <label className="label">Show Minimap</label>
+                  <p className={styles.fieldDesc}>
+                    Display a minimap for easier navigation on large team maps
+                  </p>
+                </div>
+                <label className={styles.toggle}>
+                  <input
+                    type="checkbox"
+                    checked={settings.showMinimap || false}
+                    onChange={(e) =>
+                      updateSettings({ showMinimap: e.target.checked })
+                    }
+                  />
+                  <span className={styles.toggleSlider}></span>
+                </label>
               </div>
             </div>
           )}
@@ -527,52 +565,6 @@ export default function SettingsPanel() {
                     Clear All Data
                   </button>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'advanced' && (
-            <div className={styles.section}>
-              <p className={styles.sectionDesc}>
-                Advanced display options.
-              </p>
-
-              <div className={styles.toggleField}>
-                <div className={styles.toggleInfo}>
-                  <label className="label">Show Gender Field</label>
-                  <p className={styles.fieldDesc}>
-                    Enable gender field for team members (useful for diversity tracking)
-                  </p>
-                </div>
-                <label className={styles.toggle}>
-                  <input
-                    type="checkbox"
-                    checked={settings.showGender || false}
-                    onChange={(e) =>
-                      updateSettings({ showGender: e.target.checked })
-                    }
-                  />
-                  <span className={styles.toggleSlider}></span>
-                </label>
-              </div>
-
-              <div className={styles.toggleField}>
-                <div className={styles.toggleInfo}>
-                  <label className="label">Show Minimap</label>
-                  <p className={styles.fieldDesc}>
-                    Display a minimap for easier navigation on large team maps
-                  </p>
-                </div>
-                <label className={styles.toggle}>
-                  <input
-                    type="checkbox"
-                    checked={settings.showMinimap || false}
-                    onChange={(e) =>
-                      updateSettings({ showMinimap: e.target.checked })
-                    }
-                  />
-                  <span className={styles.toggleSlider}></span>
-                </label>
               </div>
             </div>
           )}

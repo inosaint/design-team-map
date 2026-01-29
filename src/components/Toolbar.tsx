@@ -1,11 +1,25 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import styles from './Toolbar.module.css';
 
 export default function Toolbar() {
-  const { addTeamMember, addPlannedHire, toggleSettings, autoArrangeNodes, settings, nodes } =
+  const { addTeamMember, addPlannedHire, toggleSettings, settings, nodes, updateSettings } =
     useStore();
   const [showAddMenu, setShowAddMenu] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState(settings.teamName || 'Design Team');
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isEditingName && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [isEditingName]);
+
+  useEffect(() => {
+    setEditedName(settings.teamName || 'Design Team');
+  }, [settings.teamName]);
 
   const handleAddTeamMember = () => {
     const defaultType = settings.designerTypes[0]?.id || 'product';
@@ -31,6 +45,25 @@ export default function Toolbar() {
     setShowAddMenu(false);
   };
 
+  const handleNameSave = () => {
+    const trimmedName = editedName.trim();
+    if (trimmedName) {
+      updateSettings({ teamName: trimmedName });
+    } else {
+      setEditedName(settings.teamName || 'Design Team');
+    }
+    setIsEditingName(false);
+  };
+
+  const handleNameKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleNameSave();
+    } else if (e.key === 'Escape') {
+      setEditedName(settings.teamName || 'Design Team');
+      setIsEditingName(false);
+    }
+  };
+
   const teamCount = nodes.filter((n) => !n.isPlannedHire).length;
   const plannedCount = nodes.filter((n) => n.isPlannedHire).length;
 
@@ -38,7 +71,25 @@ export default function Toolbar() {
     <div className={styles.toolbar}>
       <div className={styles.left}>
         <img src="/design-team-mapper.svg" alt="Logo" className={styles.logo} />
-        <h1 className={styles.title}>Design Team Mapper</h1>
+        {isEditingName ? (
+          <input
+            ref={inputRef}
+            type="text"
+            className={styles.titleInput}
+            value={editedName}
+            onChange={(e) => setEditedName(e.target.value)}
+            onBlur={handleNameSave}
+            onKeyDown={handleNameKeyDown}
+          />
+        ) : (
+          <h1
+            className={styles.title}
+            onClick={() => setIsEditingName(true)}
+            title="Click to edit team name"
+          >
+            {settings.teamName || 'Design Team'}
+          </h1>
+        )}
         <div className={styles.stats}>
           <span className={styles.stat}>
             <strong>{teamCount}</strong> members
@@ -84,15 +135,6 @@ export default function Toolbar() {
             </div>
           )}
         </div>
-
-        <button
-          className="btn btn-secondary"
-          onClick={autoArrangeNodes}
-          disabled={nodes.length === 0}
-          title="Auto-arrange nodes"
-        >
-          Arrange
-        </button>
 
         <button className="btn btn-secondary" onClick={toggleSettings}>
           Settings
