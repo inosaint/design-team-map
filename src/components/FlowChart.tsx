@@ -1,10 +1,12 @@
-import { useCallback, useMemo, useEffect } from 'react';
+import { useCallback, useMemo, useEffect, useRef } from 'react';
 import {
   ReactFlow,
   Background,
   Controls,
   useNodesState,
   useEdgesState,
+  useReactFlow,
+  ReactFlowProvider,
   BackgroundVariant,
 } from '@xyflow/react';
 import type { Node, Connection, NodeTypes, EdgeTypes } from '@xyflow/react';
@@ -29,9 +31,27 @@ const edgeTypes: EdgeTypes = {
   reporting: ReportingEdge,
 };
 
-const defaultViewport = { x: 100, y: 100, zoom: 1 };
+// Generate a stable position for new nodes based on existing node count
+function getNewNodePosition(index: number, existingPositions: Map<string, { x: number; y: number }>) {
+  // Place new nodes in a grid pattern
+  const cols = 3;
+  const spacingX = 220;
+  const spacingY = 150;
+  const startX = 100;
+  const startY = 100;
 
-export default function FlowChart() {
+  // Find the next available grid position
+  const existingCount = existingPositions.size;
+  const row = Math.floor((existingCount + index) / cols);
+  const col = (existingCount + index) % cols;
+
+  return {
+    x: startX + col * spacingX,
+    y: startY + row * spacingY,
+  };
+}
+
+function FlowChartInner() {
   const {
     nodes: teamNodes,
     nodePositions,
@@ -41,18 +61,27 @@ export default function FlowChart() {
     setNodeManager,
   } = useStore();
 
+  const { fitView } = useReactFlow();
+  const isInitialMount = useRef(true);
+  const prevNodeCount = useRef(teamNodes.length);
+
   const reportCounts = useMemo(
     () => calculateReportCounts(teamNodes),
     [teamNodes]
   );
 
-  // Convert team nodes to React Flow nodes
-  const initialNodes = useMemo(() => {
+  // Convert team nodes to React Flow nodes with stable positions
+  const flowNodes = useMemo(() => {
+    let newNodeIndex = 0;
+
     return teamNodes.map((teamNode) => {
-      const position = nodePositions.get(teamNode.id) || {
-        x: Math.random() * 500 + 100,
-        y: Math.random() * 400 + 100,
-      };
+      let position = nodePositions.get(teamNode.id);
+
+      // If no stored position, generate a stable one
+      if (!position) {
+        position = getNewNodePosition(newNodeIndex, nodePositions);
+        newNodeIndex++;
+      }
 
       const reportCount = reportCounts.get(teamNode.id) || 0;
       const overCapacity = isOverCapacity(
@@ -78,7 +107,7 @@ export default function FlowChart() {
   }, [teamNodes, nodePositions, reportCounts, settings]);
 
   // Convert manager relationships to edges
-  const initialEdges = useMemo(() => {
+  const flowEdges = useMemo(() => {
     return teamNodes
       .filter((node) => node.managerId)
       .map((node) => {
@@ -100,27 +129,58 @@ export default function FlowChart() {
       });
   }, [teamNodes, reportCounts, settings.spanOfControlThreshold]);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState(flowNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(flowEdges);
 
-  // Sync nodes when team data changes
+  // Sync nodes when team data changes, but preserve user-dragged positions
   useEffect(() => {
-    setNodes(initialNodes);
-  }, [initialNodes, setNodes]);
+    setNodes((currentNodes) => {
+      // Create a map of current positions
+      const currentPositions = new Map(
+        currentNodes.map((n) => [n.id, n.position])
+      );
+
+      // Update nodes, preserving positions for existing nodes
+      return flowNodes.map((flowNode) => {
+        const currentPos = currentPositions.get(flowNode.id);
+        return {
+          ...flowNode,
+          position: currentPos || flowNode.position,
+        };
+      });
+    });
+  }, [flowNodes, setNodes]);
 
   // Sync edges when relationships change
   useEffect(() => {
-    setEdges(initialEdges);
-  }, [initialEdges, setEdges]);
+    setEdges(flowEdges);
+  }, [flowEdges, setEdges]);
+
+  // Fit view only on initial mount or when first nodes are added
+  useEffect(() => {
+    if (isInitialMount.current && teamNodes.length > 0) {
+      // Small delay to ensure nodes are rendered
+      setTimeout(() => {
+        fitView({ padding: 0.2, duration: 200 });
+      }, 100);
+      isInitialMount.current = false;
+    } else if (prevNodeCount.current === 0 && teamNodes.length > 0) {
+      // First nodes added after empty state
+      setTimeout(() => {
+        fitView({ padding: 0.2, duration: 200 });
+      }, 100);
+    }
+    prevNodeCount.current = teamNodes.length;
+  }, [teamNodes.length, fitView]);
 
   const handleNodesChange = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (changes: any[]) => {
       onNodesChange(changes);
 
-      // Update positions in store for position changes
+      // Update positions in store for completed position changes
       changes.forEach((change) => {
-        if (change.type === 'position' && change.position) {
+        if (change.type === 'position' && change.dragging === false && change.position) {
           updateNodePosition(change.id, change.position);
         }
       });
@@ -139,7 +199,6 @@ export default function FlowChart() {
   const onConnect = useCallback(
     (connection: Connection) => {
       if (connection.source && connection.target) {
-        // Set the manager relationship
         setNodeManager(connection.target, connection.source);
       }
     },
@@ -157,6 +216,14 @@ export default function FlowChart() {
     selectNode(null);
   }, [selectNode]);
 
+  // Save position when drag ends
+  const onNodeDragStop = useCallback(
+    (_: React.MouseEvent, node: Node) => {
+      updateNodePosition(node.id, node.position);
+    },
+    [updateNodePosition]
+  );
+
   return (
     <div className={styles.flowChart}>
       <ReactFlow
@@ -167,11 +234,10 @@ export default function FlowChart() {
         onConnect={onConnect}
         onNodeClick={onNodeClick}
         onPaneClick={onPaneClick}
+        onNodeDragStop={onNodeDragStop}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
-        defaultViewport={defaultViewport}
-        fitView
-        fitViewOptions={{ padding: 0.2 }}
+        defaultViewport={{ x: 0, y: 0, zoom: 1 }}
         snapToGrid
         snapGrid={[20, 20]}
         connectionLineStyle={{ stroke: 'var(--primary)', strokeWidth: 2 }}
@@ -188,5 +254,13 @@ export default function FlowChart() {
         <Controls showInteractive={false} />
       </ReactFlow>
     </div>
+  );
+}
+
+export default function FlowChart() {
+  return (
+    <ReactFlowProvider>
+      <FlowChartInner />
+    </ReactFlowProvider>
   );
 }
