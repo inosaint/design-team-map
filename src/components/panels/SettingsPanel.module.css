@@ -293,6 +293,30 @@
   transform: translateX(16px);
 }
 
+.removeLevelBtn {
+  margin-top: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.removeLevelBtn:hover:not(:disabled) {
+  background-color: var(--danger-light);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.removeLevelBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 
 .colorInput {
   width: 100%;

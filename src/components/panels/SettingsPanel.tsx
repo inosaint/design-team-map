@@ -193,21 +193,9 @@ export default function SettingsPanel() {
                             </span>
                           )}
                         </div>
-                        <div className={styles.levelActions}>
-                          <button
-                            className={styles.removeBtn}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleRemoveLevel(index);
-                            }}
-                            disabled={settings.levels.length <= 1}
-                          >
-                            ×
-                          </button>
-                          <span className={`${styles.chevron} ${isExpanded ? styles.expanded : ''}`}>
-                            ▼
-                          </span>
-                        </div>
+                        <span className={`${styles.chevron} ${isExpanded ? styles.expanded : ''}`}>
+                          ▼
+                        </span>
                       </div>
 
                       {isExpanded && (
@@ -273,6 +261,13 @@ export default function SettingsPanel() {
                               </label>
                             </div>
                           )}
+                          <button
+                            className={styles.removeLevelBtn}
+                            onClick={() => handleRemoveLevel(index)}
+                            disabled={settings.levels.length <= 1}
+                          >
+                            Remove
+                          </button>
                         </div>
                       )}
                     </div>
