@@ -394,11 +394,6 @@ export function calculateAutoArrangePositions(
 
   // Handle root nodes
   if (rootNodes.length > 0) {
-    // Calculate total width of all root trees
-    const totalRootWidth = rootNodes.reduce((sum, root) => {
-      return sum + subtreeWidths.get(root.id)!;
-    }, 0) + (rootNodes.length - 1) * horizontalGap * 2;
-
     let rootX = startX;
 
     rootNodes.forEach((root) => {

@@ -23,8 +23,10 @@ A web app for planning hiring and growth progression for design teams with an in
 - [x] Create custom node component for planned hires (dashed style)
 - [x] Implement custom edge component with red warning for >6 reports
 - [x] Add drag-drop functionality
-- [ ] Implement auto-arrange/layout algorithm
+- [x] Implement auto-arrange/layout algorithm
 - [x] Add zoom/pan controls
+- [x] Top-level nodes: no target handle (head of design can't report to anyone)
+- [x] Leadership nodes: hide designer type badge
 
 ## Phase 4: Node Interactions
 - [x] Click node to open side panel with details
@@ -34,6 +36,11 @@ A web app for planning hiring and growth progression for design teams with an in
 - [x] Change reporting structure via drag-drop (connect nodes)
 - [x] Delete node functionality
 - [x] Add new member / planned hire
+- [x] Disconnect button to remove manager relationship
+- [x] Click on edge to delete reporting relationship
+- [x] Notes field for each designer card
+- [x] Gender field (optional, configurable in Advanced settings)
+- [x] Growth status tag in side panel header
 
 ## Phase 5: Verticals/Teams Management
 - [ ] Add verticals directly on canvas
@@ -49,17 +56,24 @@ A web app for planning hiring and growth progression for design teams with an in
 - [x] Configure designer types list
 - [x] Configure span of control threshold (default: 6)
 - [x] Import/Export data as JSON
+- [x] Accordion UI for level cards (easier overview)
+- [x] Track toggle (IC/Manager) for levels at/above split level
+- [x] Reorganized tabs: Levels, Types, Rules, Export, Data, Advanced
+- [x] Advanced settings: Gender field toggle, Minimap toggle
 
 ## Phase 7: Rules & Validation
 - [x] Visual warning when manager has >6 reports (red edge with warning icon)
 - [x] Calculate promotion eligibility based on tenure and level config
-- [x] Show growth eligibility indicator on nodes (green badge)
+- [x] Show growth eligibility indicator on nodes (green glow effect)
+- [x] IC/Manager career track split configuration
 - [ ] Succession planning hints (who can grow into which role)
 
 ## Phase 8: Export & Polish
-- [ ] Export flowchart as PNG
-- [ ] Export flowchart as PDF
+- [x] Export flowchart as PNG (using html2canvas)
+- [x] Export flowchart as PDF (via browser print with print styles)
 - [x] Export/Import team data as JSON (backup/restore)
+- [x] Custom app logo and favicon
+- [x] Side panel closing animation
 - [ ] Responsive design adjustments
 - [ ] Keyboard shortcuts
 - [ ] Empty state and onboarding hints
@@ -93,7 +107,8 @@ MVP complete! Core features implemented:
 - JSON export/import for backup
 
 ### Remaining for future iterations:
-- Verticals/teams management
-- Auto-arrange layout
-- PNG/PDF export
+- Verticals/teams management on canvas
 - Succession planning hints
+- Responsive design adjustments
+- Keyboard shortcuts
+- Empty state and onboarding hints
