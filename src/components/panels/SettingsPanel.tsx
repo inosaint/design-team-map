@@ -12,6 +12,7 @@ export default function SettingsPanel() {
     useStore();
 
   const [activeTab, setActiveTab] = useState<TabType>('levels');
+  const [expandedLevel, setExpandedLevel] = useState<number | null>(null);
 
   if (!isSettingsOpen) return null;
 
@@ -212,66 +213,121 @@ export default function SettingsPanel() {
           {activeTab === 'levels' && (
             <div className={styles.section}>
               <p className={styles.sectionDesc}>
-                Configure career levels and promotion requirements.
+                Configure career levels and promotion requirements. IC/Manager tracks split at level {settings.trackSplitLevel}.{' '}
+                <button
+                  className={styles.linkBtn}
+                  onClick={() => setActiveTab('rules')}
+                >
+                  Change in Rules →
+                </button>
               </p>
 
               <div className={styles.levelsList}>
-                {settings.levels.map((level, index) => (
-                  <div key={index} className={styles.levelItem}>
-                    <div className={styles.levelHeader}>
-                      <span className={styles.levelNumber}>L{level.level}</span>
-                      <button
-                        className={styles.removeBtn}
-                        onClick={() => handleRemoveLevel(index)}
-                        disabled={settings.levels.length <= 1}
+                {settings.levels.map((level, index) => {
+                  const isExpanded = expandedLevel === index;
+                  const isManagerTrack = level.level >= settings.trackSplitLevel && level.track === 'manager';
+
+                  return (
+                    <div key={index} className={styles.levelItem}>
+                      <div
+                        className={styles.levelAccordion}
+                        onClick={() => setExpandedLevel(isExpanded ? null : index)}
                       >
-                        x
-                      </button>
-                    </div>
-                    <div className={styles.levelFields}>
-                      <div className={styles.field}>
-                        <label className="label">Name</label>
-                        <input
-                          type="text"
-                          className="input"
-                          value={level.name}
-                          onChange={(e) =>
-                            handleLevelChange(index, 'name', e.target.value)
-                          }
-                        />
-                      </div>
-                      <div className={styles.fieldRow}>
-                        <div className={styles.field}>
-                          <label className="label">Color</label>
-                          <input
-                            type="color"
-                            className={styles.colorInput}
-                            value={level.color}
-                            onChange={(e) =>
-                              handleLevelChange(index, 'color', e.target.value)
-                            }
+                        <div className={styles.levelPreview}>
+                          <span
+                            className={styles.levelColorDot}
+                            style={{ backgroundColor: level.color }}
                           />
+                          <span className={styles.levelName}>{level.name}</span>
+                          {level.level >= settings.trackSplitLevel && (
+                            <span className={`${styles.trackBadge} ${isManagerTrack ? styles.manager : ''}`}>
+                              {isManagerTrack ? 'MGR' : 'IC'}
+                            </span>
+                          )}
                         </div>
-                        <div className={styles.field}>
-                          <label className="label">Min Years</label>
-                          <input
-                            type="number"
-                            className="input"
-                            value={level.minYearsFromPrevious}
-                            onChange={(e) =>
-                              handleLevelChange(
-                                index,
-                                'minYearsFromPrevious',
-                                e.target.value
-                              )
-                            }
-                            min="0"
-                            step="0.5"
-                          />
+                        <div className={styles.levelActions}>
+                          <button
+                            className={styles.removeBtn}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveLevel(index);
+                            }}
+                            disabled={settings.levels.length <= 1}
+                          >
+                            ×
+                          </button>
+                          <span className={`${styles.chevron} ${isExpanded ? styles.expanded : ''}`}>
+                            ▼
+                          </span>
                         </div>
                       </div>
+
+                      {isExpanded && (
+                        <div className={styles.levelFields}>
+                          <div className={styles.field}>
+                            <label className="label">Name</label>
+                            <input
+                              type="text"
+                              className="input"
+                              value={level.name}
+                              onChange={(e) =>
+                                handleLevelChange(index, 'name', e.target.value)
+                              }
+                            />
+                          </div>
+                          <div className={styles.fieldRow}>
+                            <div className={styles.field}>
+                              <label className="label">Color</label>
+                              <input
+                                type="color"
+                                className={styles.colorInput}
+                                value={level.color}
+                                onChange={(e) =>
+                                  handleLevelChange(index, 'color', e.target.value)
+                                }
+                              />
+                            </div>
+                            <div className={styles.field}>
+                              <label className="label">Min Years</label>
+                              <input
+                                type="number"
+                                className="input"
+                                value={level.minYearsFromPrevious}
+                                onChange={(e) =>
+                                  handleLevelChange(
+                                    index,
+                                    'minYearsFromPrevious',
+                                    e.target.value
+                                  )
+                                }
+                                min="0"
+                                step="0.5"
+                              />
+                            </div>
+                          </div>
+                          {/* Show track toggle for levels at or above split level */}
+                          {level.level >= settings.trackSplitLevel && (
+                            <div className={styles.trackToggle}>
+                              <span className={styles.trackLabel}>Manager Track</span>
+                              <label className={styles.toggleSmall}>
+                                <input
+                                  type="checkbox"
+                                  checked={level.track === 'manager'}
+                                  onChange={(e) =>
+                                    handleLevelChange(
+                                      index,
+                                      'track',
+                                      e.target.checked ? 'manager' : 'ic'
+                                    )
+                                  }
+                                />
+                                <span className={styles.toggleSliderSmall}></span>
+                              </label>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
-                  </div>
                 ))}
               </div>
 

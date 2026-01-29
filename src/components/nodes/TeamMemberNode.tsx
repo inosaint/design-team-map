@@ -23,6 +23,11 @@ function TeamMemberNode({ data, selected }: TeamMemberNodeProps) {
   const typeAbbr = getDesignerTypeAbbreviation(teamNode.designerType, settings);
 
   const isPlanned = teamNode.isPlannedHire;
+  const isTopLevel = !teamNode.managerId; // No manager means top-level (head of design)
+
+  // Find the highest level number in settings to determine if this is leadership
+  const maxLevel = Math.max(...settings.levels.map((l) => l.level));
+  const isLeadership = isTopLevel || teamNode.level >= maxLevel;
 
   return (
     <div
@@ -36,15 +41,19 @@ function TeamMemberNode({ data, selected }: TeamMemberNodeProps) {
         backgroundColor: isPlanned ? 'transparent' : undefined,
       }}
     >
-      <Handle
-        type="target"
-        position={Position.Top}
-        className={styles.handle}
-      />
+      {/* Only show target handle if not top-level */}
+      {!isTopLevel && (
+        <Handle
+          type="target"
+          position={Position.Top}
+          className={styles.handle}
+        />
+      )}
 
       <div className={styles.header} style={{ backgroundColor: levelColor }}>
         <span className={styles.level}>{levelName}</span>
-        <span className={styles.type}>{typeAbbr}</span>
+        {/* Hide designer type for leadership/top-level roles */}
+        {!isLeadership && <span className={styles.type}>{typeAbbr}</span>}
       </div>
 
       <div className={styles.content}>
