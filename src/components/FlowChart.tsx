@@ -14,6 +14,7 @@ import type { Node, Edge, Connection, NodeTypes, EdgeTypes } from '@xyflow/react
 import '@xyflow/react/dist/style.css';
 
 import { useStore } from '../store/useStore';
+import { useToastStore } from '../store/useToastStore';
 import type { FlowNodeData, FlowEdgeData } from '../types';
 import {
   calculateReportCounts,
@@ -199,6 +200,8 @@ function FlowChartInner() {
     [onEdgesChange]
   );
 
+  const showToast = useToastStore((state) => state.showToast);
+
   const onConnect = useCallback(
     (connection: Connection) => {
       if (connection.source && connection.target) {
@@ -206,13 +209,13 @@ function FlowChartInner() {
         // connection.source = the proposed manager
         // connection.target = the node that would report to the manager
         if (wouldCreateCircularReference(connection.target, connection.source, teamNodes)) {
-          // Don't allow circular references
+          showToast('Cannot create circular reporting loop', 'error');
           return;
         }
         setNodeManager(connection.target, connection.source);
       }
     },
-    [setNodeManager, teamNodes]
+    [setNodeManager, teamNodes, showToast]
   );
 
   const onNodeClick = useCallback(
