@@ -10,7 +10,7 @@ import type {
   NodePosition,
 } from '../types';
 import { DEFAULT_SETTINGS } from '../types';
-import { calculateAutoArrangePositions } from '../utils/calculations';
+import { calculateAutoArrangePositions, wouldCreateCircularReference } from '../utils/calculations';
 
 interface TeamMapState {
   // Data
@@ -132,6 +132,11 @@ export const useStore = create<TeamMapState>()(
       },
 
       setNodeManager: (nodeId, managerId) => {
+        // Prevent circular references
+        if (managerId && wouldCreateCircularReference(nodeId, managerId, get().nodes)) {
+          console.warn('Cannot set manager: would create circular reference');
+          return;
+        }
         set((state) => ({
           nodes: state.nodes.map((node): TeamNode =>
             node.id === nodeId ? ({ ...node, managerId } as TeamNode) : node

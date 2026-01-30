@@ -19,6 +19,7 @@ import {
   calculateReportCounts,
   isOverCapacity,
   calculatePromotionEligibility,
+  wouldCreateCircularReference,
 } from '../utils/calculations';
 import TeamMemberNode from './nodes/TeamMemberNode';
 import ReportingEdge from './edges/ReportingEdge';
@@ -201,10 +202,17 @@ function FlowChartInner() {
   const onConnect = useCallback(
     (connection: Connection) => {
       if (connection.source && connection.target) {
+        // Check for circular reference before setting the manager
+        // connection.source = the proposed manager
+        // connection.target = the node that would report to the manager
+        if (wouldCreateCircularReference(connection.target, connection.source, teamNodes)) {
+          // Don't allow circular references
+          return;
+        }
         setNodeManager(connection.target, connection.source);
       }
     },
-    [setNodeManager]
+    [setNodeManager, teamNodes]
   );
 
   const onNodeClick = useCallback(
