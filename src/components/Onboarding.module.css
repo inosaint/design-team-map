@@ -1,22 +1,3 @@
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
-  pointer-events: none;
-}
-
-.spotlight {
-  position: fixed;
-  border-radius: var(--border-radius);
-  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
-  pointer-events: none;
-  transition: all 0.3s ease;
-}
-
 .tooltip {
   position: fixed;
   width: 280px;
@@ -24,19 +5,16 @@
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-lg);
   padding: var(--space-3);
-  pointer-events: auto;
   z-index: 1001;
-  animation: tooltipFadeIn 0.2s ease-out;
+  animation: tooltipFadeIn 0.4s ease-out;
 }
 
 @keyframes tooltipFadeIn {
   from {
     opacity: 0;
-    transform: translateY(8px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 

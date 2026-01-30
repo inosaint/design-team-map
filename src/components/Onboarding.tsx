@@ -76,11 +76,15 @@ export default function Onboarding() {
     return () => clearTimeout(timer);
   }, []);
 
-  // When cards are added and we're waiting, show the tour
+  // When cards are added and we're waiting, show the tour after a delay
   useEffect(() => {
     if (waitingForCard && hasCards) {
       setWaitingForCard(false);
-      setIsVisible(true);
+      // Delay to let the card render and user see it
+      const timer = setTimeout(() => {
+        setIsVisible(true);
+      }, 1000);
+      return () => clearTimeout(timer);
     }
   }, [waitingForCard, hasCards]);
 
@@ -150,34 +154,21 @@ export default function Onboarding() {
   const tooltipStyle = getTooltipPosition(targetRect, step.position);
 
   return (
-    <div className={styles.overlay}>
-      {targetRect && (
-        <div
-          className={styles.spotlight}
-          style={{
-            top: targetRect.top - 4,
-            left: targetRect.left - 4,
-            width: targetRect.width + 8,
-            height: targetRect.height + 8,
-          }}
-        />
-      )}
-      <div className={styles.tooltip} style={tooltipStyle}>
-        <div className={styles.header}>
-          <span className={styles.title}>{step.title}</span>
-          <span className={styles.stepCount}>
-            {currentStep + 1} / {steps.length}
-          </span>
-        </div>
-        <p className={styles.content}>{step.content}</p>
-        <div className={styles.actions}>
-          <button className={styles.skipBtn} onClick={handleSkip}>
-            Skip Tour
-          </button>
-          <button className={styles.nextBtn} onClick={handleNext}>
-            {currentStep < steps.length - 1 ? 'Next' : 'Got it!'}
-          </button>
-        </div>
+    <div className={styles.tooltip} style={tooltipStyle}>
+      <div className={styles.header}>
+        <span className={styles.title}>{step.title}</span>
+        <span className={styles.stepCount}>
+          {currentStep + 1} / {steps.length}
+        </span>
+      </div>
+      <p className={styles.content}>{step.content}</p>
+      <div className={styles.actions}>
+        <button className={styles.skipBtn} onClick={handleSkip}>
+          Skip Tour
+        </button>
+        <button className={styles.nextBtn} onClick={handleNext}>
+          {currentStep < steps.length - 1 ? 'Next' : 'Got it!'}
+        </button>
       </div>
     </div>
   );
