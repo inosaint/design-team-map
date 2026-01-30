@@ -67,9 +67,6 @@
 }
 
 .header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   margin-bottom: var(--space-2);
 }
 
@@ -77,11 +74,6 @@
   font-weight: 600;
   color: var(--text-primary);
   font-size: 14px;
-}
-
-.stepCount {
-  font-size: 11px;
-  color: var(--text-muted);
 }
 
 .content {

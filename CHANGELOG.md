@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2026-01-30
+
+### Added
+- **Onboarding Tour**: New contextual onboarding tooltips guide first-time users through key features:
+  - Adding team members
+  - Clicking cards to edit
+  - Dragging cards to reposition
+  - Connecting cards to set manager relationships
+- **Smart Tour Behavior**: Tour pauses and resumes based on canvas state (waits for cards to exist, pauses if cards are deleted)
+- **Connection Handle Hover Effect**: Handles grow from 8px to 12px on hover for better discoverability
+- **Grab Cursor**: Cards now show grab/grabbing cursor to indicate draggability
+
+### Changed
+- **Improved Handle Visibility**: Connection handles are more discoverable with size increase on hover
+- **Designer Type Badge**: Now hidden when no type is selected (instead of showing empty badge)
+- **Viewport Auto-fit**: During onboarding, viewport automatically adjusts when cards are added
+
+### Technical
+- Onboarding state persisted in localStorage
+- Tooltips stay within viewport bounds (clamped to edges)
+- Tooltip z-index set below panels so users can still interact with settings/editor
+
 ## [0.2.0] - 2026-01-30
 
 ### Added

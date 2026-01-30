@@ -199,9 +199,6 @@ export default function Onboarding() {
     <div className={`${styles.tooltip} ${arrowClass}`} style={tooltipStyle}>
       <div className={styles.header}>
         <span className={styles.title}>{step.title}</span>
-        <span className={styles.stepCount}>
-          {currentStep + 1} / {steps.length}
-        </span>
       </div>
       <p className={styles.content}>{step.content}</p>
       <div className={styles.actions}>
@@ -209,7 +206,7 @@ export default function Onboarding() {
           Skip Tour
         </button>
         <button className={styles.nextBtn} onClick={handleNext}>
-          {currentStep < steps.length - 1 ? 'Next' : 'Got it!'}
+          Ok
         </button>
       </div>
     </div>
