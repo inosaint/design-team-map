@@ -113,6 +113,19 @@ export default function Onboarding() {
     };
   }, [waitingForCards, hasEnoughCards]);
 
+  // Pause tour if cards are deleted and we no longer have enough
+  useEffect(() => {
+    const completed = localStorage.getItem(ONBOARDING_KEY);
+    if (completed) return;
+
+    // If tooltip is visible but we don't have enough cards anymore, pause
+    if (isVisible && !hasEnoughCards) {
+      console.log('[Onboarding] cards deleted, pausing tour - need', currentStepMinCards, 'have', cardCount);
+      setIsVisible(false);
+      setWaitingForCards(true);
+    }
+  }, [isVisible, hasEnoughCards, currentStepMinCards, cardCount]);
+
   // Find and update target element position
   useEffect(() => {
     if (!isVisible) return;
