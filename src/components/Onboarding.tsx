@@ -36,7 +36,7 @@ const steps: OnboardingStep[] = [
     minCards: 1,
   },
   {
-    target: '.react-flow__node',
+    target: '.react-flow__node:nth-of-type(2)',
     title: 'Connect to Set Manager',
     content: 'Drag between handles to connect cards, or use the Manager dropdown in the editor panel.',
     position: 'top',
