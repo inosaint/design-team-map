@@ -139,8 +139,11 @@
   height: 8px !important;
   background-color: var(--gray-300) !important;
   border: 2px solid var(--bg-secondary) !important;
+  transition: all 0.15s ease;
 }
 
 .handle:hover {
+  width: 12px !important;
+  height: 12px !important;
   background-color: var(--primary) !important;
 }
