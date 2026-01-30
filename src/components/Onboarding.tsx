@@ -104,7 +104,7 @@ export default function Onboarding() {
       console.log('[Onboarding] delay complete, showing tooltip');
       setWaitingForCards(false);
       setIsVisible(true);
-    }, 1500);
+    }, 1000);
 
     return () => {
       if (timerRef.current) {
@@ -218,27 +218,33 @@ function getTooltipPosition(
   const offset = 16; // Increased offset for arrow space
   const tooltipWidth = 280;
   const tooltipHeight = 150;
+  const padding = 16; // Minimum padding from viewport edges
+
+  let top: number;
+  let left: number;
 
   switch (position) {
     case 'bottom':
-      return {
-        top: targetRect.bottom + offset,
-        left: targetRect.left + targetRect.width / 2 - tooltipWidth / 2,
-      };
+      top = targetRect.bottom + offset;
+      left = targetRect.left + targetRect.width / 2 - tooltipWidth / 2;
+      break;
     case 'top':
-      return {
-        top: targetRect.top - tooltipHeight - offset - 20, // Extra space so card is visible
-        left: targetRect.left + targetRect.width / 2 - tooltipWidth / 2,
-      };
+      top = targetRect.top - tooltipHeight - offset - 20; // Extra space so card is visible
+      left = targetRect.left + targetRect.width / 2 - tooltipWidth / 2;
+      break;
     case 'right':
-      return {
-        top: targetRect.top + targetRect.height / 2 - tooltipHeight / 2,
-        left: targetRect.right + offset,
-      };
+      top = targetRect.top + targetRect.height / 2 - tooltipHeight / 2;
+      left = targetRect.right + offset;
+      break;
     case 'left':
-      return {
-        top: targetRect.top + targetRect.height / 2 - tooltipHeight / 2,
-        left: targetRect.left - tooltipWidth - offset,
-      };
+      top = targetRect.top + targetRect.height / 2 - tooltipHeight / 2;
+      left = targetRect.left - tooltipWidth - offset;
+      break;
   }
+
+  // Clamp to viewport bounds
+  top = Math.max(padding, Math.min(top, window.innerHeight - tooltipHeight - padding));
+  left = Math.max(padding, Math.min(left, window.innerWidth - tooltipWidth - padding));
+
+  return { top, left };
 }
