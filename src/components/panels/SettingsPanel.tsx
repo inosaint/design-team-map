@@ -547,7 +547,7 @@ export default function SettingsPanel() {
             <div className={styles.section}>
               <div className={styles.aboutHeader}>
                 <h3 className={styles.aboutTitle}>Design Team Map</h3>
-                <span className={styles.version}>v0.1.0</span>
+                <span className={styles.version}>v0.3.0</span>
               </div>
 
               <p className={styles.aboutDesc}>
@@ -555,6 +555,14 @@ export default function SettingsPanel() {
               </p>
 
               <div className={styles.aboutLinks}>
+                <a
+                  href="https://github.com/inosaint/design-team-map/blob/main/CHANGELOG.md"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.aboutLink}
+                >
+                  Changelog
+                </a>
                 <a
                   href="https://creativecommons.org/licenses/by-nc-sa/4.0/"
                   target="_blank"
@@ -595,6 +603,17 @@ export default function SettingsPanel() {
                     <span className={styles.attributionLicense}>MIT License</span>
                   </li>
                 </ul>
+              </div>
+
+              <div className={styles.author}>
+                Built by{' '}
+                <a
+                  href="https://x.com/kenneth"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  @kenneth
+                </a>
               </div>
             </div>
           )}
