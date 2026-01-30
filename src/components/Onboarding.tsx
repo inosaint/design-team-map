@@ -50,28 +50,34 @@ export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [waitingForCard, setWaitingForCard] = useState(false);
-  const prevNodeCount = useRef(nodes.length);
+  const timerRef = useRef<number | null>(null);
 
   const hasCards = nodes.length > 0;
+
+  console.log('[Onboarding] render:', { hasCards, waitingForCard, isVisible, currentStep, nodesLength: nodes.length });
 
   // Initialize onboarding on mount
   useEffect(() => {
     const completed = localStorage.getItem(ONBOARDING_KEY);
+    console.log('[Onboarding] init effect - completed:', completed);
     if (completed) return;
 
     const savedStep = localStorage.getItem(ONBOARDING_STEP_KEY);
     const stepNum = savedStep ? parseInt(savedStep, 10) : 0;
 
+    console.log('[Onboarding] init effect - stepNum:', stepNum);
     setCurrentStep(stepNum);
 
     // If step requires card and none exist, wait for cards
     if (stepNum > 0 && steps[stepNum]?.requiresCard) {
+      console.log('[Onboarding] init effect - waiting for card');
       setWaitingForCard(true);
       return;
     }
 
     // Delay to allow the app to render first
     const timer = setTimeout(() => {
+      console.log('[Onboarding] init effect - showing tooltip');
       setIsVisible(true);
     }, 1000);
     return () => clearTimeout(timer);
@@ -79,21 +85,30 @@ export default function Onboarding() {
 
   // Watch for card additions when waiting
   useEffect(() => {
-    const completed = localStorage.getItem(ONBOARDING_KEY);
-    if (completed) return;
+    console.log('[Onboarding] card watch effect:', { waitingForCard, hasCards });
 
-    // Detect when a card is added (node count increases)
-    if (nodes.length > prevNodeCount.current && waitingForCard) {
-      setWaitingForCard(false);
-      // Delay to let the card render and user see it
-      const timer = setTimeout(() => {
-        setIsVisible(true);
-      }, 1500);
-      return () => clearTimeout(timer);
+    if (!waitingForCard) return;
+    if (!hasCards) return;
+
+    console.log('[Onboarding] card detected! showing tooltip after delay...');
+
+    // Clear any existing timer
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
     }
 
-    prevNodeCount.current = nodes.length;
-  }, [nodes.length, waitingForCard]);
+    timerRef.current = window.setTimeout(() => {
+      console.log('[Onboarding] delay complete, showing tooltip');
+      setWaitingForCard(false);
+      setIsVisible(true);
+    }, 1500);
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, [waitingForCard, hasCards]);
 
   // Find and update target element position
   useEffect(() => {
@@ -125,6 +140,7 @@ export default function Onboarding() {
 
   const handleNext = useCallback(() => {
     const nextStep = currentStep + 1;
+    console.log('[Onboarding] handleNext:', { currentStep, nextStep, hasCards });
 
     if (nextStep >= steps.length) {
       handleComplete();
@@ -133,6 +149,7 @@ export default function Onboarding() {
 
     // If next step requires a card and none exist, pause and wait
     if (steps[nextStep].requiresCard && !hasCards) {
+      console.log('[Onboarding] handleNext - next step requires card, setting waitingForCard=true');
       localStorage.setItem(ONBOARDING_STEP_KEY, nextStep.toString());
       setCurrentStep(nextStep);
       setIsVisible(false);
