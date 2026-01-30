@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useStore } from '../store/useStore';
 import styles from './Onboarding.module.css';
 
@@ -25,20 +25,20 @@ const steps: OnboardingStep[] = [
     target: '.react-flow__node',
     title: 'Click to Edit',
     content: 'Click any card to select it and edit details in the side panel.',
-    position: 'right',
+    position: 'left',
     requiresCard: true,
   },
   {
     target: '.react-flow__node',
     title: 'Drag to Move',
     content: 'Drag anywhere on the card to reposition it on the canvas.',
-    position: 'bottom',
+    position: 'left',
     requiresCard: true,
   },
   {
     target: '.react-flow__node',
     title: 'Connect to Set Manager',
-    content: 'Drag from the bottom handle of a manager to the top handle of a report to create reporting relationships.',
+    content: 'Drag between handles to connect cards, or use the Manager dropdown in the editor panel.',
     position: 'top',
     requiresCard: true,
   },
@@ -50,6 +50,7 @@ export default function Onboarding() {
   const [currentStep, setCurrentStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [waitingForCard, setWaitingForCard] = useState(false);
+  const prevNodeCount = useRef(nodes.length);
 
   const hasCards = nodes.length > 0;
 
@@ -61,32 +62,38 @@ export default function Onboarding() {
     const savedStep = localStorage.getItem(ONBOARDING_STEP_KEY);
     const stepNum = savedStep ? parseInt(savedStep, 10) : 0;
 
-    // If we're past step 0 and no cards exist, wait for cards
-    if (stepNum > 0 && !hasCards) {
-      setCurrentStep(stepNum);
+    setCurrentStep(stepNum);
+
+    // If step requires card and none exist, wait for cards
+    if (stepNum > 0 && steps[stepNum]?.requiresCard) {
       setWaitingForCard(true);
       return;
     }
 
     // Delay to allow the app to render first
     const timer = setTimeout(() => {
-      setCurrentStep(stepNum);
       setIsVisible(true);
     }, 1000);
     return () => clearTimeout(timer);
   }, []);
 
-  // When cards are added and we're waiting, show the tour after a delay
+  // Watch for card additions when waiting
   useEffect(() => {
-    if (waitingForCard && hasCards) {
+    const completed = localStorage.getItem(ONBOARDING_KEY);
+    if (completed) return;
+
+    // Detect when a card is added (node count increases)
+    if (nodes.length > prevNodeCount.current && waitingForCard) {
       setWaitingForCard(false);
       // Delay to let the card render and user see it
       const timer = setTimeout(() => {
         setIsVisible(true);
-      }, 1000);
+      }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [waitingForCard, hasCards]);
+
+    prevNodeCount.current = nodes.length;
+  }, [nodes.length, waitingForCard]);
 
   // Find and update target element position
   useEffect(() => {
@@ -106,7 +113,7 @@ export default function Onboarding() {
     window.addEventListener('resize', findTarget);
     window.addEventListener('scroll', findTarget, true);
 
-    // Also re-check periodically in case nodes are rendered after flow updates
+    // Re-check periodically in case nodes are rendered after flow updates
     const interval = setInterval(findTarget, 500);
 
     return () => {
@@ -152,9 +159,10 @@ export default function Onboarding() {
 
   const step = steps[currentStep];
   const tooltipStyle = getTooltipPosition(targetRect, step.position);
+  const arrowClass = styles[`arrow${step.position.charAt(0).toUpperCase() + step.position.slice(1)}`];
 
   return (
-    <div className={styles.tooltip} style={tooltipStyle}>
+    <div className={`${styles.tooltip} ${arrowClass}`} style={tooltipStyle}>
       <div className={styles.header}>
         <span className={styles.title}>{step.title}</span>
         <span className={styles.stepCount}>
@@ -186,7 +194,7 @@ function getTooltipPosition(
     };
   }
 
-  const offset = 12;
+  const offset = 16; // Increased offset for arrow space
   const tooltipWidth = 280;
   const tooltipHeight = 150;
 
@@ -198,7 +206,7 @@ function getTooltipPosition(
       };
     case 'top':
       return {
-        top: targetRect.top - tooltipHeight - offset,
+        top: targetRect.top - tooltipHeight - offset - 20, // Extra space so card is visible
         left: targetRect.left + targetRect.width / 2 - tooltipWidth / 2,
       };
     case 'right':

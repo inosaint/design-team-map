@@ -2,6 +2,7 @@
   position: fixed;
   width: 280px;
   background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-lg);
   padding: var(--space-3);
@@ -16,6 +17,53 @@
   to {
     opacity: 1;
   }
+}
+
+/* Arrow styles */
+.tooltip::before {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  transform: rotate(45deg);
+}
+
+/* Arrow pointing up (tooltip is below target) */
+.arrowBottom::before {
+  top: -7px;
+  left: 50%;
+  margin-left: -6px;
+  border-right: none;
+  border-bottom: none;
+}
+
+/* Arrow pointing down (tooltip is above target) */
+.arrowTop::before {
+  bottom: -7px;
+  left: 50%;
+  margin-left: -6px;
+  border-left: none;
+  border-top: none;
+}
+
+/* Arrow pointing left (tooltip is to the right of target) */
+.arrowRight::before {
+  left: -7px;
+  top: 50%;
+  margin-top: -6px;
+  border-right: none;
+  border-top: none;
+}
+
+/* Arrow pointing right (tooltip is to the left of target) */
+.arrowLeft::before {
+  right: -7px;
+  top: 50%;
+  margin-top: -6px;
+  border-left: none;
+  border-bottom: none;
 }
 
 .header {
