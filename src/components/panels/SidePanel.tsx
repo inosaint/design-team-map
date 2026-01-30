@@ -3,10 +3,10 @@ import { useStore, useSelectedNode } from '../../store/useStore';
 import {
   getLevelName,
   calculatePromotionEligibility,
-  getAvailableLevels,
-  levelRequiresTrack,
+  getAvailableLevelsFlat,
+  wouldCreateCircularReference,
 } from '../../utils/calculations';
-import type { CareerTrack, Gender } from '../../types';
+import type { CareerTrack, Gender, LevelConfig } from '../../types';
 import styles from './SidePanel.module.css';
 
 // Disconnect icon SVG
@@ -54,8 +54,7 @@ export default function SidePanel() {
   const [formData, setFormData] = useState({
     name: '',
     designerType: '',
-    level: 1,
-    track: undefined as CareerTrack | undefined,
+    levelConfigId: '', // Now store the level config ID which includes track info
     yearsOfExperience: 0,
     joiningDate: '',
     tentativeDate: '',
@@ -64,14 +63,26 @@ export default function SidePanel() {
     gender: undefined as Gender | undefined,
   });
 
+  // Helper to find level config ID from level + track
+  const getLevelConfigId = (level: number, track?: CareerTrack): string => {
+    const levels = getAvailableLevelsFlat(settings);
+    // Find matching level config
+    const config = levels.find(l => {
+      if (l.isMaxLevel && l.level === level) return true;
+      if (l.level === level && l.track === track) return true;
+      if (l.level === level && !l.track && !track) return true;
+      return false;
+    });
+    return config?.id || levels[0]?.id || '';
+  };
+
   // Sync form data when selected node changes
   useEffect(() => {
     if (selectedNode) {
       setFormData({
         name: selectedNode.name,
         designerType: selectedNode.designerType,
-        level: selectedNode.level,
-        track: selectedNode.track,
+        levelConfigId: getLevelConfigId(selectedNode.level, selectedNode.track),
         yearsOfExperience: selectedNode.yearsOfExperience || 0,
         joiningDate: selectedNode.isPlannedHire
           ? ''
@@ -84,17 +95,28 @@ export default function SidePanel() {
         gender: selectedNode.gender,
       });
     }
-  }, [selectedNode]);
+  }, [selectedNode, settings]);
+
+  // Helper to get level config from ID
+  const getLevelConfigFromId = (id: string): LevelConfig | undefined => {
+    const levels = getAvailableLevelsFlat(settings);
+    return levels.find(l => l.id === id);
+  };
 
   // Auto-save with debounce
   const saveChanges = useCallback(() => {
     if (!selectedNode) return;
 
+    // Get level and track from the selected level config
+    const levelConfig = getLevelConfigFromId(formData.levelConfigId);
+    const level = levelConfig?.level || 1;
+    const track = levelConfig?.track;
+
     const updates: Record<string, unknown> = {
       name: formData.name,
       designerType: formData.designerType,
-      level: formData.level,
-      track: levelRequiresTrack(formData.level, settings) ? formData.track : undefined,
+      level,
+      track,
       yearsOfExperience: formData.yearsOfExperience,
       managerId: formData.managerId,
       notes: formData.notes,
@@ -143,22 +165,10 @@ export default function SidePanel() {
     }));
   };
 
-  const handleLevelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newLevel = parseInt(e.target.value);
-    const requiresTrack = levelRequiresTrack(newLevel, settings);
-
+  const handleLevelConfigChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFormData((prev) => ({
       ...prev,
-      level: newLevel,
-      // Auto-select IC track if moving to a level that requires track
-      track: requiresTrack && !prev.track ? 'ic' : (requiresTrack ? prev.track : undefined),
-    }));
-  };
-
-  const handleTrackChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      track: e.target.value as CareerTrack,
+      levelConfigId: e.target.value,
     }));
   };
 
@@ -175,14 +185,16 @@ export default function SidePanel() {
 
   const promotionInfo = calculatePromotionEligibility(selectedNode, settings);
 
-  // Get potential managers (everyone except this node and their reports)
-  const potentialManagers = nodes.filter(
-    (n) => n.id !== selectedNode.id && n.managerId !== selectedNode.id
-  );
+  // Get potential managers (everyone except this node and nodes that would create a circular reference)
+  const potentialManagers = nodes.filter((n) => {
+    if (n.id === selectedNode.id) return false;
+    // Exclude nodes where setting them as manager would create a loop
+    if (wouldCreateCircularReference(selectedNode.id, n.id, nodes)) return false;
+    return true;
+  });
 
-  // Get available levels grouped by track
-  const availableLevels = getAvailableLevels(settings);
-  const showTrackSelection = levelRequiresTrack(formData.level, settings);
+  // Get available levels as a flat list
+  const availableLevels = getAvailableLevelsFlat(settings);
 
   // Get growth status text for the tag
   const getGrowthStatusTag = () => {
@@ -250,55 +262,20 @@ export default function SidePanel() {
         <div className={styles.field}>
           <label className="label">Level</label>
           <select
-            name="level"
+            name="levelConfigId"
             className="select"
-            value={formData.level}
-            onChange={handleLevelChange}
+            value={formData.levelConfigId}
+            onChange={handleLevelConfigChange}
           >
-            {availableLevels.shared.length > 0 && (
-              <optgroup label="Shared Levels">
-                {availableLevels.shared.map((level) => (
-                  <option key={`shared-${level.level}`} value={level.level}>
-                    {level.name}
-                  </option>
-                ))}
-              </optgroup>
-            )}
-            {availableLevels.ic.length > 0 && (
-              <optgroup label="IC Track">
-                {availableLevels.ic.map((level) => (
-                  <option key={`ic-${level.level}`} value={level.level}>
-                    {level.name}
-                  </option>
-                ))}
-              </optgroup>
-            )}
-            {availableLevels.manager.length > 0 && (
-              <optgroup label="Manager Track">
-                {availableLevels.manager.map((level) => (
-                  <option key={`manager-${level.level}`} value={level.level}>
-                    {level.name}
-                  </option>
-                ))}
-              </optgroup>
-            )}
+            {availableLevels.map((level) => (
+              <option key={level.id} value={level.id}>
+                {level.name}
+                {level.track && ` (${level.track === 'ic' ? 'IC' : 'Manager'})`}
+                {level.isMaxLevel && ' (Head)'}
+              </option>
+            ))}
           </select>
         </div>
-
-        {showTrackSelection && (
-          <div className={styles.field}>
-            <label className="label">Career Track</label>
-            <select
-              name="track"
-              className="select"
-              value={formData.track || 'ic'}
-              onChange={handleTrackChange}
-            >
-              <option value="ic">Individual Contributor</option>
-              <option value="manager">Manager</option>
-            </select>
-          </div>
-        )}
 
         <div className={styles.field}>
           <label className="label">Years of Experience</label>

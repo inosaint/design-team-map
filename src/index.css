@@ -363,6 +363,58 @@ h4 { font-size: 14px; }
   animation: slideIn 0.2s ease-out;
 }
 
+/* Toast notifications */
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--gray-800);
+  color: white;
+  border-radius: var(--border-radius);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  animation: toastIn 0.2s ease-out;
+  pointer-events: auto;
+}
+
+.toast.error {
+  background-color: var(--danger);
+}
+
+.toast.success {
+  background-color: var(--success);
+}
+
+.toast-icon {
+  font-size: 16px;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Print styles for PDF export */
 @media print {
   body {
