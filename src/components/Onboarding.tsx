@@ -10,7 +10,7 @@ interface OnboardingStep {
   title: string;
   content: string;
   position: 'top' | 'bottom' | 'left' | 'right';
-  requiresCard?: boolean;
+  minCards?: number; // Minimum cards required (0 = no cards needed)
 }
 
 const steps: OnboardingStep[] = [
@@ -19,28 +19,28 @@ const steps: OnboardingStep[] = [
     title: 'Add Team Members',
     content: 'Click here to add new team members or planned hires to your org chart.',
     position: 'bottom',
-    requiresCard: false,
+    minCards: 0,
   },
   {
     target: '.react-flow__node',
     title: 'Click to Edit',
     content: 'Click any card to select it and edit details in the side panel.',
     position: 'left',
-    requiresCard: true,
+    minCards: 1,
   },
   {
     target: '.react-flow__node',
     title: 'Drag to Move',
     content: 'Drag anywhere on the card to reposition it on the canvas.',
     position: 'left',
-    requiresCard: true,
+    minCards: 1,
   },
   {
     target: '.react-flow__node',
     title: 'Connect to Set Manager',
     content: 'Drag between handles to connect cards, or use the Manager dropdown in the editor panel.',
     position: 'top',
-    requiresCard: true,
+    minCards: 2,
   },
 ];
 
@@ -49,12 +49,14 @@ export default function Onboarding() {
   const [isVisible, setIsVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
-  const [waitingForCard, setWaitingForCard] = useState(false);
+  const [waitingForCards, setWaitingForCards] = useState(false);
   const timerRef = useRef<number | null>(null);
 
-  const hasCards = nodes.length > 0;
+  const cardCount = nodes.length;
+  const currentStepMinCards = steps[currentStep]?.minCards ?? 0;
+  const hasEnoughCards = cardCount >= currentStepMinCards;
 
-  console.log('[Onboarding] render:', { hasCards, waitingForCard, isVisible, currentStep, nodesLength: nodes.length });
+  console.log('[Onboarding] render:', { cardCount, waitingForCards, isVisible, currentStep, currentStepMinCards, hasEnoughCards });
 
   // Initialize onboarding on mount
   useEffect(() => {
@@ -64,14 +66,15 @@ export default function Onboarding() {
 
     const savedStep = localStorage.getItem(ONBOARDING_STEP_KEY);
     const stepNum = savedStep ? parseInt(savedStep, 10) : 0;
+    const stepMinCards = steps[stepNum]?.minCards ?? 0;
 
-    console.log('[Onboarding] init effect - stepNum:', stepNum);
+    console.log('[Onboarding] init effect - stepNum:', stepNum, 'minCards:', stepMinCards, 'current cardCount:', cardCount);
     setCurrentStep(stepNum);
 
-    // If step requires card and none exist, wait for cards
-    if (stepNum > 0 && steps[stepNum]?.requiresCard) {
-      console.log('[Onboarding] init effect - waiting for card');
-      setWaitingForCard(true);
+    // If step requires more cards than we have, wait
+    if (cardCount < stepMinCards) {
+      console.log('[Onboarding] init effect - waiting for cards');
+      setWaitingForCards(true);
       return;
     }
 
@@ -85,12 +88,12 @@ export default function Onboarding() {
 
   // Watch for card additions when waiting
   useEffect(() => {
-    console.log('[Onboarding] card watch effect:', { waitingForCard, hasCards });
+    console.log('[Onboarding] card watch effect:', { waitingForCards, cardCount, currentStepMinCards, hasEnoughCards });
 
-    if (!waitingForCard) return;
-    if (!hasCards) return;
+    if (!waitingForCards) return;
+    if (!hasEnoughCards) return;
 
-    console.log('[Onboarding] card detected! showing tooltip after delay...');
+    console.log('[Onboarding] enough cards detected! showing tooltip after delay...');
 
     // Clear any existing timer
     if (timerRef.current) {
@@ -99,7 +102,7 @@ export default function Onboarding() {
 
     timerRef.current = window.setTimeout(() => {
       console.log('[Onboarding] delay complete, showing tooltip');
-      setWaitingForCard(false);
+      setWaitingForCards(false);
       setIsVisible(true);
     }, 1500);
 
@@ -108,7 +111,7 @@ export default function Onboarding() {
         clearTimeout(timerRef.current);
       }
     };
-  }, [waitingForCard, hasCards]);
+  }, [waitingForCards, hasEnoughCards]);
 
   // Find and update target element position
   useEffect(() => {
@@ -140,26 +143,27 @@ export default function Onboarding() {
 
   const handleNext = useCallback(() => {
     const nextStep = currentStep + 1;
-    console.log('[Onboarding] handleNext:', { currentStep, nextStep, hasCards });
+    const nextStepMinCards = steps[nextStep]?.minCards ?? 0;
+    console.log('[Onboarding] handleNext:', { currentStep, nextStep, cardCount, nextStepMinCards });
 
     if (nextStep >= steps.length) {
       handleComplete();
       return;
     }
 
-    // If next step requires a card and none exist, pause and wait
-    if (steps[nextStep].requiresCard && !hasCards) {
-      console.log('[Onboarding] handleNext - next step requires card, setting waitingForCard=true');
+    // If next step requires more cards than we have, pause and wait
+    if (cardCount < nextStepMinCards) {
+      console.log('[Onboarding] handleNext - need', nextStepMinCards, 'cards, have', cardCount, '- waiting');
       localStorage.setItem(ONBOARDING_STEP_KEY, nextStep.toString());
       setCurrentStep(nextStep);
       setIsVisible(false);
-      setWaitingForCard(true);
+      setWaitingForCards(true);
       return;
     }
 
     localStorage.setItem(ONBOARDING_STEP_KEY, nextStep.toString());
     setCurrentStep(nextStep);
-  }, [currentStep, hasCards]);
+  }, [currentStep, cardCount]);
 
   const handleSkip = useCallback(() => {
     handleComplete();
@@ -169,7 +173,7 @@ export default function Onboarding() {
     localStorage.setItem(ONBOARDING_KEY, 'true');
     localStorage.removeItem(ONBOARDING_STEP_KEY);
     setIsVisible(false);
-    setWaitingForCard(false);
+    setWaitingForCards(false);
   }, []);
 
   if (!isVisible) return null;
