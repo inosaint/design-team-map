@@ -36,10 +36,10 @@ const steps: OnboardingStep[] = [
     requiresCard: true,
   },
   {
-    target: '.react-flow__handle',
+    target: '.react-flow__node',
     title: 'Connect to Set Manager',
     content: 'Drag from the bottom handle of a manager to the top handle of a report to create reporting relationships.',
-    position: 'bottom',
+    position: 'top',
     requiresCard: true,
   },
 ];
