@@ -160,14 +160,22 @@ function FlowChartInner() {
     setEdges(flowEdges);
   }, [flowEdges, setEdges]);
 
-  // Fit view only on initial mount or when first nodes are added
+  // Fit view when nodes are added
   useEffect(() => {
+    const nodesIncreased = teamNodes.length > prevNodeCount.current;
+    const onboardingActive = !localStorage.getItem('design-team-map-onboarding-completed');
+
     if (isInitialMount.current && teamNodes.length > 0) {
       // Small delay to ensure nodes are rendered
       setTimeout(() => {
         fitView({ padding: 0.2, duration: 200 });
       }, 100);
       isInitialMount.current = false;
+    } else if (nodesIncreased && onboardingActive) {
+      // During onboarding, fit view whenever cards are added
+      setTimeout(() => {
+        fitView({ padding: 0.2, duration: 200 });
+      }, 100);
     } else if (prevNodeCount.current === 0 && teamNodes.length > 0) {
       // First nodes added after empty state
       setTimeout(() => {

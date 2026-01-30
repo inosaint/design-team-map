@@ -3,6 +3,7 @@ import Toolbar from './components/Toolbar';
 import SidePanel from './components/panels/SidePanel';
 import SettingsPanel from './components/panels/SettingsPanel';
 import Toast from './components/Toast';
+import Onboarding from './components/Onboarding';
 import styles from './App.module.css';
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
       <SidePanel />
       <SettingsPanel />
       <Toast />
+      <Onboarding />
     </div>
   );
 }

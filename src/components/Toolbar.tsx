@@ -105,6 +105,7 @@ export default function Toolbar() {
           <button
             className="btn btn-primary"
             onClick={() => setShowAddMenu(!showAddMenu)}
+            data-testid="add-member-btn"
           >
             + Add
           </button>
