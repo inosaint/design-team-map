@@ -86,9 +86,10 @@ export default function SettingsPanel() {
 
     const levelToRemove = settings.levels[index];
 
-    // Don't allow removing the head level
+    // If removing the head level, just remove it (allows flexibility for multi-discipline orgs)
     if (levelToRemove.isMaxLevel) {
-      alert('Cannot remove the Head of Design level. It must always exist as the top level.');
+      const newLevels = settings.levels.filter((_, i) => i !== index);
+      updateSettings({ levels: newLevels });
       return;
     }
 
@@ -379,10 +380,10 @@ export default function SettingsPanel() {
                           <button
                             className={styles.removeLevelBtn}
                             onClick={() => handleRemoveLevel(index)}
-                            disabled={settings.levels.length <= 1 || isHeadLevel}
-                            title={isHeadLevel ? 'Cannot remove Head of Design level' : 'Remove level'}
+                            disabled={settings.levels.length <= 1}
+                            title="Remove level"
                           >
-                            {isHeadLevel ? 'Cannot Remove' : 'Remove'}
+                            Remove
                           </button>
                         </div>
                       )}
