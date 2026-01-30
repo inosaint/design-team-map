@@ -1,6 +1,143 @@
 import type { TeamNode, Settings, LevelConfig, CareerTrack } from '../types';
 
 /**
+ * Generate a unique level config ID
+ */
+export function generateLevelId(level: number, track?: CareerTrack, isMaxLevel?: boolean): string {
+  if (isMaxLevel) {
+    return `level-${level}-head`;
+  }
+  if (track) {
+    return `level-${level}-${track}`;
+  }
+  return `level-${level}`;
+}
+
+/**
+ * Get level config by ID
+ */
+export function getLevelConfigById(id: string, levels: LevelConfig[]): LevelConfig | undefined {
+  return levels.find(l => l.id === id);
+}
+
+/**
+ * Get the level config ID for a node's level and track
+ */
+export function getLevelConfigIdForNode(level: number, track: CareerTrack | undefined, settings: Settings): string {
+  // Check if this is the max level (head of design)
+  const maxLevel = Math.max(...settings.levels.map(l => l.level));
+  const headLevel = settings.levels.find(l => l.isMaxLevel && l.level === level);
+
+  if (headLevel) {
+    return headLevel.id;
+  }
+
+  // Check if level requires track
+  if (level >= settings.trackSplitLevel && level < maxLevel) {
+    return generateLevelId(level, track || 'ic');
+  }
+
+  return generateLevelId(level);
+}
+
+/**
+ * Regenerate levels when split level changes
+ * Preserves level names and settings where possible
+ */
+export function regenerateLevelsForSplitLevel(
+  currentLevels: LevelConfig[],
+  newSplitLevel: number,
+  maxLevel?: number
+): LevelConfig[] {
+  // Determine max level from current levels if not specified
+  const currentMaxLevel = maxLevel || Math.max(...currentLevels.map(l => l.level));
+
+  // Get head of design config (always exists at max level)
+  const headConfig = currentLevels.find(l => l.isMaxLevel);
+  const headName = headConfig?.name || 'Head of Design';
+  const headColor = headConfig?.color || '#22C55E';
+  const headYears = headConfig?.minYearsFromPrevious || 4;
+
+  const newLevels: LevelConfig[] = [];
+
+  // Default colors for IC and Manager tracks
+  const icColors = ['#F97316', '#EA580C', '#DC2626', '#B91C1C', '#991B1B'];
+  const mgrColors = ['#86EFAC', '#4ADE80', '#22C55E', '#16A34A', '#15803D'];
+  const sharedColors = ['#FED7AA', '#FDBA74', '#FB923C', '#F97316', '#EA580C'];
+
+  // Generate shared levels (1 to splitLevel - 1)
+  for (let level = 1; level < newSplitLevel; level++) {
+    // Try to find existing config for this level
+    const existing = currentLevels.find(l => l.level === level && !l.track && !l.isMaxLevel);
+
+    newLevels.push({
+      id: generateLevelId(level),
+      level,
+      name: existing?.name || `Designer ${['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'][level - 1] || level}`,
+      color: existing?.color || sharedColors[level - 1] || '#e4e4e7',
+      minYearsFromPrevious: existing?.minYearsFromPrevious ?? (level === 1 ? 0 : 1.5),
+    });
+  }
+
+  // Generate IC and Manager track levels (splitLevel to maxLevel - 1)
+  for (let level = newSplitLevel; level < currentMaxLevel; level++) {
+    const levelIndex = level - newSplitLevel;
+
+    // IC track
+    const existingIc = currentLevels.find(l => l.level === level && l.track === 'ic');
+    newLevels.push({
+      id: generateLevelId(level, 'ic'),
+      level,
+      name: existingIc?.name || getDefaultIcName(level, newSplitLevel),
+      color: existingIc?.color || icColors[levelIndex] || '#EA580C',
+      minYearsFromPrevious: existingIc?.minYearsFromPrevious ?? 3,
+      track: 'ic',
+    });
+
+    // Manager track
+    const existingMgr = currentLevels.find(l => l.level === level && l.track === 'manager');
+    newLevels.push({
+      id: generateLevelId(level, 'manager'),
+      level,
+      name: existingMgr?.name || getDefaultManagerName(level, newSplitLevel),
+      color: existingMgr?.color || mgrColors[levelIndex] || '#4ADE80',
+      minYearsFromPrevious: existingMgr?.minYearsFromPrevious ?? 3,
+      track: 'manager',
+    });
+  }
+
+  // Add head of design (max level, no track)
+  newLevels.push({
+    id: generateLevelId(currentMaxLevel, undefined, true),
+    level: currentMaxLevel,
+    name: headName,
+    color: headColor,
+    minYearsFromPrevious: headYears,
+    isMaxLevel: true,
+  });
+
+  return newLevels;
+}
+
+/**
+ * Get default IC track name for a level
+ */
+function getDefaultIcName(level: number, splitLevel: number): string {
+  const icTitles = ['Senior Designer', 'Staff Designer', 'Principal Designer', 'Distinguished Designer'];
+  const index = level - splitLevel;
+  return icTitles[index] || `IC Level ${level}`;
+}
+
+/**
+ * Get default Manager track name for a level
+ */
+function getDefaultManagerName(level: number, splitLevel: number): string {
+  const mgrTitles = ['Design Manager', 'Senior Design Manager', 'Design Director', 'VP of Design'];
+  const index = level - splitLevel;
+  return mgrTitles[index] || `Manager Level ${level}`;
+}
+
+/**
  * Calculate the number of direct reports for each manager
  */
 export function calculateReportCounts(nodes: TeamNode[]): Map<string, number> {
@@ -95,20 +232,49 @@ export function getAvailableLevels(settings: Settings): {
   shared: LevelConfig[];
   ic: LevelConfig[];
   manager: LevelConfig[];
+  head: LevelConfig | null;
 } {
-  // Shared levels: no track OR levels below trackSplitLevel without track
+  // Shared levels: no track and not max level
   const shared = settings.levels.filter(
-    (l) => !l.track || l.level < settings.trackSplitLevel
+    (l) => !l.track && !l.isMaxLevel
   );
   const ic = settings.levels.filter((l) => l.track === 'ic');
   const manager = settings.levels.filter((l) => l.track === 'manager');
+  const head = settings.levels.find((l) => l.isMaxLevel) || null;
 
-  // If there are no track-specific levels, include all levels in shared
-  if (ic.length === 0 && manager.length === 0) {
-    return { shared: settings.levels, ic: [], manager: [] };
+  return { shared, ic, manager, head };
+}
+
+/**
+ * Get all levels as a flat list for simple dropdown rendering
+ * Orders by: shared levels, then paired IC/Manager levels by level number, then head
+ */
+export function getAvailableLevelsFlat(settings: Settings): LevelConfig[] {
+  const { shared, ic, manager, head } = getAvailableLevels(settings);
+
+  // Sort shared by level
+  const sortedShared = [...shared].sort((a, b) => a.level - b.level);
+
+  // Interleave IC and Manager by level number
+  const splitLevels: LevelConfig[] = [];
+  const maxSplitLevel = Math.max(
+    ...ic.map(l => l.level),
+    ...manager.map(l => l.level),
+    0
+  );
+
+  for (let level = settings.trackSplitLevel; level <= maxSplitLevel; level++) {
+    const icLevel = ic.find(l => l.level === level);
+    const mgrLevel = manager.find(l => l.level === level);
+    if (icLevel) splitLevels.push(icLevel);
+    if (mgrLevel) splitLevels.push(mgrLevel);
   }
 
-  return { shared, ic, manager };
+  // Combine all
+  const result = [...sortedShared, ...splitLevels];
+  if (head) result.push(head);
+
+  return result;
 }
 
 /**

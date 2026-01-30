@@ -22,10 +22,9 @@ export default function Toolbar() {
   }, [settings.teamName]);
 
   const handleAddTeamMember = () => {
-    const defaultType = settings.designerTypes[0]?.id || 'product';
     addTeamMember({
       name: 'New Designer',
-      designerType: defaultType,
+      designerType: '', // Empty string shows "Select type..." placeholder
       level: 1,
       yearsOfExperience: 0,
       managerId: undefined, // undefined = unassigned, can have manager
@@ -34,10 +33,9 @@ export default function Toolbar() {
   };
 
   const handleAddPlannedHire = () => {
-    const defaultType = settings.designerTypes[0]?.id || 'product';
     addPlannedHire({
       name: 'TBD',
-      designerType: defaultType,
+      designerType: '', // Empty string shows "Select type..." placeholder
       level: 1,
       tentativeDate: 'Q1 2025',
       managerId: undefined, // undefined = unassigned, can have manager

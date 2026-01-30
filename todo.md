@@ -112,3 +112,6 @@ MVP complete! Core features implemented:
 - Responsive design adjustments
 - Keyboard shortcuts
 - Empty state and onboarding hints
+- Distributed teams support (setting in Advanced)
+- Drag-and-drop reordering of level accordions
+- Fix glitchy tooltip on hover (span of control warning)

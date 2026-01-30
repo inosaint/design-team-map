@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useStore } from '../../store/useStore';
 import type { LevelConfig, DesignerTypeConfig } from '../../types';
 import { DEFAULT_SETTINGS } from '../../types';
+import { regenerateLevelsForSplitLevel, generateLevelId } from '../../utils/calculations';
 import styles from './SettingsPanel.module.css';
 
 type TabType = 'levels' | 'types' | 'advanced' | 'about' | 'import-export';
@@ -29,24 +30,137 @@ export default function SettingsPanel() {
   };
 
   const handleAddLevel = () => {
-    const newLevel: LevelConfig = {
-      level: settings.levels.length + 1,
-      name: `Level ${settings.levels.length + 1}`,
-      color: '#fdba74',
-      minYearsFromPrevious: 2,
-    };
-    updateSettings({ levels: [...settings.levels, newLevel] });
+    // Get max level number
+    const maxLevelNum = Math.max(...settings.levels.map(l => l.level));
+    const headLevel = settings.levels.find(l => l.isMaxLevel);
+
+    // If we have a head level, we need to:
+    // 1. Add new IC and Manager levels at the current max level position
+    // 2. Move head level to max + 1
+    if (headLevel) {
+      const newLevels = settings.levels.filter(l => !l.isMaxLevel);
+
+      // Add IC track level
+      newLevels.push({
+        id: generateLevelId(maxLevelNum, 'ic'),
+        level: maxLevelNum,
+        name: `IC Level ${maxLevelNum}`,
+        color: '#EA580C',
+        minYearsFromPrevious: 3,
+        track: 'ic',
+      });
+
+      // Add Manager track level
+      newLevels.push({
+        id: generateLevelId(maxLevelNum, 'manager'),
+        level: maxLevelNum,
+        name: `Manager Level ${maxLevelNum}`,
+        color: '#4ADE80',
+        minYearsFromPrevious: 3,
+        track: 'manager',
+      });
+
+      // Move head level up
+      newLevels.push({
+        ...headLevel,
+        id: generateLevelId(maxLevelNum + 1, undefined, true),
+        level: maxLevelNum + 1,
+      });
+
+      updateSettings({ levels: newLevels });
+    } else {
+      // No head level yet, add a basic level
+      const newLevel: LevelConfig = {
+        id: generateLevelId(maxLevelNum + 1),
+        level: maxLevelNum + 1,
+        name: `Level ${maxLevelNum + 1}`,
+        color: '#fdba74',
+        minYearsFromPrevious: 2,
+      };
+      updateSettings({ levels: [...settings.levels, newLevel] });
+    }
   };
 
   const handleRemoveLevel = (index: number) => {
     if (settings.levels.length <= 1) return;
-    const newLevels = settings.levels.filter((_, i) => i !== index);
-    // Re-number levels
-    const renumberedLevels = newLevels.map((level, i) => ({
-      ...level,
-      level: i + 1,
-    }));
-    updateSettings({ levels: renumberedLevels });
+
+    const levelToRemove = settings.levels[index];
+
+    // Don't allow removing the head level
+    if (levelToRemove.isMaxLevel) {
+      alert('Cannot remove the Head of Design level. It must always exist as the top level.');
+      return;
+    }
+
+    // If removing a track-specific level, also remove its counterpart
+    if (levelToRemove.track) {
+      const counterpartTrack = levelToRemove.track === 'ic' ? 'manager' : 'ic';
+      const counterpart = settings.levels.find(
+        l => l.level === levelToRemove.level && l.track === counterpartTrack
+      );
+
+      let newLevels = settings.levels.filter(l =>
+        l.id !== levelToRemove.id && l.id !== counterpart?.id
+      );
+
+      // Renumber remaining levels and update head level
+      newLevels = renumberLevels(newLevels, settings.trackSplitLevel);
+      updateSettings({ levels: newLevels });
+    } else {
+      // Removing a shared level
+      let newLevels = settings.levels.filter((_, i) => i !== index);
+      newLevels = renumberLevels(newLevels, settings.trackSplitLevel);
+      updateSettings({ levels: newLevels });
+    }
+  };
+
+  // Helper to renumber levels after removal
+  const renumberLevels = (levels: LevelConfig[], splitLevel: number): LevelConfig[] => {
+    // Group levels
+    const shared = levels.filter(l => !l.track && !l.isMaxLevel).sort((a, b) => a.level - b.level);
+    const ic = levels.filter(l => l.track === 'ic').sort((a, b) => a.level - b.level);
+    const manager = levels.filter(l => l.track === 'manager').sort((a, b) => a.level - b.level);
+    const head = levels.find(l => l.isMaxLevel);
+
+    const result: LevelConfig[] = [];
+
+    // Renumber shared levels (1 to splitLevel - 1)
+    shared.forEach((l, i) => {
+      const newLevel = i + 1;
+      result.push({ ...l, id: generateLevelId(newLevel), level: newLevel });
+    });
+
+    // Renumber IC/Manager levels
+    const splitLevelCount = Math.max(ic.length, manager.length);
+    for (let i = 0; i < splitLevelCount; i++) {
+      const levelNum = splitLevel + i;
+      if (ic[i]) {
+        result.push({ ...ic[i], id: generateLevelId(levelNum, 'ic'), level: levelNum });
+      }
+      if (manager[i]) {
+        result.push({ ...manager[i], id: generateLevelId(levelNum, 'manager'), level: levelNum });
+      }
+    }
+
+    // Add head at the end
+    if (head) {
+      const maxLevel = splitLevel + splitLevelCount;
+      result.push({ ...head, id: generateLevelId(maxLevel, undefined, true), level: maxLevel });
+    }
+
+    return result;
+  };
+
+  const handleTrackSplitLevelChange = (newSplitLevel: number) => {
+    const maxLevel = Math.max(...settings.levels.map(l => l.level));
+
+    // Validate: split level must be at least 2 and less than max level
+    if (newSplitLevel < 2 || newSplitLevel >= maxLevel) {
+      return;
+    }
+
+    const newLevels = regenerateLevelsForSplitLevel(settings.levels, newSplitLevel, maxLevel);
+    updateSettings({ levels: newLevels, trackSplitLevel: newSplitLevel });
   };
 
   const handleTypeChange = (
@@ -179,10 +293,11 @@ export default function SettingsPanel() {
               <div className={styles.levelsList}>
                 {settings.levels.map((level, index) => {
                   const isExpanded = expandedLevel === index;
-                  const isManagerTrack = level.level >= settings.trackSplitLevel && level.track === 'manager';
+                  const isManagerTrack = level.track === 'manager';
+                  const isHeadLevel = level.isMaxLevel;
 
                   return (
-                    <div key={index} className={styles.levelItem}>
+                    <div key={level.id || index} className={styles.levelItem}>
                       <div
                         className={styles.levelAccordion}
                         onClick={() => setExpandedLevel(isExpanded ? null : index)}
@@ -193,7 +308,11 @@ export default function SettingsPanel() {
                             style={{ backgroundColor: level.color }}
                           />
                           <span className={styles.levelName}>{level.name}</span>
-                          {level.level >= settings.trackSplitLevel && (
+                          {isHeadLevel ? (
+                            <span className={`${styles.trackBadge} ${styles.head}`}>
+                              HEAD
+                            </span>
+                          ) : level.track && (
                             <span className={`${styles.trackBadge} ${isManagerTrack ? styles.manager : ''}`}>
                               {isManagerTrack ? 'MGR' : 'IC'}
                             </span>
@@ -247,32 +366,23 @@ export default function SettingsPanel() {
                               />
                             </div>
                           </div>
-                          {/* Show track toggle for levels at or above split level */}
-                          {level.level >= settings.trackSplitLevel && (
-                            <div className={styles.trackToggle}>
-                              <span className={styles.trackLabel}>Manager Track</span>
-                              <label className={styles.toggleSmall}>
-                                <input
-                                  type="checkbox"
-                                  checked={level.track === 'manager'}
-                                  onChange={(e) =>
-                                    handleLevelChange(
-                                      index,
-                                      'track',
-                                      e.target.checked ? 'manager' : 'ic'
-                                    )
-                                  }
-                                />
-                                <span className={styles.toggleSliderSmall}></span>
-                              </label>
+                          {/* Track info - read only, determined by split level setting */}
+                          {(level.track || isHeadLevel) && (
+                            <div className={styles.trackInfo}>
+                              <span className={styles.trackInfoLabel}>
+                                {isHeadLevel
+                                  ? 'This is the top level where both career tracks converge.'
+                                  : `This is a ${isManagerTrack ? 'Manager' : 'IC'} track level. Change the split level in Advanced settings to modify.`}
+                              </span>
                             </div>
                           )}
                           <button
                             className={styles.removeLevelBtn}
                             onClick={() => handleRemoveLevel(index)}
-                            disabled={settings.levels.length <= 1}
+                            disabled={settings.levels.length <= 1 || isHeadLevel}
+                            title={isHeadLevel ? 'Cannot remove Head of Design level' : 'Remove level'}
                           >
-                            Remove
+                            {isHeadLevel ? 'Cannot Remove' : 'Remove'}
                           </button>
                         </div>
                       )}
@@ -379,19 +489,15 @@ export default function SettingsPanel() {
               <div className={styles.field}>
                 <label className="label">Track Split Level</label>
                 <p className={styles.fieldDesc}>
-                  Level at which IC and Manager tracks diverge
+                  Level at which IC and Manager career tracks diverge. Changing this will regenerate levels.
                 </p>
                 <input
                   type="number"
                   className="input"
                   value={settings.trackSplitLevel}
-                  onChange={(e) =>
-                    updateSettings({
-                      trackSplitLevel: parseInt(e.target.value) || 4,
-                    })
-                  }
-                  min="1"
-                  max="10"
+                  onChange={(e) => handleTrackSplitLevelChange(parseInt(e.target.value) || 4)}
+                  min="2"
+                  max={Math.max(...settings.levels.map(l => l.level)) - 1}
                   style={{ maxWidth: '100px' }}
                 />
               </div>
