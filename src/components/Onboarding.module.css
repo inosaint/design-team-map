@@ -1,0 +1,102 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.spotlight {
+  position: fixed;
+  border-radius: var(--border-radius);
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.tooltip {
+  position: fixed;
+  width: 280px;
+  background-color: var(--bg-secondary);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-3);
+  pointer-events: auto;
+  z-index: 1001;
+  animation: tooltipFadeIn 0.2s ease-out;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+
+.title {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.stepCount {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.content {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 var(--space-3) 0;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.skipBtn {
+  padding: var(--space-1) var(--space-2);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.skipBtn:hover {
+  color: var(--text-secondary);
+}
+
+.nextBtn {
+  padding: var(--space-1) var(--space-3);
+  background-color: var(--primary);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.nextBtn:hover {
+  background-color: var(--primary-hover);
+}
