@@ -402,10 +402,21 @@
 }
 
 .teamCountLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
   font-size: 12px;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.teamCountIcon {
+  display: none;
+}
+
+.teamCountText {
+  display: inline;
 }
 
 .teamCountStepper {
@@ -599,7 +610,31 @@
     padding: var(--space-3) var(--space-4);
   }
 
-  .previewStats {
-    gap: var(--space-4);
+  /* Preview step - stack vertically on mobile */
+  .previewStep {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .previewLeft {
+    padding: var(--space-3);
+  }
+
+  .previewIllustration {
+    height: 80px;
+    margin-bottom: var(--space-3);
+  }
+
+  /* Show person icon, hide text on mobile */
+  .teamCountIcon {
+    display: block;
+  }
+
+  .teamCountText {
+    display: none;
+  }
+
+  .teamCountValue {
+    font-size: 24px;
   }
 }

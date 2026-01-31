@@ -916,7 +916,13 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
                   {structureType === 'pods' && StructureIllustrations.pods}
                 </div>
                 <div className={styles.teamCountControl}>
-                  <label className={styles.teamCountLabel}>Team size</label>
+                  <label className={styles.teamCountLabel}>
+                    <svg className={styles.teamCountIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    <span className={styles.teamCountText}>Team size</span>
+                  </label>
                   <div className={styles.teamCountStepper}>
                     <button
                       className={styles.stepperBtn}
@@ -966,11 +972,6 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
                 Back
               </button>
             )}
-            {step === 0 && (
-              <button className={styles.skipBtn} onClick={onClose}>
-                Start from scratch
-              </button>
-            )}
 
             {/* Progress dots in center */}
             <div className={styles.progress}>
@@ -992,7 +993,7 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
               </button>
             ) : (
               <button className={styles.applyBtn} onClick={handleApply}>
-                Create my org map
+                Create
               </button>
             )}
           </div>

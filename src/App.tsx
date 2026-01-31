@@ -9,18 +9,21 @@ import { useStore } from './store/useStore';
 import Onboarding from './components/Onboarding';
 import styles from './App.module.css';
 
+const QUICKSTART_SEEN_KEY = 'org-mapper-quickstart-seen';
+
 function App() {
   const nodes = useStore((state) => state.nodes);
   const [showQuickstart, setShowQuickstart] = useState(false);
   const [hasCheckedInitial, setHasCheckedInitial] = useState(false);
 
-  // Show quickstart wizard on first launch if there are no nodes
+  // Show quickstart wizard on first launch if there are no nodes and user hasn't seen it
   useEffect(() => {
     if (!hasCheckedInitial) {
       setHasCheckedInitial(true);
       // Small delay to let the store hydrate from localStorage
       const timer = setTimeout(() => {
-        if (nodes.length === 0) {
+        const hasSeenQuickstart = localStorage.getItem(QUICKSTART_SEEN_KEY) === 'true';
+        if (nodes.length === 0 && !hasSeenQuickstart) {
           setShowQuickstart(true);
         }
       }, 100);
@@ -34,6 +37,8 @@ function App() {
 
   const handleCloseQuickstart = () => {
     setShowQuickstart(false);
+    // Mark as seen so it doesn't auto-show again
+    localStorage.setItem(QUICKSTART_SEEN_KEY, 'true');
   };
 
   return (
