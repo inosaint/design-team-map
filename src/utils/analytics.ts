@@ -1,5 +1,20 @@
 import posthog from 'posthog-js'
 
+// Initialize PostHog - call this once at app startup
+export const initPostHog = () => {
+  if (typeof window !== 'undefined') {
+    posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY || '', {
+      api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com',
+      capture_pageview: true,
+      capture_pageleave: true,
+      respect_dnt: true,
+    })
+
+    // Expose to window for debugging
+    ;(window as unknown as { posthog: typeof posthog }).posthog = posthog
+  }
+}
+
 // Analytics event types
 export const AnalyticsEvents = {
   // Card events
