@@ -54,8 +54,8 @@ function TeamMemberNode({ data, selected }: TeamMemberNodeProps) {
 
       <div className={styles.header} style={{ backgroundColor: levelColor }}>
         <span className={styles.level}>{levelName}</span>
-        {/* Hide designer type for leadership/top-level roles */}
-        {!isLeadership && <span className={styles.type}>{typeAbbr}</span>}
+        {/* Hide designer type for leadership/top-level roles or when not set */}
+        {!isLeadership && typeAbbr && <span className={styles.type}>{typeAbbr}</span>}
       </div>
 
       <div className={styles.content}>

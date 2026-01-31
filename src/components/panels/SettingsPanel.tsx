@@ -550,7 +550,7 @@ export default function SettingsPanel({ onOpenQuickstart }: SettingsPanelProps) 
           {activeTab === 'about' && (
             <div className={styles.section}>
               <div className={styles.aboutHeader}>
-                <h3 className={styles.aboutTitle}>Org Mapper</h3>
+<h3 className={styles.aboutTitle}>Org Mapper</h3>
                 <span className={styles.version}>v0.3.0</span>
               </div>
 
@@ -559,6 +559,14 @@ export default function SettingsPanel({ onOpenQuickstart }: SettingsPanelProps) 
               </p>
 
               <div className={styles.aboutLinks}>
+                <a
+                  href="https://github.com/inosaint/design-team-map/blob/main/CHANGELOG.md"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.aboutLink}
+                >
+                  Changelog
+                </a>
                 <a
                   href="https://creativecommons.org/licenses/by-nc-sa/4.0/"
                   target="_blank"
@@ -606,7 +614,7 @@ export default function SettingsPanel({ onOpenQuickstart }: SettingsPanelProps) 
                   <div className={styles.divider} />
                   <h4 className={styles.attributionsTitle}>Getting Started</h4>
                   <p className={styles.quickstartDesc}>
-                    New to Design Team Map? Use the quickstart wizard to generate a starter org chart.
+                    New to Org Mapper? Use the quickstart wizard to generate a starter org chart.
                   </p>
                   <button
                     className="btn btn-primary"
@@ -619,6 +627,17 @@ export default function SettingsPanel({ onOpenQuickstart }: SettingsPanelProps) 
                   </button>
                 </div>
               )}
+
+              <div className={styles.author}>
+                Built by{' '}
+                <a
+                  href="https://x.com/kenneth"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  @kenneth
+                </a>
+              </div>
             </div>
           )}
 

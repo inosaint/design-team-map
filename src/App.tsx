@@ -6,6 +6,7 @@ import SettingsPanel from './components/panels/SettingsPanel';
 import QuickstartWizard from './components/QuickstartWizard';
 import Toast from './components/Toast';
 import { useStore } from './store/useStore';
+import Onboarding from './components/Onboarding';
 import styles from './App.module.css';
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
       <SettingsPanel onOpenQuickstart={handleOpenQuickstart} />
       <Toast />
       {showQuickstart && <QuickstartWizard onClose={handleCloseQuickstart} />}
+      <Onboarding />
     </div>
   );
 }
