@@ -381,17 +381,16 @@ const StructureIllustrations = {
 
 // Template generator
 function generateTemplate(
-  size: TeamSize,
   structure: StructureType,
   selectedTypes: string[],
-  industry: IndustryPreset
+  industry: IndustryPreset,
+  teamCount: number
 ): { nodes: TeamNode[]; positions: Map<string, { x: number; y: number }> } {
   const nodes: TeamNode[] = [];
   const positions = new Map<string, { x: number; y: number }>();
 
   // Get the first selected type or default to first available
   const primaryType = selectedTypes[0] || industry.roleTypes[0]?.id || 'type1';
-  const secondaryType = selectedTypes[1] || primaryType;
 
   // Get level names from industry
   const getLevelName = (level: number, track?: 'ic' | 'manager'): string => {
@@ -422,164 +421,159 @@ function generateTemplate(
     };
   };
 
-  // Helper to create a planned hire
-  const createPlannedHire = (
-    name: string,
-    level: number,
-    type: string,
-    managerId: string | null,
-    track?: 'ic' | 'manager'
-  ): TeamNode => {
-    const id = uuidv4();
-    return {
-      id,
-      name,
-      designerType: type,
-      level,
-      track: level >= 4 ? (track || 'ic') : undefined,
-      managerId,
-      tentativeDate: 'Q2 2025',
-      isPlannedHire: true,
-    };
-  };
+  const cardSpacing = 250; // Horizontal spacing between cards
 
   if (structure === 'flat') {
     // Flat structure: one lead with direct reports
-    const leadLevel = size === 'tiny' ? 4 : 5;
+    const leadLevel = teamCount <= 4 ? 4 : 5;
     const lead = createMember(getLevelName(leadLevel, 'ic'), leadLevel, primaryType, null, 'ic');
     nodes.push(lead);
     positions.set(lead.id, { x: 400, y: 50 });
 
-    const memberCount = size === 'tiny' ? 2 : size === 'small' ? 4 : size === 'medium' ? 6 : 8;
-    const startX = 400 - ((memberCount - 1) * 100);
+    // All other members report to lead
+    const memberCount = teamCount - 1;
+    const totalWidth = (memberCount - 1) * cardSpacing;
+    const startX = 400 - totalWidth / 2;
 
     for (let i = 0; i < memberCount; i++) {
       const type = selectedTypes[i % selectedTypes.length] || primaryType;
       const level = i < memberCount / 2 ? 3 : 2;
       const member = createMember(`${industry.roleTerm} ${i + 1}`, level, type, lead.id);
       nodes.push(member);
-      positions.set(member.id, { x: startX + i * 200, y: 200 });
-    }
-
-    // Add planned hire for growth
-    if (size !== 'tiny') {
-      const plannedHire = createPlannedHire('TBD', 2, secondaryType, lead.id);
-      nodes.push(plannedHire);
-      positions.set(plannedHire.id, { x: startX + memberCount * 200, y: 200 });
+      positions.set(member.id, { x: startX + i * cardSpacing, y: 220 });
     }
 
   } else if (structure === 'hierarchical') {
-    // Hierarchical: head -> managers -> leads -> ICs
+    // Hierarchical: head -> managers -> ICs
     const head = createMember(industry.headTitle, 6, primaryType, null);
     nodes.push(head);
     positions.set(head.id, { x: 400, y: 50 });
 
-    if (size === 'tiny') {
-      // Just head + 2 team members
-      for (let i = 0; i < 2; i++) {
+    if (teamCount <= 4) {
+      // Small team: head + direct reports
+      const memberCount = teamCount - 1;
+      const totalWidth = (memberCount - 1) * cardSpacing;
+      const startX = 400 - totalWidth / 2;
+
+      for (let i = 0; i < memberCount; i++) {
         const type = selectedTypes[i % selectedTypes.length] || primaryType;
         const member = createMember(`${industry.roleTerm} ${i + 1}`, 3, type, head.id);
         nodes.push(member);
-        positions.set(member.id, { x: 250 + i * 300, y: 200 });
-      }
-    } else if (size === 'small') {
-      // Head -> 2 senior -> 4 team members
-      const managerCount = 2;
-      for (let m = 0; m < managerCount; m++) {
-        const type = selectedTypes[m % selectedTypes.length] || primaryType;
-        const track = m === 0 ? 'ic' : 'manager';
-        const manager = createMember(getLevelName(4, track), 4, type, head.id, track);
-        nodes.push(manager);
-        positions.set(manager.id, { x: 200 + m * 400, y: 180 });
-
-        for (let i = 0; i < 2; i++) {
-          const memberType = selectedTypes[(m * 2 + i) % selectedTypes.length] || primaryType;
-          const member = createMember(`${industry.roleTerm} ${m * 2 + i + 1}`, 2, memberType, manager.id);
-          nodes.push(member);
-          positions.set(member.id, { x: 100 + m * 400 + i * 200, y: 320 });
-        }
+        positions.set(member.id, { x: startX + i * cardSpacing, y: 220 });
       }
     } else {
-      // Medium/Large: full hierarchy
-      const managerCount = size === 'medium' ? 2 : 3;
+      // Larger team: head -> managers -> ICs
+      // Calculate managers needed (1 manager per 4-6 ICs)
+      const icCount = teamCount - 1; // Subtract head
+      const managerCount = Math.max(2, Math.min(4, Math.ceil(icCount / 5)));
+      const actualIcCount = icCount - managerCount;
+      const icsPerManager = Math.ceil(actualIcCount / managerCount);
 
+      // Position managers
+      const managerWidth = (managerCount - 1) * cardSpacing;
+      const managerStartX = 400 - managerWidth / 2;
+
+      let icIndex = 0;
       for (let m = 0; m < managerCount; m++) {
         const type = selectedTypes[m % selectedTypes.length] || primaryType;
-        const manager = createMember(getLevelName(5, 'manager'), 5, type, head.id, 'manager');
+        const manager = createMember(getLevelName(4, 'manager'), 4, type, head.id, 'manager');
         nodes.push(manager);
-        positions.set(manager.id, { x: 150 + m * 300, y: 180 });
+        const managerX = managerStartX + m * cardSpacing;
+        positions.set(manager.id, { x: managerX, y: 200 });
 
-        const leadCount = size === 'medium' ? 1 : 2;
-        for (let l = 0; l < leadCount; l++) {
-          const leadType = selectedTypes[(m + l) % selectedTypes.length] || primaryType;
-          const lead = createMember(getLevelName(4, 'ic'), 4, leadType, manager.id, 'ic');
-          nodes.push(lead);
-          positions.set(lead.id, { x: 80 + m * 300 + l * 140, y: 320 });
+        // ICs under this manager
+        const thisManagerIcs = Math.min(icsPerManager, actualIcCount - icIndex);
+        const icWidth = (thisManagerIcs - 1) * cardSpacing;
+        const icStartX = managerX - icWidth / 2;
 
-          const icCount = size === 'medium' ? 2 : 3;
-          for (let i = 0; i < icCount; i++) {
-            const icType = selectedTypes[(m + l + i) % selectedTypes.length] || primaryType;
-            const member = createMember(industry.roleTerm, 2 + (i % 2), icType, lead.id);
-            nodes.push(member);
-            positions.set(member.id, { x: 30 + m * 300 + l * 140 + i * 60, y: 460 });
-          }
+        for (let i = 0; i < thisManagerIcs && icIndex < actualIcCount; i++) {
+          const icType = selectedTypes[(icIndex) % selectedTypes.length] || primaryType;
+          const member = createMember(`${industry.roleTerm} ${icIndex + 1}`, 2 + (i % 2), icType, manager.id);
+          nodes.push(member);
+          positions.set(member.id, { x: icStartX + i * cardSpacing, y: 370 });
+          icIndex++;
         }
       }
-
-      // Add planned hire
-      const plannedHire = createPlannedHire(`TBD - ${getLevelName(4, 'ic')}`, 4, secondaryType, nodes[1].id, 'ic');
-      nodes.push(plannedHire);
-      positions.set(plannedHire.id, { x: 700, y: 320 });
     }
 
   } else {
     // Pods structure
-    const podCount = size === 'tiny' ? 2 : size === 'small' ? 2 : size === 'medium' ? 3 : 4;
+    // Calculate pods based on team count (2-4 people per pod)
+    const podCount = Math.max(2, Math.min(4, Math.ceil(teamCount / 3)));
     const podNames = ['Alpha', 'Beta', 'Gamma', 'Delta'];
 
-    // Calculate pod spacing based on member count
-    const memberCount = size === 'tiny' ? 1 : size === 'small' ? 2 : 3;
-    const memberSpacing = 250; // Space between members
-    const podWidth = memberCount * memberSpacing;
-    const podSpacing = podWidth + 100; // Extra gap between pods
+    // Members per pod (excluding lead)
+    const membersWithoutLeads = teamCount - podCount;
+    const hasHead = teamCount > 6;
+    const actualMembers = hasHead ? membersWithoutLeads - 1 : membersWithoutLeads;
+    const membersPerPod = Math.max(1, Math.floor(actualMembers / podCount));
+
+    // Calculate positioning
+    const podSpacing = (membersPerPod + 1) * cardSpacing;
+    const totalWidth = (podCount - 1) * podSpacing;
+    const startX = 400 - totalWidth / 2;
 
     // Optional head for larger teams
     let headId: string | null = null;
-    const totalWidth = podCount * podSpacing - 100;
-    const startX = 400 - totalWidth / 2;
-
-    if (size !== 'tiny') {
+    if (hasHead) {
       const head = createMember(industry.headTitle, 6, primaryType, null);
       nodes.push(head);
       positions.set(head.id, { x: 400, y: 30 });
       headId = head.id;
     }
 
+    let memberIndex = 0;
     for (let p = 0; p < podCount; p++) {
       const podType = selectedTypes[p % selectedTypes.length] || primaryType;
-      const podCenterX = startX + p * podSpacing + podWidth / 2;
+      const podCenterX = startX + p * podSpacing;
 
       // Pod lead
-      const leadLevel = size === 'tiny' ? 4 : 5;
-      const track = size === 'tiny' ? 'ic' : 'manager';
+      const leadLevel = hasHead ? 5 : 4;
+      const track = hasHead ? 'manager' : 'ic';
       const lead = createMember(`${podNames[p]} Lead`, leadLevel, podType, headId, track);
       nodes.push(lead);
       positions.set(lead.id, { x: podCenterX, y: headId ? 180 : 80 });
 
-      // Pod members - spread them out properly
-      const membersStartX = podCenterX - ((memberCount - 1) * memberSpacing) / 2;
-      for (let i = 0; i < memberCount; i++) {
-        const memberType = selectedTypes[(p + i) % selectedTypes.length] || podType;
+      // Pod members
+      const thisPodMembers = p < podCount - 1 ? membersPerPod : Math.max(1, actualMembers - memberIndex);
+      const memberWidth = (thisPodMembers - 1) * cardSpacing;
+      const membersStartX = podCenterX - memberWidth / 2;
+
+      for (let i = 0; i < thisPodMembers && memberIndex < actualMembers; i++) {
+        const memberType = selectedTypes[(memberIndex) % selectedTypes.length] || podType;
         const level = i === 0 ? 3 : 2;
         const member = createMember(`${podNames[p]} ${industry.roleTerm} ${i + 1}`, level, memberType, lead.id);
         nodes.push(member);
-        positions.set(member.id, { x: membersStartX + i * memberSpacing, y: headId ? 340 : 240 });
+        positions.set(member.id, { x: membersStartX + i * cardSpacing, y: headId ? 340 : 240 });
+        memberIndex++;
       }
     }
   }
 
   return { nodes, positions };
 }
+
+// Get default team count for a size category
+const getDefaultTeamCount = (size: TeamSize): number => {
+  switch (size) {
+    case 'tiny': return 3;
+    case 'small': return 5;
+    case 'medium': return 10;
+    case 'large': return 18;
+    default: return 5;
+  }
+};
+
+// Get min/max for team size category
+const getTeamCountRange = (size: TeamSize): { min: number; max: number } => {
+  switch (size) {
+    case 'tiny': return { min: 2, max: 4 };
+    case 'small': return { min: 4, max: 10 };
+    case 'medium': return { min: 8, max: 20 };
+    case 'large': return { min: 15, max: 50 };
+    default: return { min: 2, max: 50 };
+  }
+};
 
 export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
   const { importData, updateNodePositions } = useStore();
@@ -589,6 +583,7 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
   const [teamSize, setTeamSize] = useState<TeamSize>('small');
   const [structureType, setStructureType] = useState<StructureType>('hierarchical');
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [teamCount, setTeamCount] = useState(getDefaultTeamCount('small'));
 
   // Get current industry preset
   const currentIndustry = useMemo(() =>
@@ -624,7 +619,7 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
   };
 
   const handleApply = () => {
-    const { nodes, positions } = generateTemplate(teamSize, structureType, selectedTypes, currentIndustry);
+    const { nodes, positions } = generateTemplate(structureType, selectedTypes, currentIndustry, teamCount);
 
     // Filter role types to only selected ones
     const filteredTypes: DesignerTypeConfig[] = currentIndustry.roleTypes.filter(t =>
@@ -656,11 +651,16 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
     onClose();
   };
 
+  const handleTeamSizeChange = (size: TeamSize) => {
+    setTeamSize(size);
+    setTeamCount(getDefaultTeamCount(size));
+  };
+
   const teamSizeOptions: { value: TeamSize; label: string; description: string }[] = [
-    { value: 'tiny', label: 'Tiny', description: '1-3 people' },
-    { value: 'small', label: 'Small', description: '4-8 people' },
-    { value: 'medium', label: 'Medium', description: '9-15 people' },
-    { value: 'large', label: 'Large', description: '16+ people' },
+    { value: 'tiny', label: 'Tiny', description: '2-4 people' },
+    { value: 'small', label: 'Small', description: '4-10 people' },
+    { value: 'medium', label: 'Medium', description: '8-20 people' },
+    { value: 'large', label: 'Large', description: '15+ people' },
   ];
 
   const structureOptions: { value: StructureType; label: string; description: string }[] = [
@@ -669,9 +669,7 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
     { value: 'pods', label: 'Pod-based', description: 'Small autonomous squads' },
   ];
 
-  const { nodes: previewNodes } = generateTemplate(teamSize, structureType, selectedTypes, currentIndustry);
-  const memberCount = previewNodes.filter(n => !n.isPlannedHire).length;
-  const plannedCount = previewNodes.filter(n => n.isPlannedHire).length;
+  const teamCountRange = getTeamCountRange(teamSize);
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -745,7 +743,7 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
                 <button
                   key={option.value}
                   className={`${styles.optionCard} ${teamSize === option.value ? styles.selected : ''}`}
-                  onClick={() => setTeamSize(option.value)}
+                  onClick={() => handleTeamSizeChange(option.value)}
                 >
                   <div className={styles.optionIllustration}>
                     {TeamSizeIllustrations[option.value]}
@@ -802,53 +800,58 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
 
           {step === 5 && (
             <div className={styles.previewStep}>
-              <div className={styles.previewCard}>
+              {/* Left side: Illustration and team count */}
+              <div className={styles.previewLeft}>
                 <div className={styles.previewIllustration}>
                   {structureType === 'flat' && StructureIllustrations.flat}
                   {structureType === 'hierarchical' && StructureIllustrations.hierarchical}
                   {structureType === 'pods' && StructureIllustrations.pods}
                 </div>
-                <div className={styles.previewStats}>
-                  <div className={styles.previewStat}>
-                    <span className={styles.previewStatValue}>{memberCount}</span>
-                    <span className={styles.previewStatLabel}>Team members</span>
-                  </div>
-                  <div className={styles.previewStat}>
-                    <span className={styles.previewStatValue}>{plannedCount}</span>
-                    <span className={styles.previewStatLabel}>Planned hires</span>
-                  </div>
-                  <div className={styles.previewStat}>
-                    <span className={styles.previewStatValue}>{selectedTypes.length}</span>
-                    <span className={styles.previewStatLabel}>Role types</span>
+                <div className={styles.teamCountControl}>
+                  <label className={styles.teamCountLabel}>Team size</label>
+                  <div className={styles.teamCountStepper}>
+                    <button
+                      className={styles.stepperBtn}
+                      onClick={() => setTeamCount(Math.max(teamCountRange.min, teamCount - 1))}
+                      disabled={teamCount <= teamCountRange.min}
+                    >
+                      −
+                    </button>
+                    <span className={styles.teamCountValue}>{teamCount}</span>
+                    <button
+                      className={styles.stepperBtn}
+                      onClick={() => setTeamCount(Math.min(teamCountRange.max, teamCount + 1))}
+                      disabled={teamCount >= teamCountRange.max}
+                    >
+                      +
+                    </button>
                   </div>
                 </div>
               </div>
-              <div className={styles.previewSummary}>
-                <h4>Your {currentIndustry.teamName.toLowerCase()}:</h4>
-                <ul>
-                  <li><strong>Industry:</strong> {currentIndustry.name}</li>
-                  <li><strong>Size:</strong> {teamSizeOptions.find(o => o.value === teamSize)?.label} ({teamSizeOptions.find(o => o.value === teamSize)?.description})</li>
-                  <li><strong>Structure:</strong> {structureOptions.find(o => o.value === structureType)?.label}</li>
-                  <li><strong>Roles:</strong> {selectedTypes.map(t => currentIndustry.roleTypes.find(rt => rt.id === t)?.abbreviation).join(', ')}</li>
-                </ul>
+
+              {/* Right side: Summary */}
+              <div className={styles.previewRight}>
+                <div className={styles.previewSummaryItem}>
+                  <span className={styles.summaryLabel}>Industry</span>
+                  <span className={styles.summaryValue}>{currentIndustry.name}</span>
+                </div>
+                <div className={styles.previewSummaryItem}>
+                  <span className={styles.summaryLabel}>Structure</span>
+                  <span className={styles.summaryValue}>{structureOptions.find(o => o.value === structureType)?.label}</span>
+                </div>
+                <div className={styles.previewSummaryItem}>
+                  <span className={styles.summaryLabel}>Roles</span>
+                  <span className={styles.summaryValue}>
+                    {selectedTypes.map(t => currentIndustry.roleTypes.find(rt => rt.id === t)?.abbreviation).join(', ')}
+                  </span>
+                </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Footer with progress dots */}
+        {/* Footer with progress dots between buttons */}
         <div className={styles.footer}>
-          {/* Progress dots */}
-          <div className={styles.progress}>
-            {steps.map((_, index) => (
-              <div
-                key={index}
-                className={`${styles.progressDot} ${index <= step ? styles.active : ''} ${index < step ? styles.completed : ''}`}
-              />
-            ))}
-          </div>
-
-          {/* Action buttons */}
           <div className={styles.footerActions}>
             {step > 0 && (
               <button className={styles.backBtn} onClick={() => setStep(step - 1)}>
@@ -860,7 +863,17 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
                 Start from scratch
               </button>
             )}
-            <div className={styles.footerSpacer} />
+
+            {/* Progress dots in center */}
+            <div className={styles.progress}>
+              {steps.map((_, index) => (
+                <div
+                  key={index}
+                  className={`${styles.progressDot} ${index <= step ? styles.active : ''} ${index < step ? styles.completed : ''}`}
+                />
+              ))}
+            </div>
+
             {step < steps.length - 1 ? (
               <button
                 className={styles.nextBtn}

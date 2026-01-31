@@ -364,22 +364,27 @@
   margin-top: var(--space-3);
 }
 
-/* Preview step */
+/* Preview step - side by side layout */
 .previewStep {
+  display: flex;
+  gap: var(--space-5);
   padding: var(--space-2) 0;
 }
 
-.previewCard {
+.previewLeft {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   background-color: var(--gray-50);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
   padding: var(--space-4);
-  margin-bottom: var(--space-4);
 }
 
 .previewIllustration {
   width: 100%;
-  height: 80px;
+  height: 100px;
   margin-bottom: var(--space-4);
 }
 
@@ -388,78 +393,113 @@
   height: 100%;
 }
 
-.previewStats {
-  display: flex;
-  justify-content: center;
-  gap: var(--space-6);
-}
-
-.previewStat {
+/* Team count stepper control */
+.teamCountControl {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: var(--space-2);
 }
 
-.previewStatValue {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--primary);
-}
-
-.previewStatLabel {
-  font-size: 11px;
+.teamCountLabel {
+  font-size: 12px;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.previewSummary {
+.teamCountStepper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.stepperBtn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 500;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.stepperBtn:hover:not(:disabled) {
+  background-color: var(--gray-100);
+  border-color: var(--gray-300);
+}
+
+.stepperBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.teamCountValue {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+  min-width: 50px;
+  text-align: center;
+}
+
+/* Right side summary */
+.previewRight {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.previewSummaryItem {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   padding: var(--space-3);
 }
 
-.previewSummary h4 {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 var(--space-2);
+.summaryLabel {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-1);
 }
 
-.previewSummary ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.previewSummary li {
-  font-size: 12px;
-  color: var(--text-secondary);
-  padding: var(--space-1) 0;
-}
-
-.previewSummary li strong {
-  color: var(--text-primary);
+.summaryValue {
+  display: block;
+  font-size: 14px;
   font-weight: 500;
+  color: var(--text-primary);
 }
 
 /* Footer */
 .footer {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
   padding: var(--space-4) var(--space-5);
   border-top: 1px solid var(--border-color);
   background-color: var(--gray-50);
 }
 
-/* Progress indicator in footer */
+.footerActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+/* Progress indicator centered in footer */
 .progress {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: var(--space-2);
+  flex: 1;
 }
 
 .progressDot {
@@ -478,16 +518,6 @@
 .progressDot.completed {
   background-color: var(--primary);
   transform: scale(1);
-}
-
-.footerActions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.footerSpacer {
-  flex: 1;
 }
 
 .backBtn,
