@@ -10,11 +10,13 @@ import Onboarding from './components/Onboarding';
 import styles from './App.module.css';
 
 const QUICKSTART_SEEN_KEY = 'org-mapper-quickstart-seen';
+const ONBOARDING_MODE_KEY = 'design-team-map-onboarding-mode';
 
 function App() {
   const nodes = useStore((state) => state.nodes);
   const [showQuickstart, setShowQuickstart] = useState(false);
   const [hasCheckedInitial, setHasCheckedInitial] = useState(false);
+  const [onboardingMode, setOnboardingMode] = useState<'regular' | 'post-quickstart' | undefined>(undefined);
 
   // Show quickstart wizard on first launch if there are no nodes and user hasn't seen it
   useEffect(() => {
@@ -35,10 +37,19 @@ function App() {
     setShowQuickstart(true);
   };
 
-  const handleCloseQuickstart = () => {
+  const handleCloseQuickstart = (completed: boolean) => {
     setShowQuickstart(false);
     // Mark as seen so it doesn't auto-show again
     localStorage.setItem(QUICKSTART_SEEN_KEY, 'true');
+
+    // Set onboarding mode based on whether quickstart was completed
+    if (completed) {
+      setOnboardingMode('post-quickstart');
+      localStorage.setItem(ONBOARDING_MODE_KEY, 'post-quickstart');
+    } else {
+      setOnboardingMode('regular');
+      localStorage.setItem(ONBOARDING_MODE_KEY, 'regular');
+    }
   };
 
   return (
@@ -51,7 +62,7 @@ function App() {
       <SettingsPanel onOpenQuickstart={handleOpenQuickstart} />
       <Toast />
       {showQuickstart && <QuickstartWizard onClose={handleCloseQuickstart} />}
-      <Onboarding />
+      <Onboarding mode={onboardingMode} />
     </div>
   );
 }

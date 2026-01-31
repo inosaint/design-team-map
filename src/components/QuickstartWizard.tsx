@@ -350,7 +350,7 @@ const INDUSTRY_PRESETS: IndustryPreset[] = [
 ];
 
 interface QuickstartWizardProps {
-  onClose: () => void;
+  onClose: (completed: boolean) => void;
 }
 
 // SVG Illustrations for options
@@ -759,7 +759,7 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
       y: pos.y,
     })));
 
-    onClose();
+    onClose(true); // Completed the wizard
   };
 
   const handleTeamSizeChange = (size: TeamSize) => {
@@ -783,12 +783,12 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
   const teamCountRange = getTeamCountRange(teamSize);
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
+    <div className={styles.overlay} onClick={() => onClose(false)}>
       <div className={styles.wizard} onClick={(e) => e.stopPropagation()}>
         {/* Header - only show on non-welcome steps */}
         {step === 0 ? (
           <div className={styles.headerMinimal}>
-            <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
+            <button className={styles.closeBtn} onClick={() => onClose(false)} aria-label="Close">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 6L6 18M6 6l12 12" />
               </svg>
@@ -800,7 +800,7 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
               <h2 className={styles.title}>{steps[step].title}</h2>
               <p className={styles.subtitle}>{steps[step].subtitle}</p>
             </div>
-            <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
+            <button className={styles.closeBtn} onClick={() => onClose(false)} aria-label="Close">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 6L6 18M6 6l12 12" />
               </svg>

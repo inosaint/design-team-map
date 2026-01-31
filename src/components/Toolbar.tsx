@@ -135,7 +135,7 @@ export default function Toolbar() {
           )}
         </div>
 
-        <button className="btn btn-secondary" onClick={toggleSettings}>
+        <button className="btn btn-secondary" onClick={toggleSettings} data-testid="settings-btn">
           Settings
         </button>
       </div>
