@@ -7,7 +7,11 @@ import styles from './SettingsPanel.module.css';
 
 type TabType = 'levels' | 'types' | 'advanced' | 'about' | 'import-export';
 
-export default function SettingsPanel() {
+interface SettingsPanelProps {
+  onOpenQuickstart?: () => void;
+}
+
+export default function SettingsPanel({ onOpenQuickstart }: SettingsPanelProps) {
   const { isSettingsOpen, toggleSettings, settings, updateSettings, exportData, importData, clearAll } =
     useStore();
 
@@ -596,6 +600,25 @@ export default function SettingsPanel() {
                   </li>
                 </ul>
               </div>
+
+              {onOpenQuickstart && (
+                <div className={styles.quickstartSection}>
+                  <div className={styles.divider} />
+                  <h4 className={styles.attributionsTitle}>Getting Started</h4>
+                  <p className={styles.quickstartDesc}>
+                    New to Design Team Map? Use the quickstart wizard to generate a starter org chart.
+                  </p>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => {
+                      toggleSettings();
+                      onOpenQuickstart();
+                    }}
+                  >
+                    Open Quick Start
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
