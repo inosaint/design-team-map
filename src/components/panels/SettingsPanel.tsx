@@ -550,12 +550,12 @@ export default function SettingsPanel({ onOpenQuickstart }: SettingsPanelProps) 
           {activeTab === 'about' && (
             <div className={styles.section}>
               <div className={styles.aboutHeader}>
-                <h3 className={styles.aboutTitle}>Design Team Map</h3>
-                <span className={styles.version}>v0.1.0</span>
+                <h3 className={styles.aboutTitle}>Org Mapper</h3>
+                <span className={styles.version}>v0.3.0</span>
               </div>
 
               <p className={styles.aboutDesc}>
-                A tool for visualizing and planning design team structures, career progression, and growth opportunities.
+                A tool for visualizing and planning team structures, career progression, and growth opportunities across any industry.
               </p>
 
               <div className={styles.aboutLinks}>

@@ -175,6 +175,68 @@
   flex-shrink: 0;
 }
 
+/* Industry grid */
+.industryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-2);
+}
+
+.industryCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background-color: var(--gray-50);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.industryCard:hover {
+  border-color: var(--gray-300);
+  background-color: var(--gray-100);
+}
+
+.industryCard.selected {
+  border-color: var(--primary);
+  background-color: var(--orange-50);
+}
+
+.industryIcon {
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.industryInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.industryName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.industryDesc {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 480px) {
+  .industryGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Options grid (team size, structure) */
 .optionsGrid {
   display: grid;
