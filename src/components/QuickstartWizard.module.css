@@ -481,6 +481,7 @@
 
 /* Footer */
 .footer {
+  position: relative;
   padding: var(--space-4) var(--space-5);
   border-top: 1px solid var(--border-color);
   background-color: var(--gray-50);
@@ -490,16 +491,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-3);
 }
 
-/* Progress indicator centered in footer */
+/* Progress indicator absolutely centered in footer */
 .progress {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   justify-content: center;
   align-items: center;
   gap: var(--space-2);
-  flex: 1;
 }
 
 .progressDot {
