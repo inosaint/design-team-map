@@ -402,21 +402,10 @@
 }
 
 .teamCountLabel {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
   font-size: 12px;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-}
-
-.teamCountIcon {
-  display: none;
-}
-
-.teamCountText {
-  display: inline;
 }
 
 .teamCountStepper {
@@ -502,6 +491,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.footerSpacer {
+  width: 60px; /* Approximate width of Back button */
 }
 
 /* Progress indicator absolutely centered in footer */
@@ -623,15 +616,6 @@
   .previewIllustration {
     height: 80px;
     margin-bottom: var(--space-3);
-  }
-
-  /* Show person icon, hide text on mobile */
-  .teamCountIcon {
-    display: block;
-  }
-
-  .teamCountText {
-    display: none;
   }
 
   .teamCountValue {

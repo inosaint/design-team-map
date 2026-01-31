@@ -550,8 +550,8 @@ export default function SettingsPanel({ onOpenQuickstart }: SettingsPanelProps) 
           {activeTab === 'about' && (
             <div className={styles.section}>
               <div className={styles.aboutHeader}>
-<h3 className={styles.aboutTitle}>Org Mapper</h3>
-                <span className={styles.version}>v0.3.0</span>
+<h3 className={styles.aboutTitle}>MapYour.Org</h3>
+                <span className={styles.version}>v1.0.0</span>
               </div>
 
               <p className={styles.aboutDesc}>
@@ -585,6 +585,25 @@ export default function SettingsPanel({ onOpenQuickstart }: SettingsPanelProps) 
                 </a>
               </div>
 
+              {onOpenQuickstart && (
+                <div className={styles.quickstartSection}>
+                  <div className={styles.divider} />
+                  <h4 className={styles.attributionsTitle}>Getting Started</h4>
+                  <p className={styles.quickstartDesc}>
+                    New to MapYour.Org? Use the quickstart wizard to generate a starter org chart.
+                  </p>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => {
+                      toggleSettings();
+                      onOpenQuickstart();
+                    }}
+                  >
+                    Open Quick Start
+                  </button>
+                </div>
+              )}
+
               <div className={styles.attributions}>
                 <h4 className={styles.attributionsTitle}>Built with</h4>
                 <ul className={styles.attributionsList}>
@@ -608,25 +627,6 @@ export default function SettingsPanel({ onOpenQuickstart }: SettingsPanelProps) 
                   </li>
                 </ul>
               </div>
-
-              {onOpenQuickstart && (
-                <div className={styles.quickstartSection}>
-                  <div className={styles.divider} />
-                  <h4 className={styles.attributionsTitle}>Getting Started</h4>
-                  <p className={styles.quickstartDesc}>
-                    New to Org Mapper? Use the quickstart wizard to generate a starter org chart.
-                  </p>
-                  <button
-                    className="btn btn-primary"
-                    onClick={() => {
-                      toggleSettings();
-                      onOpenQuickstart();
-                    }}
-                  >
-                    Open Quick Start
-                  </button>
-                </div>
-              )}
 
               <div className={styles.author}>
                 Built by{' '}

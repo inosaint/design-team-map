@@ -916,13 +916,7 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
                   {structureType === 'pods' && StructureIllustrations.pods}
                 </div>
                 <div className={styles.teamCountControl}>
-                  <label className={styles.teamCountLabel}>
-                    <svg className={styles.teamCountIcon} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                      <circle cx="12" cy="7" r="4" />
-                    </svg>
-                    <span className={styles.teamCountText}>Team size</span>
-                  </label>
+                  <label className={styles.teamCountLabel}>Team size</label>
                   <div className={styles.teamCountStepper}>
                     <button
                       className={styles.stepperBtn}
@@ -967,10 +961,12 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
         {/* Footer with progress dots between buttons */}
         <div className={styles.footer}>
           <div className={styles.footerActions}>
-            {step > 0 && (
+            {step > 0 ? (
               <button className={styles.backBtn} onClick={() => setStep(step - 1)}>
                 Back
               </button>
+            ) : (
+              <div className={styles.footerSpacer} />
             )}
 
             {/* Progress dots in center */}
