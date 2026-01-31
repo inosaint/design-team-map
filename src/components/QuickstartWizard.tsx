@@ -577,16 +577,18 @@ function generateTemplate(
       const actualIcCount = icCount - managerCount;
       const icsPerManager = Math.ceil(actualIcCount / managerCount);
 
-      // Position managers
-      const managerWidth = (managerCount - 1) * cardSpacing;
-      const managerStartX = 400 - managerWidth / 2;
+      // Space managers based on IC group width (not fixed spacing)
+      // Each manager needs enough space for their ICs
+      const managerSpacing = Math.max(cardSpacing, icsPerManager * cardSpacing);
+      const totalManagerWidth = (managerCount - 1) * managerSpacing;
+      const managerStartX = 400 - totalManagerWidth / 2;
 
       let icIndex = 0;
       for (let m = 0; m < managerCount; m++) {
         const type = selectedTypes[m % selectedTypes.length] || primaryType;
         const manager = createMember(getLevelName(4, 'manager'), 4, type, head.id, 'manager');
         nodes.push(manager);
-        const managerX = managerStartX + m * cardSpacing;
+        const managerX = managerStartX + m * managerSpacing;
         positions.set(manager.id, { x: managerX, y: 200 });
 
         // ICs under this manager
@@ -614,10 +616,11 @@ function generateTemplate(
     const membersWithoutLeads = teamCount - podCount;
     const hasHead = teamCount > 6;
     const actualMembers = hasHead ? membersWithoutLeads - 1 : membersWithoutLeads;
-    const membersPerPod = Math.max(1, Math.floor(actualMembers / podCount));
+    // Use ceil to ensure spacing accounts for largest pod (last pod gets remainder)
+    const membersPerPod = Math.max(1, Math.ceil(actualMembers / podCount));
 
-    // Calculate positioning
-    const podSpacing = (membersPerPod + 1) * cardSpacing;
+    // Calculate positioning - ensure enough space for members in each pod
+    const podSpacing = Math.max(cardSpacing, membersPerPod * cardSpacing);
     const totalWidth = (podCount - 1) * podSpacing;
     const startX = 400 - totalWidth / 2;
 
