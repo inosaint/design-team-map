@@ -7,7 +7,7 @@ export default function Toolbar() {
     useStore();
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
-  const [editedName, setEditedName] = useState(settings.teamName || 'Design Team');
+  const [editedName, setEditedName] = useState(settings.teamName || 'My Team');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -18,12 +18,12 @@ export default function Toolbar() {
   }, [isEditingName]);
 
   useEffect(() => {
-    setEditedName(settings.teamName || 'Design Team');
+    setEditedName(settings.teamName || 'My Team');
   }, [settings.teamName]);
 
   const handleAddTeamMember = () => {
     addTeamMember({
-      name: 'New Designer',
+      name: 'New Member',
       designerType: '', // Empty string shows "Select type..." placeholder
       level: 1,
       yearsOfExperience: 0,
@@ -48,7 +48,7 @@ export default function Toolbar() {
     if (trimmedName) {
       updateSettings({ teamName: trimmedName });
     } else {
-      setEditedName(settings.teamName || 'Design Team');
+      setEditedName(settings.teamName || 'My Team');
     }
     setIsEditingName(false);
   };
@@ -57,7 +57,7 @@ export default function Toolbar() {
     if (e.key === 'Enter') {
       handleNameSave();
     } else if (e.key === 'Escape') {
-      setEditedName(settings.teamName || 'Design Team');
+      setEditedName(settings.teamName || 'My Team');
       setIsEditingName(false);
     }
   };
@@ -85,7 +85,7 @@ export default function Toolbar() {
             onClick={() => setIsEditingName(true)}
             title="Click to edit team name"
           >
-            {settings.teamName || 'Design Team'}
+            {settings.teamName || 'My Team'}
           </h1>
         )}
         <div className={styles.stats}>
