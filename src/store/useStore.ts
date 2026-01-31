@@ -11,6 +11,7 @@ import type {
 } from '../types';
 import { DEFAULT_SETTINGS } from '../types';
 import { calculateAutoArrangePositions, wouldCreateCircularReference } from '../utils/calculations';
+import { trackCardCreated, trackCardDeleted, trackCardConverted, trackDataCleared } from '../utils/analytics';
 
 interface TeamMapState {
   // Data
@@ -85,6 +86,7 @@ export const useStore = create<TeamMapState>()(
         set((state) => ({
           nodes: [...state.nodes, newMember],
         }));
+        trackCardCreated('team_member', { level: member.level, designerType: member.designerType });
         return id;
       },
 
@@ -98,6 +100,7 @@ export const useStore = create<TeamMapState>()(
         set((state) => ({
           nodes: [...state.nodes, newHire],
         }));
+        trackCardCreated('planned_hire', { level: hire.level, designerType: hire.designerType });
         return id;
       },
 
@@ -110,6 +113,7 @@ export const useStore = create<TeamMapState>()(
       },
 
       deleteNode: (id) => {
+        const nodeToDelete = get().nodes.find((node) => node.id === id);
         set((state) => {
           // Also remove this node as manager from any reports
           const updatedNodes: TeamNode[] = state.nodes
@@ -129,6 +133,9 @@ export const useStore = create<TeamMapState>()(
             isPanelOpen: state.selectedNodeId === id ? false : state.isPanelOpen,
           };
         });
+        if (nodeToDelete) {
+          trackCardDeleted(nodeToDelete.isPlannedHire);
+        }
       },
 
       setNodeManager: (nodeId, managerId) => {
@@ -181,6 +188,7 @@ export const useStore = create<TeamMapState>()(
             return node;
           }),
         }));
+        trackCardConverted();
       },
 
       // Position Actions
@@ -297,6 +305,7 @@ export const useStore = create<TeamMapState>()(
           selectedNodeId: null,
           isPanelOpen: false,
         });
+        trackDataCleared();
       },
     }),
     {

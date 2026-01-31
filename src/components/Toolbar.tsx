@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useStore } from '../store/useStore';
+import { trackTeamNameChanged } from '../utils/analytics';
 import styles from './Toolbar.module.css';
 
 export default function Toolbar() {
@@ -46,7 +47,12 @@ export default function Toolbar() {
   const handleNameSave = () => {
     const trimmedName = editedName.trim();
     if (trimmedName) {
+      const previousName = settings.teamName || 'Design Team';
       updateSettings({ teamName: trimmedName });
+      // Only track if name actually changed
+      if (trimmedName !== previousName) {
+        trackTeamNameChanged();
+      }
     } else {
       setEditedName(settings.teamName || 'Design Team');
     }
