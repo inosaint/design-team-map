@@ -1,14 +1,20 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { PostHogProvider } from 'posthog-js/react'
 import './index.css'
 import App from './App.tsx'
-import { initAnalytics } from './utils/analytics'
 
-// Initialize PostHog analytics
-initAnalytics()
+const options = {
+  api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
+  capture_pageview: true,
+  capture_pageleave: true,
+  respect_dnt: true,
+} as const
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <PostHogProvider apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY} options={options}>
+      <App />
+    </PostHogProvider>
   </StrictMode>,
 )
