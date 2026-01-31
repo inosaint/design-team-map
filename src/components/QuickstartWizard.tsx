@@ -537,8 +537,17 @@ function generateTemplate(
     const podCount = size === 'tiny' ? 2 : size === 'small' ? 2 : size === 'medium' ? 3 : 4;
     const podNames = ['Alpha', 'Beta', 'Gamma', 'Delta'];
 
+    // Calculate pod spacing based on member count
+    const memberCount = size === 'tiny' ? 1 : size === 'small' ? 2 : 3;
+    const memberSpacing = 250; // Space between members
+    const podWidth = memberCount * memberSpacing;
+    const podSpacing = podWidth + 100; // Extra gap between pods
+
     // Optional head for larger teams
     let headId: string | null = null;
+    const totalWidth = podCount * podSpacing - 100;
+    const startX = 400 - totalWidth / 2;
+
     if (size !== 'tiny') {
       const head = createMember(industry.headTitle, 6, primaryType, null);
       nodes.push(head);
@@ -548,23 +557,23 @@ function generateTemplate(
 
     for (let p = 0; p < podCount; p++) {
       const podType = selectedTypes[p % selectedTypes.length] || primaryType;
-      const podX = 100 + p * 250;
+      const podCenterX = startX + p * podSpacing + podWidth / 2;
 
       // Pod lead
       const leadLevel = size === 'tiny' ? 4 : 5;
       const track = size === 'tiny' ? 'ic' : 'manager';
       const lead = createMember(`${podNames[p]} Lead`, leadLevel, podType, headId, track);
       nodes.push(lead);
-      positions.set(lead.id, { x: podX, y: headId ? 160 : 80 });
+      positions.set(lead.id, { x: podCenterX, y: headId ? 180 : 80 });
 
-      // Pod members
-      const memberCount = size === 'tiny' ? 1 : size === 'small' ? 2 : 3;
+      // Pod members - spread them out properly
+      const membersStartX = podCenterX - ((memberCount - 1) * memberSpacing) / 2;
       for (let i = 0; i < memberCount; i++) {
         const memberType = selectedTypes[(p + i) % selectedTypes.length] || podType;
         const level = i === 0 ? 3 : 2;
         const member = createMember(`${podNames[p]} ${industry.roleTerm} ${i + 1}`, level, memberType, lead.id);
         nodes.push(member);
-        positions.set(member.id, { x: podX - 60 + i * 60, y: headId ? 300 : 220 });
+        positions.set(member.id, { x: membersStartX + i * memberSpacing, y: headId ? 340 : 240 });
       }
     }
   }
