@@ -667,42 +667,35 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
   return (
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.wizard} onClick={(e) => e.stopPropagation()}>
-        {/* Progress bar */}
-        <div className={styles.progress}>
-          {steps.map((_, index) => (
-            <div
-              key={index}
-              className={`${styles.progressDot} ${index <= step ? styles.active : ''} ${index < step ? styles.completed : ''}`}
-            />
-          ))}
-        </div>
-
-        {/* Header */}
-        <div className={styles.header}>
-          <div>
-            <h2 className={styles.title}>{steps[step].title}</h2>
-            <p className={styles.subtitle}>{steps[step].subtitle}</p>
+        {/* Header - only show on non-welcome steps */}
+        {step === 0 ? (
+          <div className={styles.headerMinimal}>
+            <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
           </div>
-          <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+        ) : (
+          <div className={styles.header}>
+            <div>
+              <h2 className={styles.title}>{steps[step].title}</h2>
+              <p className={styles.subtitle}>{steps[step].subtitle}</p>
+            </div>
+            <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        )}
 
         {/* Content */}
         <div className={styles.content}>
           {step === 0 && (
             <div className={styles.welcomeStep}>
               <div className={styles.welcomeIcon}>
-                <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="40" cy="40" r="36" fill="#FFF7ED" stroke="#F97316" strokeWidth="2" />
-                  <circle cx="40" cy="28" r="10" fill="#F97316" />
-                  <circle cx="25" cy="52" r="7" fill="#FDBA74" />
-                  <circle cx="55" cy="52" r="7" fill="#FDBA74" />
-                  <line x1="40" y1="38" x2="25" y2="45" stroke="#FB923C" strokeWidth="2" />
-                  <line x1="40" y1="38" x2="55" y2="45" stroke="#FB923C" strokeWidth="2" />
-                </svg>
+                <img src="/design-team-mapper.svg" alt="Org Mapper" />
               </div>
               <h3 className={styles.welcomeTitle}>Build your org map in seconds</h3>
               <p className={styles.welcomeDesc}>
@@ -834,32 +827,45 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
           )}
         </div>
 
-        {/* Footer */}
+        {/* Footer with progress dots */}
         <div className={styles.footer}>
-          {step > 0 && (
-            <button className={styles.backBtn} onClick={() => setStep(step - 1)}>
-              Back
-            </button>
-          )}
-          {step === 0 && (
-            <button className={styles.skipBtn} onClick={onClose}>
-              Start from scratch
-            </button>
-          )}
-          <div className={styles.footerSpacer} />
-          {step < steps.length - 1 ? (
-            <button
-              className={styles.nextBtn}
-              onClick={() => setStep(step + 1)}
-              disabled={step === 4 && selectedTypes.length === 0}
-            >
-              {step === 0 ? "Let's go" : 'Next'}
-            </button>
-          ) : (
-            <button className={styles.applyBtn} onClick={handleApply}>
-              Create my org map
-            </button>
-          )}
+          {/* Progress dots */}
+          <div className={styles.progress}>
+            {steps.map((_, index) => (
+              <div
+                key={index}
+                className={`${styles.progressDot} ${index <= step ? styles.active : ''} ${index < step ? styles.completed : ''}`}
+              />
+            ))}
+          </div>
+
+          {/* Action buttons */}
+          <div className={styles.footerActions}>
+            {step > 0 && (
+              <button className={styles.backBtn} onClick={() => setStep(step - 1)}>
+                Back
+              </button>
+            )}
+            {step === 0 && (
+              <button className={styles.skipBtn} onClick={onClose}>
+                Start from scratch
+              </button>
+            )}
+            <div className={styles.footerSpacer} />
+            {step < steps.length - 1 ? (
+              <button
+                className={styles.nextBtn}
+                onClick={() => setStep(step + 1)}
+                disabled={step === 4 && selectedTypes.length === 0}
+              >
+                {step === 0 ? "Let's go" : 'Next'}
+              </button>
+            ) : (
+              <button className={styles.applyBtn} onClick={handleApply}>
+                Create my org map
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
