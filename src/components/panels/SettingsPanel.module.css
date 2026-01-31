@@ -627,6 +627,7 @@
 /* Quickstart section in About */
 .quickstartSection {
   margin-top: var(--space-4);
+  margin-bottom: var(--space-4);
 }
 
 .quickstartSection .divider {
