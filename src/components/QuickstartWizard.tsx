@@ -1,9 +1,18 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useStore } from '../store/useStore';
 import { DEFAULT_SETTINGS } from '../types';
 import type { TeamNode, DesignerTypeConfig, LevelConfig } from '../types';
 import { v4 as uuidv4 } from 'uuid';
 import styles from './QuickstartWizard.module.css';
+import {
+  trackQuickstartStarted,
+  trackQuickstartCompleted,
+  trackQuickstartDismissed,
+  trackQuickstartIndustrySelected,
+  trackQuickstartTeamSizeSelected,
+  trackQuickstartStructureSelected,
+  trackQuickstartRoleTypeSelected,
+} from '../utils/analytics';
 
 type TeamSize = 'tiny' | 'small' | 'medium' | 'large';
 type StructureType = 'flat' | 'hierarchical' | 'pods';
@@ -696,6 +705,11 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [teamCount, setTeamCount] = useState(getDefaultTeamCount('small'));
 
+  // Track when wizard starts
+  useEffect(() => {
+    trackQuickstartStarted();
+  }, []);
+
   // Get current industry preset
   const currentIndustry = useMemo(() =>
     INDUSTRY_PRESETS.find(p => p.id === industry) || INDUSTRY_PRESETS[0],
@@ -705,11 +719,17 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
   // Reset selected types when industry changes
   const handleIndustryChange = (newIndustry: IndustryType) => {
     setIndustry(newIndustry);
+    trackQuickstartIndustrySelected(newIndustry);
     const preset = INDUSTRY_PRESETS.find(p => p.id === newIndustry);
     if (preset) {
       // Pre-select first 3 role types
       setSelectedTypes(preset.roleTypes.slice(0, 3).map(t => t.id));
     }
+  };
+
+  const handleDismiss = () => {
+    trackQuickstartDismissed(step);
+    onClose(false);
   };
 
   const steps = [
@@ -720,14 +740,6 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
     { title: 'Roles', subtitle: `What types of ${currentIndustry.roleTerm.toLowerCase()}s?` },
     { title: 'Ready!', subtitle: 'Preview your org map' },
   ];
-
-  const handleTypeToggle = (typeId: string) => {
-    setSelectedTypes(prev =>
-      prev.includes(typeId)
-        ? prev.filter(t => t !== typeId)
-        : [...prev, typeId]
-    );
-  };
 
   const handleApply = () => {
     const { nodes, positions } = generateTemplate(structureType, selectedTypes, currentIndustry, teamCount);
@@ -759,12 +771,35 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
       y: pos.y,
     })));
 
+    // Track completion
+    trackQuickstartCompleted({
+      industry,
+      teamSize: teamCount,
+      structure: structureType,
+      roleTypes: selectedTypes,
+    });
+
     onClose(true); // Completed the wizard
   };
 
   const handleTeamSizeChange = (size: TeamSize) => {
     setTeamSize(size);
-    setTeamCount(getDefaultTeamCount(size));
+    const newCount = getDefaultTeamCount(size);
+    setTeamCount(newCount);
+    trackQuickstartTeamSizeSelected(size, newCount);
+  };
+
+  const handleStructureChange = (structure: StructureType) => {
+    setStructureType(structure);
+    trackQuickstartStructureSelected(structure);
+  };
+
+  const handleTypeToggleWithTracking = (typeId: string) => {
+    const newTypes = selectedTypes.includes(typeId)
+      ? selectedTypes.filter(t => t !== typeId)
+      : [...selectedTypes, typeId];
+    setSelectedTypes(newTypes);
+    trackQuickstartRoleTypeSelected(newTypes);
   };
 
   const teamSizeOptions: { value: TeamSize; label: string; description: string }[] = [
@@ -783,12 +818,12 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
   const teamCountRange = getTeamCountRange(teamSize);
 
   return (
-    <div className={styles.overlay} onClick={() => onClose(false)}>
+    <div className={styles.overlay} onClick={handleDismiss}>
       <div className={styles.wizard} onClick={(e) => e.stopPropagation()}>
         {/* Header - only show on non-welcome steps */}
         {step === 0 ? (
           <div className={styles.headerMinimal}>
-            <button className={styles.closeBtn} onClick={() => onClose(false)} aria-label="Close">
+            <button className={styles.closeBtn} onClick={handleDismiss} aria-label="Close">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 6L6 18M6 6l12 12" />
               </svg>
@@ -800,7 +835,7 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
               <h2 className={styles.title}>{steps[step].title}</h2>
               <p className={styles.subtitle}>{steps[step].subtitle}</p>
             </div>
-            <button className={styles.closeBtn} onClick={() => onClose(false)} aria-label="Close">
+            <button className={styles.closeBtn} onClick={handleDismiss} aria-label="Close">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 6L6 18M6 6l12 12" />
               </svg>
@@ -874,7 +909,7 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
                 <button
                   key={option.value}
                   className={`${styles.optionCard} ${styles.wide} ${structureType === option.value ? styles.selected : ''}`}
-                  onClick={() => setStructureType(option.value)}
+                  onClick={() => handleStructureChange(option.value)}
                 >
                   <div className={styles.optionIllustration}>
                     {StructureIllustrations[option.value]}
@@ -896,7 +931,7 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
                   <button
                     key={type.id}
                     className={`${styles.typeChip} ${selectedTypes.includes(type.id) ? styles.selected : ''}`}
-                    onClick={() => handleTypeToggle(type.id)}
+                    onClick={() => handleTypeToggleWithTracking(type.id)}
                   >
                     <span className={styles.typeAbbr}>{type.abbreviation}</span>
                     <span className={styles.typeName}>{type.name}</span>

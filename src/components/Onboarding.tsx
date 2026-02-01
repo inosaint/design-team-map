@@ -1,6 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useStore } from '../store/useStore';
 import styles from './Onboarding.module.css';
+import {
+  trackOnboardingStepViewed,
+  trackOnboardingCompleted,
+  trackOnboardingSkipped,
+} from '../utils/analytics';
 
 const ONBOARDING_KEY = 'design-team-map-onboarding-completed';
 const ONBOARDING_STEP_KEY = 'design-team-map-onboarding-step';
@@ -224,24 +229,39 @@ export default function Onboarding({ mode: propMode }: OnboardingProps) {
   }, [currentStep, cardCount]);
 
   const handleSkip = useCallback(() => {
+    const step = steps[currentStep];
+    if (step) {
+      trackOnboardingSkipped(step.id, onboardingMode);
+    }
     handleComplete();
-  }, []);
+  }, [currentStep, steps, onboardingMode]);
 
   const handleComplete = useCallback(() => {
+    trackOnboardingCompleted(onboardingMode);
     localStorage.setItem(ONBOARDING_KEY, 'true');
     localStorage.removeItem(ONBOARDING_STEP_KEY);
     setIsVisible(false);
     setWaitingForCards(false);
-  }, []);
+  }, [onboardingMode]);
+
+  // Track when step is viewed
+  useEffect(() => {
+    if (isVisible && steps[currentStep]) {
+      trackOnboardingStepViewed(steps[currentStep].id, steps[currentStep].title, onboardingMode);
+    }
+  }, [isVisible, currentStep, steps, onboardingMode]);
 
   if (!isVisible) return null;
 
   const step = steps[currentStep];
-  const tooltipStyle = getTooltipPosition(targetRect, step.position);
+  const { style: tooltipStyle, arrowOffset } = getTooltipPosition(targetRect, step.position);
   const arrowClass = styles[`arrow${step.position.charAt(0).toUpperCase() + step.position.slice(1)}`];
 
   return (
-    <div className={`${styles.tooltip} ${arrowClass}`} style={tooltipStyle}>
+    <div
+      className={`${styles.tooltip} ${arrowClass}`}
+      style={{ ...tooltipStyle, '--arrow-offset': `${arrowOffset}px` } as React.CSSProperties}
+    >
       <div className={styles.header}>
         <span className={styles.title}>{step.title}</span>
       </div>
@@ -261,12 +281,15 @@ export default function Onboarding({ mode: propMode }: OnboardingProps) {
 function getTooltipPosition(
   targetRect: DOMRect | null,
   position: OnboardingStep['position']
-): React.CSSProperties {
+): { style: React.CSSProperties; arrowOffset: number } {
   if (!targetRect) {
     return {
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
+      style: {
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+      },
+      arrowOffset: 140, // Center of 280px tooltip
     };
   }
 
@@ -277,29 +300,44 @@ function getTooltipPosition(
 
   let top: number;
   let left: number;
+  const targetCenterX = targetRect.left + targetRect.width / 2;
+  const targetCenterY = targetRect.top + targetRect.height / 2;
 
   switch (position) {
     case 'bottom':
       top = targetRect.bottom + offset;
-      left = targetRect.left + targetRect.width / 2 - tooltipWidth / 2;
+      left = targetCenterX - tooltipWidth / 2;
       break;
     case 'top':
       top = targetRect.top - tooltipHeight - offset - 20; // Extra space so card is visible
-      left = targetRect.left + targetRect.width / 2 - tooltipWidth / 2;
+      left = targetCenterX - tooltipWidth / 2;
       break;
     case 'right':
-      top = targetRect.top + targetRect.height / 2 - tooltipHeight / 2;
+      top = targetCenterY - tooltipHeight / 2;
       left = targetRect.right + offset;
       break;
     case 'left':
-      top = targetRect.top + targetRect.height / 2 - tooltipHeight / 2;
+      top = targetCenterY - tooltipHeight / 2;
       left = targetRect.left - tooltipWidth - offset;
       break;
   }
 
   // Clamp to viewport bounds
-  top = Math.max(padding, Math.min(top, window.innerHeight - tooltipHeight - padding));
-  left = Math.max(padding, Math.min(left, window.innerWidth - tooltipWidth - padding));
+  const clampedTop = Math.max(padding, Math.min(top, window.innerHeight - tooltipHeight - padding));
+  const clampedLeft = Math.max(padding, Math.min(left, window.innerWidth - tooltipWidth - padding));
 
-  return { top, left };
+  // Calculate arrow offset based on how much the tooltip was shifted
+  let arrowOffset: number;
+  if (position === 'bottom' || position === 'top') {
+    // Arrow should point to target center X relative to tooltip's left edge
+    arrowOffset = targetCenterX - clampedLeft;
+    // Clamp arrow to stay within tooltip bounds (with some padding)
+    arrowOffset = Math.max(20, Math.min(arrowOffset, tooltipWidth - 20));
+  } else {
+    // For left/right positions, arrow offset is vertical
+    arrowOffset = targetCenterY - clampedTop;
+    arrowOffset = Math.max(20, Math.min(arrowOffset, tooltipHeight - 20));
+  }
+
+  return { style: { top: clampedTop, left: clampedLeft }, arrowOffset };
 }
