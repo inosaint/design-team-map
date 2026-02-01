@@ -66,9 +66,9 @@ const ALL_STEPS: OnboardingStep[] = [
 
 // Step sequences for different onboarding modes
 const STEP_SEQUENCES: Record<string, string[]> = {
-  // Regular onboarding (no quickstart): Add member → Settings
-  regular: ['add-member', 'settings'],
-  // Post-quickstart onboarding: Drag to move → Settings
+  // Regular onboarding (no quickstart): Full sequence
+  regular: ['add-member', 'click-edit', 'drag-move', 'connect-manager', 'settings'],
+  // Post-quickstart onboarding: Drag to move → Settings (cards already exist)
   'post-quickstart': ['drag-move', 'settings'],
 };
 
