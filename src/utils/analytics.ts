@@ -7,7 +7,13 @@ export const initPostHog = () => {
       api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com',
       capture_pageview: true,
       capture_pageleave: true,
-      respect_dnt: true,
+      respect_dnt: false, // Set to false to ensure events fire during testing
+      loaded: (ph) => {
+        // Enable debug mode in development to see all events in console
+        if (import.meta.env.DEV) {
+          ph.debug()
+        }
+      },
     })
 
     // Expose to window for debugging
