@@ -80,6 +80,23 @@ A web app for planning hiring and growth progression for design teams with an in
 
 ---
 
+## Pre-Release Review Tasks
+- [ ] Review CHANGELOG.md for accuracy and completeness
+- [ ] Verify version number updated in SettingsPanel.tsx
+- [ ] Check README.md is up to date (features, URLs, license)
+- [ ] Ensure LICENSE file matches README license reference
+- [ ] Test quickstart wizard flow end-to-end
+- [ ] Test onboarding tour for new users
+- [ ] Verify analytics events are firing correctly
+- [ ] Test export functionality (PNG, PDF, JSON)
+- [ ] Test import/restore from JSON backup
+- [ ] Check mobile responsiveness
+- [ ] Run `npm run build` and verify no errors
+- [ ] Run `npm run lint` and fix any issues
+- [ ] Test in multiple browsers (Chrome, Firefox, Safari)
+
+---
+
 ## Tech Stack
 - **Framework:** React 19 + TypeScript
 - **Build Tool:** Vite

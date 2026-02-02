@@ -68,4 +68,4 @@ See [CHANGELOG.md](./CHANGELOG.md) for release history and updates.
 
 ## License
 
-MIT
+[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) - See [LICENSE](./LICENSE) for details.
