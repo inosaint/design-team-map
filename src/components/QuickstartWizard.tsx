@@ -400,74 +400,81 @@ const TeamSizeIllustrations = {
   ),
   medium: (
     <svg viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Head card */}
-      <rect x="50" y="2" width="20" height="12" rx="2.5" fill="#22C55E" />
+      {/* Head card - shifted down */}
+      <rect x="50" y="10" width="20" height="12" rx="2.5" fill="#22C55E" />
       {/* Lines to managers */}
-      <path d="M60 14 L60 18 L30 18 L30 22" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
-      <path d="M60 14 L60 18 L60 22" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
-      <path d="M60 14 L60 18 L90 18 L90 22" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      <path d="M60 22 L60 26 L30 26 L30 30" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      <path d="M60 22 L60 30" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      <path d="M60 22 L60 26 L90 26 L90 30" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
       {/* Manager cards */}
-      <rect x="20" y="22" width="20" height="12" rx="2" fill="#4ADE80" />
-      <rect x="50" y="22" width="20" height="12" rx="2" fill="#4ADE80" />
-      <rect x="80" y="22" width="20" height="12" rx="2" fill="#4ADE80" />
+      <rect x="20" y="30" width="20" height="10" rx="2" fill="#4ADE80" />
+      <rect x="50" y="30" width="20" height="10" rx="2" fill="#4ADE80" />
+      <rect x="80" y="30" width="20" height="10" rx="2" fill="#4ADE80" />
       {/* Lines to ICs */}
-      <path d="M30 34 L30 38 L15 38 L15 42" stroke="#9CA3AF" strokeWidth="1" fill="none" />
-      <path d="M30 34 L30 38 L30 42" stroke="#9CA3AF" strokeWidth="1" fill="none" />
-      <path d="M30 34 L30 38 L45 38 L45 42" stroke="#9CA3AF" strokeWidth="1" fill="none" />
-      <path d="M60 34 L60 42" stroke="#9CA3AF" strokeWidth="1" fill="none" />
-      <path d="M60 34 L60 38 L75 38 L75 42" stroke="#9CA3AF" strokeWidth="1" fill="none" />
-      <path d="M90 34 L90 38 L90 42" stroke="#9CA3AF" strokeWidth="1" fill="none" />
-      <path d="M90 34 L90 38 L105 38 L105 42" stroke="#9CA3AF" strokeWidth="1" fill="none" />
-      {/* IC cards */}
-      <rect x="7" y="42" width="16" height="10" rx="1.5" fill="#FDBA74" />
-      <rect x="23" y="42" width="14" height="10" rx="1.5" fill="#FDBA74" />
-      <rect x="38" y="42" width="14" height="10" rx="1.5" fill="#FDBA74" />
-      <rect x="53" y="42" width="14" height="10" rx="1.5" fill="#FDBA74" />
-      <rect x="68" y="42" width="14" height="10" rx="1.5" fill="#FDBA74" />
-      <rect x="83" y="42" width="14" height="10" rx="1.5" fill="#FDBA74" />
-      <rect x="98" y="42" width="14" height="10" rx="1.5" fill="#FDBA74" />
-      {/* Additional ICs */}
-      <rect x="15" y="56" width="12" height="8" rx="1.5" fill="#FED7AA" />
-      <rect x="30" y="56" width="12" height="8" rx="1.5" fill="#FED7AA" />
-      <rect x="58" y="56" width="12" height="8" rx="1.5" fill="#FED7AA" />
-      <rect x="78" y="56" width="12" height="8" rx="1.5" fill="#FED7AA" />
-      <rect x="93" y="56" width="12" height="8" rx="1.5" fill="#FED7AA" />
+      <path d="M30 40 L30 44 L17 44 L17 48" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M30 40 L30 44 L43 44 L43 48" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M60 40 L60 44 L60 48" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M60 40 L60 44 L77 44 L77 48" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M90 40 L90 44 L90 48" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M90 40 L90 44 L103 44 L103 48" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      {/* IC cards - properly spaced (6 cards with gaps) */}
+      <rect x="4" y="48" width="18" height="9" rx="1.5" fill="#FDBA74" />
+      <rect x="24" y="48" width="18" height="9" rx="1.5" fill="#FDBA74" />
+      <rect x="51" y="48" width="18" height="9" rx="1.5" fill="#FDBA74" />
+      <rect x="71" y="48" width="18" height="9" rx="1.5" fill="#FDBA74" />
+      <rect x="82" y="48" width="16" height="9" rx="1.5" fill="#FDBA74" />
+      <rect x="100" y="48" width="16" height="9" rx="1.5" fill="#FDBA74" />
+      {/* Additional ICs row */}
+      <rect x="10" y="61" width="14" height="7" rx="1.5" fill="#FED7AA" />
+      <rect x="28" y="61" width="14" height="7" rx="1.5" fill="#FED7AA" />
+      <rect x="53" y="61" width="14" height="7" rx="1.5" fill="#FED7AA" />
+      <rect x="78" y="61" width="14" height="7" rx="1.5" fill="#FED7AA" />
+      <rect x="96" y="61" width="14" height="7" rx="1.5" fill="#FED7AA" />
     </svg>
   ),
   large: (
     <svg viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Head card */}
-      <rect x="52" y="2" width="16" height="10" rx="2" fill="#22C55E" />
+      {/* Head card - shifted down */}
+      <rect x="52" y="8" width="16" height="10" rx="2" fill="#22C55E" />
       {/* Lines to directors */}
-      <path d="M60 12 L60 15 L25 15 L25 18" stroke="#9CA3AF" strokeWidth="1" fill="none" />
-      <path d="M60 12 L60 18" stroke="#9CA3AF" strokeWidth="1" fill="none" />
-      <path d="M60 12 L60 15 L95 15 L95 18" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M60 18 L60 22 L25 22 L25 26" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M60 18 L60 26" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M60 18 L60 22 L95 22 L95 26" stroke="#9CA3AF" strokeWidth="1" fill="none" />
       {/* Director cards */}
-      <rect x="17" y="18" width="16" height="10" rx="1.5" fill="#4ADE80" />
-      <rect x="52" y="18" width="16" height="10" rx="1.5" fill="#4ADE80" />
-      <rect x="87" y="18" width="16" height="10" rx="1.5" fill="#4ADE80" />
+      <rect x="17" y="26" width="16" height="9" rx="1.5" fill="#4ADE80" />
+      <rect x="52" y="26" width="16" height="9" rx="1.5" fill="#4ADE80" />
+      <rect x="87" y="26" width="16" height="9" rx="1.5" fill="#4ADE80" />
       {/* Lines to managers */}
-      <path d="M25 28 L25 32 L12 32 L12 36" stroke="#9CA3AF" strokeWidth="1" fill="none" />
-      <path d="M25 28 L25 32 L28 32 L28 36" stroke="#9CA3AF" strokeWidth="1" fill="none" />
-      <path d="M60 28 L60 32 L48 32 L48 36" stroke="#9CA3AF" strokeWidth="1" fill="none" />
-      <path d="M60 28 L60 32 L72 32 L72 36" stroke="#9CA3AF" strokeWidth="1" fill="none" />
-      <path d="M95 28 L95 32 L92 32 L92 36" stroke="#9CA3AF" strokeWidth="1" fill="none" />
-      <path d="M95 28 L95 32 L108 32 L108 36" stroke="#9CA3AF" strokeWidth="1" fill="none" />
-      {/* Manager cards */}
-      <rect x="4" y="36" width="16" height="8" rx="1.5" fill="#F97316" />
-      <rect x="21" y="36" width="14" height="8" rx="1.5" fill="#F97316" />
-      <rect x="40" y="36" width="16" height="8" rx="1.5" fill="#F97316" />
-      <rect x="64" y="36" width="16" height="8" rx="1.5" fill="#F97316" />
-      <rect x="85" y="36" width="14" height="8" rx="1.5" fill="#F97316" />
-      <rect x="100" y="36" width="16" height="8" rx="1.5" fill="#F97316" />
-      {/* IC cards row 1 */}
-      {[4, 17, 30, 43, 56, 69, 82, 95, 108].map((x, i) => (
-        <rect key={i} x={x} y="50" width="10" height="6" rx="1" fill="#FDBA74" />
-      ))}
+      <path d="M25 35 L25 39 L13 39 L13 43" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M25 35 L25 39 L37 39 L37 43" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M60 35 L60 39 L50 39 L50 43" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M60 35 L60 39 L70 39 L70 43" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M95 35 L95 39 L83 39 L83 43" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M95 35 L95 39 L107 39 L107 43" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      {/* Manager cards - 6 properly spaced */}
+      <rect x="4" y="43" width="18" height="8" rx="1.5" fill="#F97316" />
+      <rect x="24" y="43" width="18" height="8" rx="1.5" fill="#F97316" />
+      <rect x="44" y="43" width="12" height="8" rx="1.5" fill="#F97316" />
+      <rect x="64" y="43" width="12" height="8" rx="1.5" fill="#F97316" />
+      <rect x="78" y="43" width="18" height="8" rx="1.5" fill="#F97316" />
+      <rect x="98" y="43" width="18" height="8" rx="1.5" fill="#F97316" />
+      {/* IC cards row 1 - properly spaced */}
+      <rect x="4" y="55" width="12" height="6" rx="1" fill="#FDBA74" />
+      <rect x="18" y="55" width="12" height="6" rx="1" fill="#FDBA74" />
+      <rect x="32" y="55" width="12" height="6" rx="1" fill="#FDBA74" />
+      <rect x="46" y="55" width="12" height="6" rx="1" fill="#FDBA74" />
+      <rect x="62" y="55" width="12" height="6" rx="1" fill="#FDBA74" />
+      <rect x="76" y="55" width="12" height="6" rx="1" fill="#FDBA74" />
+      <rect x="90" y="55" width="12" height="6" rx="1" fill="#FDBA74" />
+      <rect x="104" y="55" width="12" height="6" rx="1" fill="#FDBA74" />
       {/* IC cards row 2 */}
-      {[8, 21, 34, 50, 63, 76, 89, 104].map((x, i) => (
-        <rect key={i} x={x} y="60" width="9" height="5" rx="1" fill="#FED7AA" />
-      ))}
+      <rect x="8" y="65" width="10" height="5" rx="1" fill="#FED7AA" />
+      <rect x="22" y="65" width="10" height="5" rx="1" fill="#FED7AA" />
+      <rect x="38" y="65" width="10" height="5" rx="1" fill="#FED7AA" />
+      <rect x="54" y="65" width="10" height="5" rx="1" fill="#FED7AA" />
+      <rect x="68" y="65" width="10" height="5" rx="1" fill="#FED7AA" />
+      <rect x="82" y="65" width="10" height="5" rx="1" fill="#FED7AA" />
+      <rect x="96" y="65" width="10" height="5" rx="1" fill="#FED7AA" />
     </svg>
   ),
 };
