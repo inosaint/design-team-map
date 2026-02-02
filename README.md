@@ -1,3 +1,5 @@
+![MapYour.Org](public/header.jpeg)
+
 # Design Team Mapper
 
 An interactive web application for planning hiring and growth progression in design teams. Visualize your org structure, track promotions, and plan future hires.
