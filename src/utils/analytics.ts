@@ -3,8 +3,11 @@ import posthog from 'posthog-js'
 // Initialize PostHog - call this once at app startup
 export const initPostHog = () => {
   if (typeof window !== 'undefined') {
-    posthog.init(import.meta.env.VITE_PUBLIC_POSTHOG_KEY || '', {
-      api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com',
+    const token = import.meta.env.VITE_PUBLIC_POSTHOG_KEY || '';
+    const host = import.meta.env.VITE_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com';
+
+    posthog.init(token, {
+      api_host: host,
       capture_pageview: true,
       capture_pageleave: true,
       respect_dnt: false, // Set to false to ensure events fire during testing
@@ -45,6 +48,21 @@ export const AnalyticsEvents = {
   // Data management
   DATA_CLEARED: 'data_cleared',
   SETTINGS_RESET: 'settings_reset',
+
+  // Quickstart events
+  QUICKSTART_STARTED: 'quickstart_started',
+  QUICKSTART_STEP_COMPLETED: 'quickstart_step_completed',
+  QUICKSTART_COMPLETED: 'quickstart_completed',
+  QUICKSTART_DISMISSED: 'quickstart_dismissed',
+  QUICKSTART_INDUSTRY_SELECTED: 'quickstart_industry_selected',
+  QUICKSTART_TEAM_SIZE_SELECTED: 'quickstart_team_size_selected',
+  QUICKSTART_STRUCTURE_SELECTED: 'quickstart_structure_selected',
+  QUICKSTART_ROLE_TYPE_SELECTED: 'quickstart_role_type_selected',
+
+  // Onboarding events
+  ONBOARDING_STEP_VIEWED: 'onboarding_step_viewed',
+  ONBOARDING_COMPLETED: 'onboarding_completed',
+  ONBOARDING_SKIPPED: 'onboarding_skipped',
 } as const
 
 // Track card creation
@@ -123,6 +141,87 @@ export const trackDataCleared = () => {
 // Track settings reset
 export const trackSettingsReset = () => {
   posthog.capture(AnalyticsEvents.SETTINGS_RESET)
+}
+
+// Quickstart tracking functions
+export const trackQuickstartStarted = () => {
+  posthog.capture(AnalyticsEvents.QUICKSTART_STARTED)
+}
+
+export const trackQuickstartStepCompleted = (step: number, stepName: string) => {
+  posthog.capture(AnalyticsEvents.QUICKSTART_STEP_COMPLETED, {
+    step,
+    step_name: stepName,
+  })
+}
+
+export const trackQuickstartCompleted = (properties: {
+  industry: string;
+  teamSize: number;
+  structure: string;
+  roleTypes: string[];
+}) => {
+  posthog.capture(AnalyticsEvents.QUICKSTART_COMPLETED, {
+    industry: properties.industry,
+    team_size: properties.teamSize,
+    structure: properties.structure,
+    role_types: properties.roleTypes,
+    role_types_count: properties.roleTypes.length,
+  })
+}
+
+export const trackQuickstartDismissed = (step: number) => {
+  posthog.capture(AnalyticsEvents.QUICKSTART_DISMISSED, {
+    dismissed_at_step: step,
+  })
+}
+
+export const trackQuickstartIndustrySelected = (industry: string) => {
+  posthog.capture(AnalyticsEvents.QUICKSTART_INDUSTRY_SELECTED, {
+    industry,
+  })
+}
+
+export const trackQuickstartTeamSizeSelected = (size: string, count: number) => {
+  posthog.capture(AnalyticsEvents.QUICKSTART_TEAM_SIZE_SELECTED, {
+    size_category: size,
+    team_count: count,
+  })
+}
+
+export const trackQuickstartStructureSelected = (structure: string) => {
+  posthog.capture(AnalyticsEvents.QUICKSTART_STRUCTURE_SELECTED, {
+    structure,
+  })
+}
+
+export const trackQuickstartRoleTypeSelected = (roleTypes: string[]) => {
+  posthog.capture(AnalyticsEvents.QUICKSTART_ROLE_TYPE_SELECTED, {
+    role_types: roleTypes,
+    count: roleTypes.length,
+  })
+}
+
+// Onboarding tracking functions
+export const trackOnboardingStepViewed = (stepId: string, stepTitle: string, mode: string) => {
+  posthog.capture(AnalyticsEvents.ONBOARDING_STEP_VIEWED, {
+    step_id: stepId,
+    step_title: stepTitle,
+    onboarding_mode: mode,
+  })
+}
+
+export const trackOnboardingCompleted = (mode: string) => {
+  posthog.capture(AnalyticsEvents.ONBOARDING_COMPLETED, {
+    onboarding_mode: mode,
+  })
+}
+
+export const trackOnboardingSkipped = (stepId: string, mode: string) => {
+  posthog.capture(AnalyticsEvents.ONBOARDING_SKIPPED, {
+    skipped_at_step: stepId,
+    onboarding_mode: mode,
+  })
 }
 
 // Export posthog instance for direct access if needed

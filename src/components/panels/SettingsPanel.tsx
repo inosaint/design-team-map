@@ -15,7 +15,11 @@ import styles from './SettingsPanel.module.css';
 
 type TabType = 'levels' | 'types' | 'advanced' | 'about' | 'import-export';
 
-export default function SettingsPanel() {
+interface SettingsPanelProps {
+  onOpenQuickstart?: () => void;
+}
+
+export default function SettingsPanel({ onOpenQuickstart }: SettingsPanelProps) {
   const { isSettingsOpen, toggleSettings, settings, updateSettings, exportData, importData, clearAll } =
     useStore();
 
@@ -568,12 +572,12 @@ export default function SettingsPanel() {
           {activeTab === 'about' && (
             <div className={styles.section}>
               <div className={styles.aboutHeader}>
-                <h3 className={styles.aboutTitle}>Design Team Map</h3>
-                <span className={styles.version}>v0.3.0</span>
+<h3 className={styles.aboutTitle}>MapYour.Org</h3>
+                <span className={styles.version}>v1.0.0</span>
               </div>
 
               <p className={styles.aboutDesc}>
-                A tool for visualizing and planning design team structures, career progression, and growth opportunities.
+                A tool for visualizing and planning team structures, career progression, and growth opportunities across any industry.
               </p>
 
               <div className={styles.aboutLinks}>
@@ -602,6 +606,25 @@ export default function SettingsPanel() {
                   Report a Bug
                 </a>
               </div>
+
+              {onOpenQuickstart && (
+                <div className={styles.quickstartSection}>
+                  <div className={styles.divider} />
+                  <h4 className={styles.attributionsTitle}>Getting Started</h4>
+                  <p className={styles.quickstartDesc}>
+                    New to MapYour.Org? Use the quickstart wizard to generate a starter org chart.
+                  </p>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => {
+                      toggleSettings();
+                      onOpenQuickstart();
+                    }}
+                  >
+                    Open Quick Start
+                  </button>
+                </div>
+              )}
 
               <div className={styles.attributions}>
                 <h4 className={styles.attributionsTitle}>Built with</h4>

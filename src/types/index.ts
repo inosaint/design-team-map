@@ -1,4 +1,4 @@
-// Core types for Design Team Map
+// Core types for Org Mapper
 
 // Career track type - IC (Individual Contributor) or Manager
 export type CareerTrack = 'ic' | 'manager';
@@ -123,7 +123,7 @@ export const DEFAULT_SETTINGS: Settings = {
   designerTypes: DEFAULT_DESIGNER_TYPES,
   spanOfControlThreshold: 6,
   trackSplitLevel: 4,
-  teamName: 'Design Team',
+  teamName: 'My Team',
   showGender: false,
   showMinimap: false,
 };

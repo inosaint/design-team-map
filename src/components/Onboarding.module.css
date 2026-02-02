@@ -33,7 +33,7 @@
 /* Arrow pointing up (tooltip is below target) */
 .arrowBottom::before {
   top: -7px;
-  left: 50%;
+  left: var(--arrow-offset, 50%);
   margin-left: -6px;
   border-right: none;
   border-bottom: none;
@@ -42,7 +42,7 @@
 /* Arrow pointing down (tooltip is above target) */
 .arrowTop::before {
   bottom: -7px;
-  left: 50%;
+  left: var(--arrow-offset, 50%);
   margin-left: -6px;
   border-left: none;
   border-top: none;
@@ -51,7 +51,7 @@
 /* Arrow pointing left (tooltip is to the right of target) */
 .arrowRight::before {
   left: -7px;
-  top: 50%;
+  top: var(--arrow-offset, 50%);
   margin-top: -6px;
   border-right: none;
   border-top: none;
@@ -60,7 +60,7 @@
 /* Arrow pointing right (tooltip is to the left of target) */
 .arrowLeft::before {
   right: -7px;
-  top: 50%;
+  top: var(--arrow-offset, 50%);
   margin-top: -6px;
   border-left: none;
   border-bottom: none;
