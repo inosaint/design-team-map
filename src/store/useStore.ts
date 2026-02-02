@@ -12,6 +12,7 @@ import type {
 import { DEFAULT_SETTINGS } from '../types';
 import { calculateAutoArrangePositions, wouldCreateCircularReference } from '../utils/calculations';
 import { trackCardCreated, trackCardDeleted, trackCardConverted, trackDataCleared } from '../utils/analytics';
+import { clearOnboardingState } from '../constants/onboarding';
 
 interface TeamMapState {
   // Data
@@ -305,6 +306,7 @@ export const useStore = create<TeamMapState>()(
           selectedNodeId: null,
           isPanelOpen: false,
         });
+        clearOnboardingState();
         trackDataCleared();
       },
     }),

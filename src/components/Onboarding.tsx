@@ -6,10 +6,11 @@ import {
   trackOnboardingCompleted,
   trackOnboardingSkipped,
 } from '../utils/analytics';
-
-const ONBOARDING_KEY = 'design-team-map-onboarding-completed';
-const ONBOARDING_STEP_KEY = 'design-team-map-onboarding-step';
-const ONBOARDING_MODE_KEY = 'design-team-map-onboarding-mode';
+import {
+  ONBOARDING_COMPLETED_KEY,
+  ONBOARDING_STEP_KEY,
+  ONBOARDING_MODE_KEY,
+} from '../constants/onboarding';
 
 interface OnboardingStep {
   id: string;
@@ -101,7 +102,7 @@ export default function Onboarding({ mode: propMode }: OnboardingProps) {
 
   // Initialize onboarding on mount
   useEffect(() => {
-    const completed = localStorage.getItem(ONBOARDING_KEY);
+    const completed = localStorage.getItem(ONBOARDING_COMPLETED_KEY);
     if (completed) return;
 
     // Determine mode from prop or localStorage
@@ -155,7 +156,7 @@ export default function Onboarding({ mode: propMode }: OnboardingProps) {
 
   // Pause tour if cards are deleted and we no longer have enough
   useEffect(() => {
-    const completed = localStorage.getItem(ONBOARDING_KEY);
+    const completed = localStorage.getItem(ONBOARDING_COMPLETED_KEY);
     if (completed) return;
 
     // If tooltip is visible but we don't have enough cards anymore, pause
@@ -226,7 +227,7 @@ export default function Onboarding({ mode: propMode }: OnboardingProps) {
 
   const handleComplete = useCallback(() => {
     trackOnboardingCompleted(onboardingMode);
-    localStorage.setItem(ONBOARDING_KEY, 'true');
+    localStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
     localStorage.removeItem(ONBOARDING_STEP_KEY);
     setIsVisible(false);
     setWaitingForCards(false);
