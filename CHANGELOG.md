@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0] - 2026-02-02
+
+### Added
+- **Quickstart Wizard**: New interactive setup wizard for first-time users
+  - Industry selection with 12 presets: Design, Engineering, Product, Sales, Marketing, HR, Finance, Healthcare, Legal, Construction, Education, and Custom
+  - Team size options: Tiny (1-3), Small (4-8), Medium (9-15), Large (16+)
+  - Structure types: Flat, Hierarchical, and Pods-based org structures
+  - Live preview illustrations that update based on selections
+  - Editable team member count before generation
+  - Pre-configured role types and career levels per industry
+- **PostHog Analytics**: Usage analytics tracking for key user actions
+  - Quickstart wizard events (started, completed, dismissed, selections)
+  - Environment-based configuration via `.env`
+- **Release Checklist**: Added `RELEASE.md` with version update procedures
+- **Quickstart Access**: Settings panel now includes button to restart quickstart wizard
+
+### Changed
+- **Rebranded to MapYour.Org**: Updated app name and URLs throughout
+- **Industry-Agnostic Defaults**: Default names are now generic (e.g., "Team Member" instead of "Designer")
+- **Improved Onboarding**: Mode-based step sequences that adapt to quickstart vs regular flow
+- **Better Mobile UX**: Improved quickstart wizard responsiveness on mobile devices
+
+### Fixed
+- Card overlap in generated org maps for large teams
+- Tooltip arrow positioning issues
+- Progress dots center alignment in footer
+- Connector lines in medium and pods illustrations
+- Illustration spacing and vertical positioning
+
 ## [0.3.0] - 2026-01-30
 
 ### Added

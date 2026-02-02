@@ -1,11 +1,18 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useStore } from '../store/useStore';
 import styles from './Onboarding.module.css';
+import {
+  trackOnboardingStepViewed,
+  trackOnboardingCompleted,
+  trackOnboardingSkipped,
+} from '../utils/analytics';
 
 const ONBOARDING_KEY = 'design-team-map-onboarding-completed';
 const ONBOARDING_STEP_KEY = 'design-team-map-onboarding-step';
+const ONBOARDING_MODE_KEY = 'design-team-map-onboarding-mode';
 
 interface OnboardingStep {
+  id: string;
   target: string;
   title: string;
   content: string;
@@ -13,8 +20,10 @@ interface OnboardingStep {
   minCards?: number; // Minimum cards required (0 = no cards needed)
 }
 
-const steps: OnboardingStep[] = [
+// All available steps
+const ALL_STEPS: OnboardingStep[] = [
   {
+    id: 'add-member',
     target: '[data-testid="add-member-btn"]',
     title: 'Add Team Members',
     content: 'Click here to add new team members or planned hires to your org chart.',
@@ -22,6 +31,7 @@ const steps: OnboardingStep[] = [
     minCards: 0,
   },
   {
+    id: 'click-edit',
     target: '.react-flow__node',
     title: 'Click to Edit',
     content: 'Click any card to select it and edit details in the side panel.',
@@ -29,6 +39,7 @@ const steps: OnboardingStep[] = [
     minCards: 1,
   },
   {
+    id: 'drag-move',
     target: '.react-flow__node',
     title: 'Drag to Move',
     content: 'Drag anywhere on the card to reposition it on the canvas.',
@@ -36,64 +47,92 @@ const steps: OnboardingStep[] = [
     minCards: 1,
   },
   {
+    id: 'connect-manager',
     target: '.react-flow__node:nth-of-type(2)',
     title: 'Connect to Set Manager',
     content: 'Drag between handles to connect cards, or use the Manager dropdown in the editor panel.',
     position: 'top',
     minCards: 2,
   },
+  {
+    id: 'settings',
+    target: '[data-testid="settings-btn"]',
+    title: 'Customize Your Map',
+    content: 'Access settings to customize role types, levels, colors, and export your org chart.',
+    position: 'bottom',
+    minCards: 0,
+  },
 ];
 
-export default function Onboarding() {
+// Step sequences for different onboarding modes
+const STEP_SEQUENCES: Record<string, string[]> = {
+  // Regular onboarding (no quickstart): Full sequence
+  regular: ['add-member', 'click-edit', 'drag-move', 'connect-manager', 'settings'],
+  // Post-quickstart onboarding: Drag to move → Settings (cards already exist)
+  'post-quickstart': ['drag-move', 'settings'],
+};
+
+// Get steps for a given mode
+function getStepsForMode(mode: string): OnboardingStep[] {
+  const sequence = STEP_SEQUENCES[mode] || STEP_SEQUENCES.regular;
+  return sequence
+    .map(id => ALL_STEPS.find(s => s.id === id))
+    .filter((s): s is OnboardingStep => s !== undefined);
+}
+
+interface OnboardingProps {
+  mode?: 'regular' | 'post-quickstart';
+}
+
+export default function Onboarding({ mode: propMode }: OnboardingProps) {
   const nodes = useStore((state) => state.nodes);
   const [isVisible, setIsVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [waitingForCards, setWaitingForCards] = useState(false);
+  const [onboardingMode, setOnboardingMode] = useState<string>('regular');
   const timerRef = useRef<number | null>(null);
 
+  // Get steps based on current mode
+  const steps = getStepsForMode(onboardingMode);
   const cardCount = nodes.length;
   const currentStepMinCards = steps[currentStep]?.minCards ?? 0;
   const hasEnoughCards = cardCount >= currentStepMinCards;
 
-  console.log('[Onboarding] render:', { cardCount, waitingForCards, isVisible, currentStep, currentStepMinCards, hasEnoughCards });
-
   // Initialize onboarding on mount
   useEffect(() => {
     const completed = localStorage.getItem(ONBOARDING_KEY);
-    console.log('[Onboarding] init effect - completed:', completed);
     if (completed) return;
 
+    // Determine mode from prop or localStorage
+    const savedMode = localStorage.getItem(ONBOARDING_MODE_KEY);
+    const effectiveMode = propMode || savedMode || 'regular';
+    setOnboardingMode(effectiveMode);
+    localStorage.setItem(ONBOARDING_MODE_KEY, effectiveMode);
+
+    const modeSteps = getStepsForMode(effectiveMode);
     const savedStep = localStorage.getItem(ONBOARDING_STEP_KEY);
     const stepNum = savedStep ? parseInt(savedStep, 10) : 0;
-    const stepMinCards = steps[stepNum]?.minCards ?? 0;
-
-    console.log('[Onboarding] init effect - stepNum:', stepNum, 'minCards:', stepMinCards, 'current cardCount:', cardCount);
+    const stepMinCards = modeSteps[stepNum]?.minCards ?? 0;
     setCurrentStep(stepNum);
 
     // If step requires more cards than we have, wait
     if (cardCount < stepMinCards) {
-      console.log('[Onboarding] init effect - waiting for cards');
       setWaitingForCards(true);
       return;
     }
 
     // Delay to allow the app to render first
     const timer = setTimeout(() => {
-      console.log('[Onboarding] init effect - showing tooltip');
       setIsVisible(true);
     }, 1000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [propMode]);
 
   // Watch for card additions when waiting
   useEffect(() => {
-    console.log('[Onboarding] card watch effect:', { waitingForCards, cardCount, currentStepMinCards, hasEnoughCards });
-
     if (!waitingForCards) return;
     if (!hasEnoughCards) return;
-
-    console.log('[Onboarding] enough cards detected! showing tooltip after delay...');
 
     // Clear any existing timer
     if (timerRef.current) {
@@ -101,7 +140,6 @@ export default function Onboarding() {
     }
 
     timerRef.current = window.setTimeout(() => {
-      console.log('[Onboarding] delay complete, showing tooltip');
       setWaitingForCards(false);
       setIsVisible(true);
     }, 1000);
@@ -120,7 +158,6 @@ export default function Onboarding() {
 
     // If tooltip is visible but we don't have enough cards anymore, pause
     if (isVisible && !hasEnoughCards) {
-      console.log('[Onboarding] cards deleted, pausing tour - need', currentStepMinCards, 'have', cardCount);
       setIsVisible(false);
       setWaitingForCards(true);
     }
@@ -157,7 +194,6 @@ export default function Onboarding() {
   const handleNext = useCallback(() => {
     const nextStep = currentStep + 1;
     const nextStepMinCards = steps[nextStep]?.minCards ?? 0;
-    console.log('[Onboarding] handleNext:', { currentStep, nextStep, cardCount, nextStepMinCards });
 
     if (nextStep >= steps.length) {
       handleComplete();
@@ -166,7 +202,6 @@ export default function Onboarding() {
 
     // If next step requires more cards than we have, pause and wait
     if (cardCount < nextStepMinCards) {
-      console.log('[Onboarding] handleNext - need', nextStepMinCards, 'cards, have', cardCount, '- waiting');
       localStorage.setItem(ONBOARDING_STEP_KEY, nextStep.toString());
       setCurrentStep(nextStep);
       setIsVisible(false);
@@ -179,24 +214,39 @@ export default function Onboarding() {
   }, [currentStep, cardCount]);
 
   const handleSkip = useCallback(() => {
+    const step = steps[currentStep];
+    if (step) {
+      trackOnboardingSkipped(step.id, onboardingMode);
+    }
     handleComplete();
-  }, []);
+  }, [currentStep, steps, onboardingMode]);
 
   const handleComplete = useCallback(() => {
+    trackOnboardingCompleted(onboardingMode);
     localStorage.setItem(ONBOARDING_KEY, 'true');
     localStorage.removeItem(ONBOARDING_STEP_KEY);
     setIsVisible(false);
     setWaitingForCards(false);
-  }, []);
+  }, [onboardingMode]);
+
+  // Track when step is viewed
+  useEffect(() => {
+    if (isVisible && steps[currentStep]) {
+      trackOnboardingStepViewed(steps[currentStep].id, steps[currentStep].title, onboardingMode);
+    }
+  }, [isVisible, currentStep, steps, onboardingMode]);
 
   if (!isVisible) return null;
 
   const step = steps[currentStep];
-  const tooltipStyle = getTooltipPosition(targetRect, step.position);
+  const { style: tooltipStyle, arrowOffset } = getTooltipPosition(targetRect, step.position);
   const arrowClass = styles[`arrow${step.position.charAt(0).toUpperCase() + step.position.slice(1)}`];
 
   return (
-    <div className={`${styles.tooltip} ${arrowClass}`} style={tooltipStyle}>
+    <div
+      className={`${styles.tooltip} ${arrowClass}`}
+      style={{ ...tooltipStyle, '--arrow-offset': `${arrowOffset}px` } as React.CSSProperties}
+    >
       <div className={styles.header}>
         <span className={styles.title}>{step.title}</span>
       </div>
@@ -216,12 +266,15 @@ export default function Onboarding() {
 function getTooltipPosition(
   targetRect: DOMRect | null,
   position: OnboardingStep['position']
-): React.CSSProperties {
+): { style: React.CSSProperties; arrowOffset: number } {
   if (!targetRect) {
     return {
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
+      style: {
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+      },
+      arrowOffset: 140, // Center of 280px tooltip
     };
   }
 
@@ -232,29 +285,44 @@ function getTooltipPosition(
 
   let top: number;
   let left: number;
+  const targetCenterX = targetRect.left + targetRect.width / 2;
+  const targetCenterY = targetRect.top + targetRect.height / 2;
 
   switch (position) {
     case 'bottom':
       top = targetRect.bottom + offset;
-      left = targetRect.left + targetRect.width / 2 - tooltipWidth / 2;
+      left = targetCenterX - tooltipWidth / 2;
       break;
     case 'top':
       top = targetRect.top - tooltipHeight - offset - 20; // Extra space so card is visible
-      left = targetRect.left + targetRect.width / 2 - tooltipWidth / 2;
+      left = targetCenterX - tooltipWidth / 2;
       break;
     case 'right':
-      top = targetRect.top + targetRect.height / 2 - tooltipHeight / 2;
+      top = targetCenterY - tooltipHeight / 2;
       left = targetRect.right + offset;
       break;
     case 'left':
-      top = targetRect.top + targetRect.height / 2 - tooltipHeight / 2;
+      top = targetCenterY - tooltipHeight / 2;
       left = targetRect.left - tooltipWidth - offset;
       break;
   }
 
   // Clamp to viewport bounds
-  top = Math.max(padding, Math.min(top, window.innerHeight - tooltipHeight - padding));
-  left = Math.max(padding, Math.min(left, window.innerWidth - tooltipWidth - padding));
+  const clampedTop = Math.max(padding, Math.min(top, window.innerHeight - tooltipHeight - padding));
+  const clampedLeft = Math.max(padding, Math.min(left, window.innerWidth - tooltipWidth - padding));
 
-  return { top, left };
+  // Calculate arrow offset based on how much the tooltip was shifted
+  let arrowOffset: number;
+  if (position === 'bottom' || position === 'top') {
+    // Arrow should point to target center X relative to tooltip's left edge
+    arrowOffset = targetCenterX - clampedLeft;
+    // Clamp arrow to stay within tooltip bounds (with some padding)
+    arrowOffset = Math.max(20, Math.min(arrowOffset, tooltipWidth - 20));
+  } else {
+    // For left/right positions, arrow offset is vertical
+    arrowOffset = targetCenterY - clampedTop;
+    arrowOffset = Math.max(20, Math.min(arrowOffset, tooltipHeight - 20));
+  }
+
+  return { style: { top: clampedTop, left: clampedLeft }, arrowOffset };
 }
