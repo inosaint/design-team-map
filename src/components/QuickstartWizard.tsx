@@ -366,67 +366,107 @@ interface QuickstartWizardProps {
 const TeamSizeIllustrations = {
   tiny: (
     <svg viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="60" cy="25" r="12" fill="#F97316" />
-      <circle cx="40" cy="55" r="10" fill="#FDBA74" />
-      <circle cx="80" cy="55" r="10" fill="#FDBA74" />
-      <line x1="60" y1="37" x2="40" y2="45" stroke="#D4D4D8" strokeWidth="2" />
-      <line x1="60" y1="37" x2="80" y2="45" stroke="#D4D4D8" strokeWidth="2" />
+      {/* Lead card */}
+      <rect x="45" y="12" width="30" height="20" rx="3" fill="#F97316" />
+      {/* Connecting lines */}
+      <path d="M60 32 L60 40 L40 40 L40 48" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      <path d="M60 32 L60 40 L80 40 L80 48" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      {/* Member cards */}
+      <rect x="26" y="48" width="28" height="18" rx="2.5" fill="#FDBA74" />
+      <rect x="66" y="48" width="28" height="18" rx="2.5" fill="#FDBA74" />
     </svg>
   ),
   small: (
     <svg viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="60" cy="15" r="10" fill="#22C55E" />
-      <circle cx="35" cy="40" r="9" fill="#F97316" />
-      <circle cx="85" cy="40" r="9" fill="#F97316" />
-      <circle cx="20" cy="65" r="7" fill="#FDBA74" />
-      <circle cx="50" cy="65" r="7" fill="#FDBA74" />
-      <circle cx="70" cy="65" r="7" fill="#FDBA74" />
-      <circle cx="100" cy="65" r="7" fill="#FDBA74" />
-      <line x1="60" y1="25" x2="35" y2="31" stroke="#D4D4D8" strokeWidth="1.5" />
-      <line x1="60" y1="25" x2="85" y2="31" stroke="#D4D4D8" strokeWidth="1.5" />
-      <line x1="35" y1="49" x2="20" y2="58" stroke="#D4D4D8" strokeWidth="1.5" />
-      <line x1="35" y1="49" x2="50" y2="58" stroke="#D4D4D8" strokeWidth="1.5" />
-      <line x1="85" y1="49" x2="70" y2="58" stroke="#D4D4D8" strokeWidth="1.5" />
-      <line x1="85" y1="49" x2="100" y2="58" stroke="#D4D4D8" strokeWidth="1.5" />
+      {/* Head card */}
+      <rect x="48" y="4" width="24" height="16" rx="3" fill="#22C55E" />
+      {/* Connecting lines to managers */}
+      <path d="M60 20 L60 26 L35 26 L35 32" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      <path d="M60 20 L60 26 L85 26 L85 32" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      {/* Manager cards */}
+      <rect x="23" y="32" width="24" height="14" rx="2.5" fill="#F97316" />
+      <rect x="73" y="32" width="24" height="14" rx="2.5" fill="#F97316" />
+      {/* Connecting lines to ICs */}
+      <path d="M35 46 L35 52 L20 52 L20 58" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      <path d="M35 46 L35 52 L50 52 L50 58" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      <path d="M85 46 L85 52 L70 52 L70 58" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      <path d="M85 46 L85 52 L100 52 L100 58" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      {/* IC cards */}
+      <rect x="10" y="58" width="20" height="12" rx="2" fill="#FDBA74" />
+      <rect x="40" y="58" width="20" height="12" rx="2" fill="#FDBA74" />
+      <rect x="60" y="58" width="20" height="12" rx="2" fill="#FDBA74" />
+      <rect x="90" y="58" width="20" height="12" rx="2" fill="#FDBA74" />
     </svg>
   ),
   medium: (
     <svg viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="60" cy="12" r="8" fill="#22C55E" />
-      <circle cx="30" cy="32" r="7" fill="#4ADE80" />
-      <circle cx="60" cy="32" r="7" fill="#4ADE80" />
-      <circle cx="90" cy="32" r="7" fill="#4ADE80" />
-      <circle cx="15" cy="55" r="5" fill="#FDBA74" />
-      <circle cx="30" cy="55" r="5" fill="#FDBA74" />
-      <circle cx="45" cy="55" r="5" fill="#FDBA74" />
-      <circle cx="60" cy="55" r="5" fill="#FDBA74" />
-      <circle cx="75" cy="55" r="5" fill="#FDBA74" />
-      <circle cx="90" cy="55" r="5" fill="#FDBA74" />
-      <circle cx="105" cy="55" r="5" fill="#FDBA74" />
-      <circle cx="22" cy="72" r="4" fill="#FED7AA" />
-      <circle cx="38" cy="72" r="4" fill="#FED7AA" />
-      <circle cx="68" cy="72" r="4" fill="#FED7AA" />
-      <circle cx="82" cy="72" r="4" fill="#FED7AA" />
-      <circle cx="98" cy="72" r="4" fill="#FED7AA" />
+      {/* Head card */}
+      <rect x="50" y="2" width="20" height="12" rx="2.5" fill="#22C55E" />
+      {/* Lines to managers */}
+      <path d="M60 14 L60 18 L30 18 L30 22" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      <path d="M60 14 L60 18 L60 22" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      <path d="M60 14 L60 18 L90 18 L90 22" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      {/* Manager cards */}
+      <rect x="20" y="22" width="20" height="12" rx="2" fill="#4ADE80" />
+      <rect x="50" y="22" width="20" height="12" rx="2" fill="#4ADE80" />
+      <rect x="80" y="22" width="20" height="12" rx="2" fill="#4ADE80" />
+      {/* Lines to ICs */}
+      <path d="M30 34 L30 38 L15 38 L15 42" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M30 34 L30 38 L30 42" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M30 34 L30 38 L45 38 L45 42" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M60 34 L60 42" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M60 34 L60 38 L75 38 L75 42" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M90 34 L90 38 L90 42" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M90 34 L90 38 L105 38 L105 42" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      {/* IC cards */}
+      <rect x="7" y="42" width="16" height="10" rx="1.5" fill="#FDBA74" />
+      <rect x="23" y="42" width="14" height="10" rx="1.5" fill="#FDBA74" />
+      <rect x="38" y="42" width="14" height="10" rx="1.5" fill="#FDBA74" />
+      <rect x="53" y="42" width="14" height="10" rx="1.5" fill="#FDBA74" />
+      <rect x="68" y="42" width="14" height="10" rx="1.5" fill="#FDBA74" />
+      <rect x="83" y="42" width="14" height="10" rx="1.5" fill="#FDBA74" />
+      <rect x="98" y="42" width="14" height="10" rx="1.5" fill="#FDBA74" />
+      {/* Additional ICs */}
+      <rect x="15" y="56" width="12" height="8" rx="1.5" fill="#FED7AA" />
+      <rect x="30" y="56" width="12" height="8" rx="1.5" fill="#FED7AA" />
+      <rect x="58" y="56" width="12" height="8" rx="1.5" fill="#FED7AA" />
+      <rect x="78" y="56" width="12" height="8" rx="1.5" fill="#FED7AA" />
+      <rect x="93" y="56" width="12" height="8" rx="1.5" fill="#FED7AA" />
     </svg>
   ),
   large: (
     <svg viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="60" cy="10" r="7" fill="#22C55E" />
-      <circle cx="25" cy="28" r="6" fill="#4ADE80" />
-      <circle cx="60" cy="28" r="6" fill="#4ADE80" />
-      <circle cx="95" cy="28" r="6" fill="#4ADE80" />
-      <circle cx="12" cy="46" r="5" fill="#F97316" />
-      <circle cx="28" cy="46" r="5" fill="#F97316" />
-      <circle cx="48" cy="46" r="5" fill="#F97316" />
-      <circle cx="72" cy="46" r="5" fill="#F97316" />
-      <circle cx="92" cy="46" r="5" fill="#F97316" />
-      <circle cx="108" cy="46" r="5" fill="#F97316" />
-      {[8, 18, 28, 38, 48, 58, 68, 78, 88, 98, 108].map((x, i) => (
-        <circle key={i} cx={x} cy="64" r="3" fill="#FDBA74" />
+      {/* Head card */}
+      <rect x="52" y="2" width="16" height="10" rx="2" fill="#22C55E" />
+      {/* Lines to directors */}
+      <path d="M60 12 L60 15 L25 15 L25 18" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M60 12 L60 18" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M60 12 L60 15 L95 15 L95 18" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      {/* Director cards */}
+      <rect x="17" y="18" width="16" height="10" rx="1.5" fill="#4ADE80" />
+      <rect x="52" y="18" width="16" height="10" rx="1.5" fill="#4ADE80" />
+      <rect x="87" y="18" width="16" height="10" rx="1.5" fill="#4ADE80" />
+      {/* Lines to managers */}
+      <path d="M25 28 L25 32 L12 32 L12 36" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M25 28 L25 32 L28 32 L28 36" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M60 28 L60 32 L48 32 L48 36" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M60 28 L60 32 L72 32 L72 36" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M95 28 L95 32 L92 32 L92 36" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M95 28 L95 32 L108 32 L108 36" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      {/* Manager cards */}
+      <rect x="4" y="36" width="16" height="8" rx="1.5" fill="#F97316" />
+      <rect x="21" y="36" width="14" height="8" rx="1.5" fill="#F97316" />
+      <rect x="40" y="36" width="16" height="8" rx="1.5" fill="#F97316" />
+      <rect x="64" y="36" width="16" height="8" rx="1.5" fill="#F97316" />
+      <rect x="85" y="36" width="14" height="8" rx="1.5" fill="#F97316" />
+      <rect x="100" y="36" width="16" height="8" rx="1.5" fill="#F97316" />
+      {/* IC cards row 1 */}
+      {[4, 17, 30, 43, 56, 69, 82, 95, 108].map((x, i) => (
+        <rect key={i} x={x} y="50" width="10" height="6" rx="1" fill="#FDBA74" />
       ))}
-      {[12, 24, 36, 54, 66, 84, 96, 108].map((x, i) => (
-        <circle key={i} cx={x} cy="75" r="2.5" fill="#FED7AA" />
+      {/* IC cards row 2 */}
+      {[8, 21, 34, 50, 63, 76, 89, 104].map((x, i) => (
+        <rect key={i} x={x} y="60" width="9" height="5" rx="1" fill="#FED7AA" />
       ))}
     </svg>
   ),
@@ -435,63 +475,76 @@ const TeamSizeIllustrations = {
 const StructureIllustrations = {
   flat: (
     <svg viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="60" cy="25" r="12" fill="#F97316" />
-      <circle cx="20" cy="55" r="10" fill="#FDBA74" />
-      <circle cx="45" cy="55" r="10" fill="#FDBA74" />
-      <circle cx="75" cy="55" r="10" fill="#FDBA74" />
-      <circle cx="100" cy="55" r="10" fill="#FDBA74" />
-      <line x1="60" y1="37" x2="20" y2="45" stroke="#D4D4D8" strokeWidth="2" />
-      <line x1="60" y1="37" x2="45" y2="45" stroke="#D4D4D8" strokeWidth="2" />
-      <line x1="60" y1="37" x2="75" y2="45" stroke="#D4D4D8" strokeWidth="2" />
-      <line x1="60" y1="37" x2="100" y2="45" stroke="#D4D4D8" strokeWidth="2" />
+      {/* Manager card */}
+      <rect x="48" y="8" width="24" height="18" rx="3" fill="#F97316" />
+      {/* Connecting lines */}
+      <path d="M60 26 L60 34 L20 34 L20 44" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      <path d="M60 26 L60 34 L45 34 L45 44" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      <path d="M60 26 L60 34 L75 34 L75 44" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      <path d="M60 26 L60 34 L100 34 L100 44" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      {/* IC cards */}
+      <rect x="10" y="44" width="20" height="14" rx="2" fill="#FDBA74" />
+      <rect x="35" y="44" width="20" height="14" rx="2" fill="#FDBA74" />
+      <rect x="65" y="44" width="20" height="14" rx="2" fill="#FDBA74" />
+      <rect x="90" y="44" width="20" height="14" rx="2" fill="#FDBA74" />
     </svg>
   ),
   hierarchical: (
     <svg viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="60" cy="12" r="9" fill="#22C55E" />
-      <circle cx="35" cy="35" r="8" fill="#4ADE80" />
-      <circle cx="85" cy="35" r="8" fill="#4ADE80" />
-      <circle cx="20" cy="58" r="7" fill="#F97316" />
-      <circle cx="50" cy="58" r="7" fill="#F97316" />
-      <circle cx="70" cy="58" r="7" fill="#F97316" />
-      <circle cx="100" cy="58" r="7" fill="#F97316" />
-      <circle cx="12" cy="75" r="4" fill="#FDBA74" />
-      <circle cx="28" cy="75" r="4" fill="#FDBA74" />
-      <circle cx="42" cy="75" r="4" fill="#FDBA74" />
-      <circle cx="58" cy="75" r="4" fill="#FDBA74" />
-      <circle cx="78" cy="75" r="4" fill="#FDBA74" />
-      <circle cx="108" cy="75" r="4" fill="#FDBA74" />
-      <line x1="60" y1="21" x2="35" y2="27" stroke="#D4D4D8" strokeWidth="1.5" />
-      <line x1="60" y1="21" x2="85" y2="27" stroke="#D4D4D8" strokeWidth="1.5" />
-      <line x1="35" y1="43" x2="20" y2="51" stroke="#D4D4D8" strokeWidth="1.5" />
-      <line x1="35" y1="43" x2="50" y2="51" stroke="#D4D4D8" strokeWidth="1.5" />
-      <line x1="85" y1="43" x2="70" y2="51" stroke="#D4D4D8" strokeWidth="1.5" />
-      <line x1="85" y1="43" x2="100" y2="51" stroke="#D4D4D8" strokeWidth="1.5" />
+      {/* Head card */}
+      <rect x="48" y="4" width="24" height="16" rx="3" fill="#22C55E" />
+      {/* Connecting lines to managers */}
+      <path d="M60 20 L60 26 L35 26 L35 32" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      <path d="M60 20 L60 26 L85 26 L85 32" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      {/* Manager cards */}
+      <rect x="23" y="32" width="24" height="14" rx="2.5" fill="#4ADE80" />
+      <rect x="73" y="32" width="24" height="14" rx="2.5" fill="#4ADE80" />
+      {/* Connecting lines to ICs */}
+      <path d="M35 46 L35 52 L20 52 L20 56" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      <path d="M35 46 L35 52 L50 52 L50 56" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      <path d="M85 46 L85 52 L70 52 L70 56" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      <path d="M85 46 L85 52 L100 52 L100 56" stroke="#9CA3AF" strokeWidth="1.5" fill="none" />
+      {/* IC cards */}
+      <rect x="10" y="56" width="20" height="12" rx="2" fill="#F97316" />
+      <rect x="40" y="56" width="20" height="12" rx="2" fill="#F97316" />
+      <rect x="60" y="56" width="20" height="12" rx="2" fill="#F97316" />
+      <rect x="90" y="56" width="20" height="12" rx="2" fill="#F97316" />
     </svg>
   ),
   pods: (
     <svg viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Pod 1 */}
-      <rect x="5" y="15" width="35" height="50" rx="8" fill="#FFF7ED" stroke="#FDBA74" strokeWidth="1.5" />
-      <circle cx="22" cy="30" r="7" fill="#F97316" />
-      <circle cx="14" cy="48" r="5" fill="#FDBA74" />
-      <circle cx="30" cy="48" r="5" fill="#FDBA74" />
-      <line x1="22" y1="37" x2="14" y2="43" stroke="#D4D4D8" strokeWidth="1" />
-      <line x1="22" y1="37" x2="30" y2="43" stroke="#D4D4D8" strokeWidth="1" />
-      {/* Pod 2 */}
-      <rect x="43" y="15" width="35" height="50" rx="8" fill="#F0FDF4" stroke="#86EFAC" strokeWidth="1.5" />
-      <circle cx="60" cy="30" r="7" fill="#22C55E" />
-      <circle cx="52" cy="48" r="5" fill="#86EFAC" />
-      <circle cx="68" cy="48" r="5" fill="#86EFAC" />
-      <line x1="60" y1="37" x2="52" y2="43" stroke="#D4D4D8" strokeWidth="1" />
-      <line x1="60" y1="37" x2="68" y2="43" stroke="#D4D4D8" strokeWidth="1" />
-      {/* Pod 3 */}
-      <rect x="81" y="15" width="35" height="50" rx="8" fill="#EFF6FF" stroke="#93C5FD" strokeWidth="1.5" />
-      <circle cx="98" cy="30" r="7" fill="#3B82F6" />
-      <circle cx="90" cy="48" r="5" fill="#93C5FD" />
-      <circle cx="106" cy="48" r="5" fill="#93C5FD" />
-      <line x1="98" y1="37" x2="90" y2="43" stroke="#D4D4D8" strokeWidth="1" />
-      <line x1="98" y1="37" x2="106" y2="43" stroke="#D4D4D8" strokeWidth="1" />
+      {/* Pod 1 container */}
+      <rect x="5" y="10" width="35" height="60" rx="6" fill="#FFF7ED" stroke="#FDBA74" strokeWidth="1.5" />
+      {/* Pod 1 lead */}
+      <rect x="11" y="18" width="22" height="14" rx="2" fill="#F97316" />
+      {/* Pod 1 connecting lines */}
+      <path d="M22 32 L22 38 L14 38 L14 44" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M22 32 L22 38 L30 38 L30 44" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      {/* Pod 1 members */}
+      <rect x="6" y="44" width="16" height="10" rx="1.5" fill="#FDBA74" />
+      <rect x="23" y="44" width="16" height="10" rx="1.5" fill="#FDBA74" />
+
+      {/* Pod 2 container */}
+      <rect x="43" y="10" width="35" height="60" rx="6" fill="#F0FDF4" stroke="#86EFAC" strokeWidth="1.5" />
+      {/* Pod 2 lead */}
+      <rect x="49" y="18" width="22" height="14" rx="2" fill="#22C55E" />
+      {/* Pod 2 connecting lines */}
+      <path d="M60 32 L60 38 L52 38 L52 44" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M60 32 L60 38 L68 38 L68 44" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      {/* Pod 2 members */}
+      <rect x="44" y="44" width="16" height="10" rx="1.5" fill="#86EFAC" />
+      <rect x="61" y="44" width="16" height="10" rx="1.5" fill="#86EFAC" />
+
+      {/* Pod 3 container */}
+      <rect x="81" y="10" width="35" height="60" rx="6" fill="#EFF6FF" stroke="#93C5FD" strokeWidth="1.5" />
+      {/* Pod 3 lead */}
+      <rect x="87" y="18" width="22" height="14" rx="2" fill="#3B82F6" />
+      {/* Pod 3 connecting lines */}
+      <path d="M98 32 L98 38 L90 38 L90 44" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      <path d="M98 32 L98 38 L106 38 L106 44" stroke="#9CA3AF" strokeWidth="1" fill="none" />
+      {/* Pod 3 members */}
+      <rect x="82" y="44" width="16" height="10" rx="1.5" fill="#93C5FD" />
+      <rect x="99" y="44" width="16" height="10" rx="1.5" fill="#93C5FD" />
     </svg>
   ),
 };
