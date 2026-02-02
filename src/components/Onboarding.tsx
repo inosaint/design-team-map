@@ -99,12 +99,9 @@ export default function Onboarding({ mode: propMode }: OnboardingProps) {
   const currentStepMinCards = steps[currentStep]?.minCards ?? 0;
   const hasEnoughCards = cardCount >= currentStepMinCards;
 
-  // console.log('[Onboarding] render:', { cardCount, waitingForCards, isVisible, currentStep, currentStepMinCards, hasEnoughCards, onboardingMode });
-
   // Initialize onboarding on mount
   useEffect(() => {
     const completed = localStorage.getItem(ONBOARDING_KEY);
-    // console.log('[Onboarding] init effect - completed:', completed);
     if (completed) return;
 
     // Determine mode from prop or localStorage
@@ -117,20 +114,16 @@ export default function Onboarding({ mode: propMode }: OnboardingProps) {
     const savedStep = localStorage.getItem(ONBOARDING_STEP_KEY);
     const stepNum = savedStep ? parseInt(savedStep, 10) : 0;
     const stepMinCards = modeSteps[stepNum]?.minCards ?? 0;
-
-    // console.log('[Onboarding] init effect - stepNum:', stepNum, 'minCards:', stepMinCards, 'current cardCount:', cardCount, 'mode:', effectiveMode);
     setCurrentStep(stepNum);
 
     // If step requires more cards than we have, wait
     if (cardCount < stepMinCards) {
-      // console.log('[Onboarding] init effect - waiting for cards');
       setWaitingForCards(true);
       return;
     }
 
     // Delay to allow the app to render first
     const timer = setTimeout(() => {
-      // console.log('[Onboarding] init effect - showing tooltip');
       setIsVisible(true);
     }, 1000);
     return () => clearTimeout(timer);
@@ -138,12 +131,8 @@ export default function Onboarding({ mode: propMode }: OnboardingProps) {
 
   // Watch for card additions when waiting
   useEffect(() => {
-    // console.log('[Onboarding] card watch effect:', { waitingForCards, cardCount, currentStepMinCards, hasEnoughCards });
-
     if (!waitingForCards) return;
     if (!hasEnoughCards) return;
-
-    // console.log('[Onboarding] enough cards detected! showing tooltip after delay...');
 
     // Clear any existing timer
     if (timerRef.current) {
@@ -151,7 +140,6 @@ export default function Onboarding({ mode: propMode }: OnboardingProps) {
     }
 
     timerRef.current = window.setTimeout(() => {
-      // console.log('[Onboarding] delay complete, showing tooltip');
       setWaitingForCards(false);
       setIsVisible(true);
     }, 1000);
@@ -170,7 +158,6 @@ export default function Onboarding({ mode: propMode }: OnboardingProps) {
 
     // If tooltip is visible but we don't have enough cards anymore, pause
     if (isVisible && !hasEnoughCards) {
-      // console.log('[Onboarding] cards deleted, pausing tour - need', currentStepMinCards, 'have', cardCount);
       setIsVisible(false);
       setWaitingForCards(true);
     }
@@ -207,7 +194,6 @@ export default function Onboarding({ mode: propMode }: OnboardingProps) {
   const handleNext = useCallback(() => {
     const nextStep = currentStep + 1;
     const nextStepMinCards = steps[nextStep]?.minCards ?? 0;
-    // console.log('[Onboarding] handleNext:', { currentStep, nextStep, cardCount, nextStepMinCards });
 
     if (nextStep >= steps.length) {
       handleComplete();
@@ -216,7 +202,6 @@ export default function Onboarding({ mode: propMode }: OnboardingProps) {
 
     // If next step requires more cards than we have, pause and wait
     if (cardCount < nextStepMinCards) {
-      // console.log('[Onboarding] handleNext - need', nextStepMinCards, 'cards, have', cardCount, '- waiting');
       localStorage.setItem(ONBOARDING_STEP_KEY, nextStep.toString());
       setCurrentStep(nextStep);
       setIsVisible(false);
