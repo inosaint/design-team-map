@@ -2,9 +2,7 @@
 
 An interactive web application for planning hiring and growth progression in design teams. Visualize your org structure, track promotions, and plan future hires.
 
-## Demo
-
-Try it live: **https://design-team-map-production.up.railway.app**
+**Live at [MapYour.Org](https://mapyour.org)**
 
 ## Features
 
@@ -61,6 +59,10 @@ npm run lint
 - **React Flow** (@xyflow/react) - Flowchart visualization
 - **Zustand** - State management with localStorage persistence
 - **CSS Modules** - Scoped styling
+
+## Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md) for release history and updates.
 
 ## License
 
