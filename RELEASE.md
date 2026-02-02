@@ -19,7 +19,11 @@ The version number must be updated in these locations:
    - Open `src/components/panels/SettingsPanel.tsx`
    - Find the About tab section and update the version string (e.g., `v0.4.0`)
 
-3. **Commit both changes together**
+3. **Update README.md** (if needed)
+   - Update features list if new features were added
+   - Update any changed URLs or documentation
+
+4. **Commit both changes together**
    - Use a commit message like: `chore: Bump version to 0.4.0`
 
 ## Version Format
