@@ -2,9 +2,7 @@
 
 An interactive web application for planning hiring and growth progression in design teams. Visualize your org structure, track promotions, and plan future hires.
 
-## Demo
-
-Try it live: **[MapYour.Org](https://mapyour.org)**
+**Live at [MapYour.Org](https://mapyour.org)**
 
 ## Features
 
