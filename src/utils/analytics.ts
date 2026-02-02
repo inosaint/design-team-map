@@ -6,10 +6,6 @@ export const initPostHog = () => {
     const token = import.meta.env.VITE_PUBLIC_POSTHOG_KEY || '';
     const host = import.meta.env.VITE_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com';
 
-    // Debug: log env values (remove after fixing)
-    console.log('[PostHog] Initializing with token:', token ? `${token.substring(0, 10)}...` : '(empty)');
-    console.log('[PostHog] API host:', host);
-
     posthog.init(token, {
       api_host: host,
       capture_pageview: true,
