@@ -1,6 +1,6 @@
 ![MapYour.Org](public/header.jpeg)
 
-# Design Team Mapper
+# Org Mapper
 
 An interactive web application for planning hiring and growth progression in design teams. Visualize your org structure, track promotions, and plan future hires.
 
@@ -19,6 +19,8 @@ An interactive web application for planning hiring and growth progression in des
 - **Persistent Storage** - All data saved to localStorage
 
 ## Running Locally
+
+If you want to run this locally, you an also do that in a straightforward way.
 
 ### Prerequisites
 
