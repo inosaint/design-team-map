@@ -121,7 +121,7 @@ export const useStore = create<TeamMapState>()(
             .filter((node) => node.id !== id)
             .map((node): TeamNode => {
               if (node.managerId === id) {
-                return { ...node, managerId: null } as TeamNode;
+                return { ...node, managerId: undefined } as TeamNode;
               }
               return node;
             });
@@ -155,7 +155,7 @@ export const useStore = create<TeamMapState>()(
       removeManager: (nodeId) => {
         set((state) => ({
           nodes: state.nodes.map((node): TeamNode =>
-            node.id === nodeId ? ({ ...node, managerId: null } as TeamNode) : node
+            node.id === nodeId ? ({ ...node, managerId: undefined } as TeamNode) : node
           ),
         }));
       },
