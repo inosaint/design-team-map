@@ -6,10 +6,11 @@ import {
   trackOnboardingCompleted,
   trackOnboardingSkipped,
 } from '../utils/analytics';
-
-const ONBOARDING_KEY = 'design-team-map-onboarding-completed';
-const ONBOARDING_STEP_KEY = 'design-team-map-onboarding-step';
-const ONBOARDING_MODE_KEY = 'design-team-map-onboarding-mode';
+import {
+  ONBOARDING_COMPLETED_KEY,
+  ONBOARDING_STEP_KEY,
+  ONBOARDING_MODE_KEY,
+} from '../constants/onboarding';
 
 interface OnboardingStep {
   id: string;
@@ -101,7 +102,7 @@ export default function Onboarding({ mode: propMode }: OnboardingProps) {
 
   // Initialize onboarding on mount
   useEffect(() => {
-    const completed = localStorage.getItem(ONBOARDING_KEY);
+    const completed = localStorage.getItem(ONBOARDING_COMPLETED_KEY);
     if (completed) return;
 
     // Determine mode from prop or localStorage
@@ -112,7 +113,9 @@ export default function Onboarding({ mode: propMode }: OnboardingProps) {
 
     const modeSteps = getStepsForMode(effectiveMode);
     const savedStep = localStorage.getItem(ONBOARDING_STEP_KEY);
-    const stepNum = savedStep ? parseInt(savedStep, 10) : 0;
+    const parsedStep = savedStep ? parseInt(savedStep, 10) : 0;
+    // Clamp step to valid bounds to prevent out-of-bounds access when mode changes
+    const stepNum = Math.max(0, Math.min(parsedStep, modeSteps.length - 1));
     const stepMinCards = modeSteps[stepNum]?.minCards ?? 0;
     setCurrentStep(stepNum);
 
@@ -153,7 +156,7 @@ export default function Onboarding({ mode: propMode }: OnboardingProps) {
 
   // Pause tour if cards are deleted and we no longer have enough
   useEffect(() => {
-    const completed = localStorage.getItem(ONBOARDING_KEY);
+    const completed = localStorage.getItem(ONBOARDING_COMPLETED_KEY);
     if (completed) return;
 
     // If tooltip is visible but we don't have enough cards anymore, pause
@@ -169,6 +172,7 @@ export default function Onboarding({ mode: propMode }: OnboardingProps) {
 
     const findTarget = () => {
       const step = steps[currentStep];
+      if (!step) return;
       const element = document.querySelector(step.target);
       if (element) {
         setTargetRect(element.getBoundingClientRect());
@@ -223,7 +227,7 @@ export default function Onboarding({ mode: propMode }: OnboardingProps) {
 
   const handleComplete = useCallback(() => {
     trackOnboardingCompleted(onboardingMode);
-    localStorage.setItem(ONBOARDING_KEY, 'true');
+    localStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
     localStorage.removeItem(ONBOARDING_STEP_KEY);
     setIsVisible(false);
     setWaitingForCards(false);
@@ -239,6 +243,9 @@ export default function Onboarding({ mode: propMode }: OnboardingProps) {
   if (!isVisible) return null;
 
   const step = steps[currentStep];
+  // Defensive check: if step is undefined (shouldn't happen after bounds fix), don't render
+  if (!step) return null;
+
   const { style: tooltipStyle, arrowOffset } = getTooltipPosition(targetRect, step.position);
   const arrowClass = styles[`arrow${step.position.charAt(0).toUpperCase() + step.position.slice(1)}`];
 
