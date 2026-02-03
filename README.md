@@ -1,10 +1,10 @@
-# Design Team Mapper
+![MapYour.Org](public/header.jpeg)
+
+# Org Mapper
 
 An interactive web application for planning hiring and growth progression in design teams. Visualize your org structure, track promotions, and plan future hires.
 
-## Demo
-
-Try it live: **https://design-team-map-production.up.railway.app**
+**Live at [MapYour.Org](https://mapyour.org)**
 
 ## Features
 
@@ -19,6 +19,8 @@ Try it live: **https://design-team-map-production.up.railway.app**
 - **Persistent Storage** - All data saved to localStorage
 
 ## Running Locally
+
+If you want to run this locally, you an also do that in a straightforward way.
 
 ### Prerequisites
 
@@ -62,6 +64,10 @@ npm run lint
 - **Zustand** - State management with localStorage persistence
 - **CSS Modules** - Scoped styling
 
+## Changelog
+
+See [CHANGELOG.md](./CHANGELOG.md) for release history and updates.
+
 ## License
 
-MIT
+[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) - See [LICENSE](./LICENSE) for details.

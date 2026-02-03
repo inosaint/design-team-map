@@ -5,9 +5,13 @@
   min-width: 160px;
   max-width: 200px;
   box-shadow: var(--shadow);
-  cursor: pointer;
+  cursor: grab;
   transition: box-shadow 0.15s ease, transform 0.15s ease;
   position: relative;
+}
+
+.node:active {
+  cursor: grabbing;
 }
 
 .node:hover {
@@ -146,8 +150,11 @@
   height: 8px !important;
   background-color: var(--gray-300) !important;
   border: 2px solid var(--bg-secondary) !important;
+  transition: all 0.15s ease;
 }
 
 .handle:hover {
+  width: 12px !important;
+  height: 12px !important;
   background-color: var(--primary) !important;
 }

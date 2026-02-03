@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useStore } from '../store/useStore';
+import { trackTeamNameChanged } from '../utils/analytics';
 import styles from './Toolbar.module.css';
 
 export default function Toolbar() {
@@ -7,7 +8,7 @@ export default function Toolbar() {
     useStore();
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
-  const [editedName, setEditedName] = useState(settings.teamName || 'Design Team');
+  const [editedName, setEditedName] = useState(settings.teamName || 'My Team');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -18,12 +19,12 @@ export default function Toolbar() {
   }, [isEditingName]);
 
   useEffect(() => {
-    setEditedName(settings.teamName || 'Design Team');
+    setEditedName(settings.teamName || 'My Team');
   }, [settings.teamName]);
 
   const handleAddTeamMember = () => {
     addTeamMember({
-      name: 'New Designer',
+      name: 'New Member',
       designerType: '', // Empty string shows "Select type..." placeholder
       level: 1,
       yearsOfExperience: 0,
@@ -46,9 +47,14 @@ export default function Toolbar() {
   const handleNameSave = () => {
     const trimmedName = editedName.trim();
     if (trimmedName) {
+      const previousName = settings.teamName || 'Design Team';
       updateSettings({ teamName: trimmedName });
+      // Only track if name actually changed
+      if (trimmedName !== previousName) {
+        trackTeamNameChanged();
+      }
     } else {
-      setEditedName(settings.teamName || 'Design Team');
+      setEditedName(settings.teamName || 'My Team');
     }
     setIsEditingName(false);
   };
@@ -57,7 +63,7 @@ export default function Toolbar() {
     if (e.key === 'Enter') {
       handleNameSave();
     } else if (e.key === 'Escape') {
-      setEditedName(settings.teamName || 'Design Team');
+      setEditedName(settings.teamName || 'My Team');
       setIsEditingName(false);
     }
   };
@@ -85,7 +91,7 @@ export default function Toolbar() {
             onClick={() => setIsEditingName(true)}
             title="Click to edit team name"
           >
-            {settings.teamName || 'Design Team'}
+            {settings.teamName || 'My Team'}
           </h1>
         )}
         <div className={styles.stats}>
@@ -105,6 +111,7 @@ export default function Toolbar() {
           <button
             className="btn btn-primary"
             onClick={() => setShowAddMenu(!showAddMenu)}
+            data-testid="add-member-btn"
           >
             + Add
           </button>
@@ -134,7 +141,7 @@ export default function Toolbar() {
           )}
         </div>
 
-        <button className="btn btn-secondary" onClick={toggleSettings}>
+        <button className="btn btn-secondary" onClick={toggleSettings} data-testid="settings-btn">
           Settings
         </button>
       </div>

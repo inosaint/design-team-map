@@ -3,11 +3,23 @@ import { useStore } from '../../store/useStore';
 import type { LevelConfig, DesignerTypeConfig } from '../../types';
 import { DEFAULT_SETTINGS } from '../../types';
 import { regenerateLevelsForSplitLevel, generateLevelId } from '../../utils/calculations';
+import {
+  trackDataExported,
+  trackDataImported,
+  trackToggleChanged,
+  trackSpanOfControlChanged,
+  trackTrackSplitLevelChanged,
+  trackSettingsReset,
+} from '../../utils/analytics';
 import styles from './SettingsPanel.module.css';
 
 type TabType = 'levels' | 'types' | 'advanced' | 'about' | 'import-export';
 
-export default function SettingsPanel() {
+interface SettingsPanelProps {
+  onOpenQuickstart?: () => void;
+}
+
+export default function SettingsPanel({ onOpenQuickstart }: SettingsPanelProps) {
   const { isSettingsOpen, toggleSettings, settings, updateSettings, exportData, importData, clearAll } =
     useStore();
 
@@ -162,6 +174,7 @@ export default function SettingsPanel() {
 
     const newLevels = regenerateLevelsForSplitLevel(settings.levels, newSplitLevel, maxLevel);
     updateSettings({ levels: newLevels, trackSplitLevel: newSplitLevel });
+    trackTrackSplitLevelChanged(newSplitLevel);
   };
 
   const handleTypeChange = (
@@ -202,6 +215,11 @@ export default function SettingsPanel() {
     a.download = `${safeName}-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
     URL.revokeObjectURL(url);
+
+    // Track export event
+    const teamSize = data.nodes.filter((n) => !n.isPlannedHire).length;
+    const plannedHires = data.nodes.filter((n) => n.isPlannedHire).length;
+    trackDataExported('json', teamSize, plannedHires);
   };
 
   const handleImport = () => {
@@ -216,6 +234,11 @@ export default function SettingsPanel() {
         const text = await file.text();
         const data = JSON.parse(text);
         importData(data);
+
+        // Track import event
+        const teamSize = data.nodes?.filter((n: { isPlannedHire: boolean }) => !n.isPlannedHire).length || 0;
+        const plannedHires = data.nodes?.filter((n: { isPlannedHire: boolean }) => n.isPlannedHire).length || 0;
+        trackDataImported(teamSize, plannedHires);
       } catch {
         alert('Failed to import file. Please check the format.');
       }
@@ -232,6 +255,7 @@ export default function SettingsPanel() {
   const handleResetSettings = () => {
     if (confirm('Reset all settings to defaults?')) {
       updateSettings(DEFAULT_SETTINGS);
+      trackSettingsReset();
     }
   };
 
@@ -476,11 +500,11 @@ export default function SettingsPanel() {
                   type="number"
                   className="input"
                   value={settings.spanOfControlThreshold}
-                  onChange={(e) =>
-                    updateSettings({
-                      spanOfControlThreshold: parseInt(e.target.value) || 6,
-                    })
-                  }
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value) || 6;
+                    updateSettings({ spanOfControlThreshold: value });
+                    trackSpanOfControlChanged(value);
+                  }}
                   min="1"
                   max="20"
                   style={{ maxWidth: '100px' }}
@@ -514,9 +538,10 @@ export default function SettingsPanel() {
                   <input
                     type="checkbox"
                     checked={settings.showGender || false}
-                    onChange={(e) =>
-                      updateSettings({ showGender: e.target.checked })
-                    }
+                    onChange={(e) => {
+                      updateSettings({ showGender: e.target.checked });
+                      trackToggleChanged('showGender', e.target.checked);
+                    }}
                   />
                   <span className={styles.toggleSlider}></span>
                 </label>
@@ -533,9 +558,10 @@ export default function SettingsPanel() {
                   <input
                     type="checkbox"
                     checked={settings.showMinimap || false}
-                    onChange={(e) =>
-                      updateSettings({ showMinimap: e.target.checked })
-                    }
+                    onChange={(e) => {
+                      updateSettings({ showMinimap: e.target.checked });
+                      trackToggleChanged('showMinimap', e.target.checked);
+                    }}
                   />
                   <span className={styles.toggleSlider}></span>
                 </label>
@@ -546,15 +572,23 @@ export default function SettingsPanel() {
           {activeTab === 'about' && (
             <div className={styles.section}>
               <div className={styles.aboutHeader}>
-                <h3 className={styles.aboutTitle}>Design Team Map</h3>
-                <span className={styles.version}>v0.1.0</span>
+<h3 className={styles.aboutTitle}>MapYour.Org</h3>
+                <span className={styles.version}>v1.0.0</span>
               </div>
 
               <p className={styles.aboutDesc}>
-                A tool for visualizing and planning design team structures, career progression, and growth opportunities.
+                A tool for visualizing and planning team structures, career progression, and growth opportunities across any industry.
               </p>
 
               <div className={styles.aboutLinks}>
+                <a
+                  href="https://github.com/inosaint/design-team-map/blob/main/CHANGELOG.md"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.aboutLink}
+                >
+                  Changelog
+                </a>
                 <a
                   href="https://creativecommons.org/licenses/by-nc-sa/4.0/"
                   target="_blank"
@@ -572,6 +606,25 @@ export default function SettingsPanel() {
                   Report a Bug
                 </a>
               </div>
+
+              {onOpenQuickstart && (
+                <div className={styles.quickstartSection}>
+                  <div className={styles.divider} />
+                  <h4 className={styles.attributionsTitle}>Getting Started</h4>
+                  <p className={styles.quickstartDesc}>
+                    New to MapYour.Org? Use the quickstart wizard to generate a starter org chart.
+                  </p>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => {
+                      toggleSettings();
+                      onOpenQuickstart();
+                    }}
+                  >
+                    Open Quick Start
+                  </button>
+                </div>
+              )}
 
               <div className={styles.attributions}>
                 <h4 className={styles.attributionsTitle}>Built with</h4>
@@ -595,6 +648,17 @@ export default function SettingsPanel() {
                     <span className={styles.attributionLicense}>MIT License</span>
                   </li>
                 </ul>
+              </div>
+
+              <div className={styles.author}>
+                Built by{' '}
+                <a
+                  href="https://x.com/kenneth"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  @kenneth
+                </a>
               </div>
             </div>
           )}

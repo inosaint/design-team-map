@@ -1,0 +1,120 @@
+.tooltip {
+  position: fixed;
+  width: 280px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-3);
+  z-index: 50; /* Below panels (100+) so users can interact with editor/settings */
+  animation: tooltipFadeIn 0.4s ease-out;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Arrow styles */
+.tooltip::before {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  transform: rotate(45deg);
+}
+
+/* Arrow pointing up (tooltip is below target) */
+.arrowBottom::before {
+  top: -7px;
+  left: var(--arrow-offset, 50%);
+  margin-left: -6px;
+  border-right: none;
+  border-bottom: none;
+}
+
+/* Arrow pointing down (tooltip is above target) */
+.arrowTop::before {
+  bottom: -7px;
+  left: var(--arrow-offset, 50%);
+  margin-left: -6px;
+  border-left: none;
+  border-top: none;
+}
+
+/* Arrow pointing left (tooltip is to the right of target) */
+.arrowRight::before {
+  left: -7px;
+  top: var(--arrow-offset, 50%);
+  margin-top: -6px;
+  border-right: none;
+  border-top: none;
+}
+
+/* Arrow pointing right (tooltip is to the left of target) */
+.arrowLeft::before {
+  right: -7px;
+  top: var(--arrow-offset, 50%);
+  margin-top: -6px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.header {
+  margin-bottom: var(--space-2);
+}
+
+.title {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+.content {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 var(--space-3) 0;
+}
+
+.actions {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.skipBtn {
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.skipBtn:hover {
+  color: var(--text-secondary);
+}
+
+.nextBtn {
+  padding: var(--space-1) var(--space-3);
+  background-color: var(--primary);
+  border: none;
+  border-radius: var(--border-radius);
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.nextBtn:hover {
+  background-color: var(--primary-hover);
+}
