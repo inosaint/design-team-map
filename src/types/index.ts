@@ -127,3 +127,31 @@ export const DEFAULT_SETTINGS: Settings = {
   showGender: false,
   showMinimap: false,
 };
+
+// Generic defaults for "Custom" / blank slate (matches Quickstart "Custom" option)
+export const BLANK_SLATE_LEVELS: LevelConfig[] = [
+  { id: 'level-1', level: 1, name: 'Level 1', color: '#E5E7EB', minYearsFromPrevious: 0 },
+  { id: 'level-2', level: 2, name: 'Level 2', color: '#D1D5DB', minYearsFromPrevious: 1.5 },
+  { id: 'level-3', level: 3, name: 'Level 3', color: '#9CA3AF', minYearsFromPrevious: 2 },
+  { id: 'level-4-ic', level: 4, name: 'Senior (IC)', color: '#6B7280', minYearsFromPrevious: 3, track: 'ic' },
+  { id: 'level-5-ic', level: 5, name: 'Staff (IC)', color: '#4B5563', minYearsFromPrevious: 4, track: 'ic' },
+  { id: 'level-4-manager', level: 4, name: 'Manager', color: '#86EFAC', minYearsFromPrevious: 3, track: 'manager' },
+  { id: 'level-5-manager', level: 5, name: 'Senior Manager', color: '#4ADE80', minYearsFromPrevious: 4, track: 'manager' },
+  { id: 'level-6-head', level: 6, name: 'Head', color: '#22C55E', minYearsFromPrevious: 4, isMaxLevel: true },
+];
+
+export const BLANK_SLATE_TYPES: DesignerTypeConfig[] = [
+  { id: 'type1', name: 'Role Type 1', abbreviation: 'T1' },
+  { id: 'type2', name: 'Role Type 2', abbreviation: 'T2' },
+  { id: 'type3', name: 'Role Type 3', abbreviation: 'T3' },
+];
+
+export const BLANK_SLATE_SETTINGS: Settings = {
+  levels: BLANK_SLATE_LEVELS,
+  designerTypes: BLANK_SLATE_TYPES,
+  spanOfControlThreshold: 6,
+  trackSplitLevel: 4,
+  teamName: 'My Team',
+  showGender: false,
+  showMinimap: false,
+};

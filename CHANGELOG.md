@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.3] - 2026-02-03
+
+### Added
+- **Clear Data Resets Settings**: Clearing all data now resets levels, role types, and team name to blank slate defaults (matching the "Custom" quickstart option)
+
+### Fixed
+- **Report Badge Positioning**: Repositioned report badge below the handle to avoid interfering with node selection
+
 ## [1.0.2] - 2026-02-03
 
 ### Fixed

@@ -9,7 +9,7 @@ import type {
   Settings,
   NodePosition,
 } from '../types';
-import { DEFAULT_SETTINGS } from '../types';
+import { DEFAULT_SETTINGS, BLANK_SLATE_SETTINGS } from '../types';
 import { calculateAutoArrangePositions, wouldCreateCircularReference } from '../utils/calculations';
 import { trackCardCreated, trackCardDeleted, trackCardConverted, trackDataCleared } from '../utils/analytics';
 import { clearOnboardingState } from '../constants/onboarding';
@@ -305,6 +305,7 @@ export const useStore = create<TeamMapState>()(
           nodePositions: new Map(),
           selectedNodeId: null,
           isPanelOpen: false,
+          settings: BLANK_SLATE_SETTINGS,
         });
         clearOnboardingState();
         trackDataCleared();
