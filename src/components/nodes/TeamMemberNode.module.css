@@ -113,6 +113,13 @@
   border-radius: 10px;
   border: 1px solid var(--border-color);
   white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.node:hover .reportBadge {
+  opacity: 1;
 }
 
 .reportBadge.danger {
