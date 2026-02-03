@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2] - 2026-02-03
+
+### Fixed
+- Disconnecting a reporting line no longer incorrectly promotes the card to top-level status. Cards now return to "unassigned" state where they can still receive a new manager.
+
 ## [1.0.1] - 2026-02-02
 
 ### Fixed
