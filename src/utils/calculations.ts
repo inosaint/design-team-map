@@ -588,7 +588,7 @@ export function calculateAutoArrangePositions(
 
     // Position orphans in a row at the bottom
     let orphanX = maxX + horizontalGap * 2;
-    let orphanY = startY;
+    const orphanY = startY;
 
     orphans.forEach((orphan) => {
       positions.set(orphan.id, { x: orphanX, y: orphanY });

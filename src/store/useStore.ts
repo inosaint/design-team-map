@@ -320,7 +320,12 @@ export const useStore = create<TeamMapState>()(
         settings: state.settings,
       }),
       merge: (persisted, current) => {
-        const persistedState = persisted as any;
+        const persistedState = persisted as Partial<{
+          nodes: TeamNode[];
+          verticals: Vertical[];
+          nodePositions: [string, { x: number; y: number }][];
+          settings: Settings;
+        }> | undefined;
         return {
           ...current,
           ...persistedState,
