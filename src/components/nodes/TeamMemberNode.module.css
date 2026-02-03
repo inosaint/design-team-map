@@ -102,7 +102,7 @@
 
 .reportBadge {
   position: absolute;
-  bottom: -4px;
+  bottom: -24px;
   left: 50%;
   transform: translateX(-50%) translateY(100%);
   background-color: var(--gray-100);
