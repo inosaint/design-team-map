@@ -102,7 +102,7 @@
 
 .reportBadge {
   position: absolute;
-  bottom: -8px;
+  bottom: -18px;
   left: 50%;
   transform: translateX(-50%);
   background-color: var(--gray-100);
@@ -113,14 +113,8 @@
   border-radius: 10px;
   border: 1px solid var(--border-color);
   white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.15s ease;
 }
 
-.node:hover .reportBadge {
-  opacity: 1;
-}
 
 .reportBadge.danger {
   background-color: var(--danger-light);
