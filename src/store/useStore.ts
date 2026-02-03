@@ -9,9 +9,10 @@ import type {
   Settings,
   NodePosition,
 } from '../types';
-import { DEFAULT_SETTINGS } from '../types';
+import { DEFAULT_SETTINGS, BLANK_SLATE_SETTINGS } from '../types';
 import { calculateAutoArrangePositions, wouldCreateCircularReference } from '../utils/calculations';
 import { trackCardCreated, trackCardDeleted, trackCardConverted, trackDataCleared } from '../utils/analytics';
+import { clearOnboardingState } from '../constants/onboarding';
 
 interface TeamMapState {
   // Data
@@ -120,7 +121,7 @@ export const useStore = create<TeamMapState>()(
             .filter((node) => node.id !== id)
             .map((node): TeamNode => {
               if (node.managerId === id) {
-                return { ...node, managerId: null } as TeamNode;
+                return { ...node, managerId: undefined } as TeamNode;
               }
               return node;
             });
@@ -154,7 +155,7 @@ export const useStore = create<TeamMapState>()(
       removeManager: (nodeId) => {
         set((state) => ({
           nodes: state.nodes.map((node): TeamNode =>
-            node.id === nodeId ? ({ ...node, managerId: null } as TeamNode) : node
+            node.id === nodeId ? ({ ...node, managerId: undefined } as TeamNode) : node
           ),
         }));
       },
@@ -304,7 +305,9 @@ export const useStore = create<TeamMapState>()(
           nodePositions: new Map(),
           selectedNodeId: null,
           isPanelOpen: false,
+          settings: BLANK_SLATE_SETTINGS,
         });
+        clearOnboardingState();
         trackDataCleared();
       },
     }),

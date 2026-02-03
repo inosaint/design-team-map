@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2] - 2026-02-03
+
+### Fixed
+- Disconnecting a reporting line no longer incorrectly promotes the card to top-level status. Cards now return to "unassigned" state where they can still receive a new manager.
+
+## [1.0.1] - 2026-02-02
+
+### Fixed
+- **Onboarding Crash**: Fixed TypeError when selecting industry preset after clearing data
+  - Root cause: Stale `currentStep` in localStorage exceeded bounds when switching onboarding modes
+  - Added bounds clamping and defensive null checks
+
+### Changed
+- **Renamed localStorage Keys**: Onboarding keys renamed from `design-team-map-*` to `org-map-*`
+- **Clear Data Now Resets Onboarding**: `clearAll()` now clears onboarding state, giving users a fresh experience
+
+### Technical
+- Created shared constants file `src/constants/onboarding.ts`
+- Removed hardcoded localStorage key strings across components
+
 ## [1.0.0] - 2026-02-02
 
 ### Added

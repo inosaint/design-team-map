@@ -22,6 +22,7 @@ import {
   calculatePromotionEligibility,
   wouldCreateCircularReference,
 } from '../utils/calculations';
+import { ONBOARDING_COMPLETED_KEY } from '../constants/onboarding';
 import TeamMemberNode from './nodes/TeamMemberNode';
 import ReportingEdge from './edges/ReportingEdge';
 import styles from './FlowChart.module.css';
@@ -163,7 +164,7 @@ function FlowChartInner() {
   // Fit view when nodes are added
   useEffect(() => {
     const nodesIncreased = teamNodes.length > prevNodeCount.current;
-    const onboardingActive = !localStorage.getItem('design-team-map-onboarding-completed');
+    const onboardingActive = !localStorage.getItem(ONBOARDING_COMPLETED_KEY);
 
     if (isInitialMount.current && teamNodes.length > 0) {
       // Small delay to ensure nodes are rendered

@@ -8,9 +8,9 @@ import Toast from './components/Toast';
 import { useStore } from './store/useStore';
 import Onboarding from './components/Onboarding';
 import styles from './App.module.css';
+import { ONBOARDING_MODE_KEY } from './constants/onboarding';
 
 const QUICKSTART_SEEN_KEY = 'org-mapper-quickstart-seen';
-const ONBOARDING_MODE_KEY = 'design-team-map-onboarding-mode';
 
 function App() {
   const nodes = useStore((state) => state.nodes);

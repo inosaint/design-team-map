@@ -573,7 +573,7 @@ export default function SettingsPanel({ onOpenQuickstart }: SettingsPanelProps) 
             <div className={styles.section}>
               <div className={styles.aboutHeader}>
 <h3 className={styles.aboutTitle}>MapYour.Org</h3>
-                <span className={styles.version}>v1.0.0</span>
+                <span className={styles.version}>v1.0.2</span>
               </div>
 
               <p className={styles.aboutDesc}>
