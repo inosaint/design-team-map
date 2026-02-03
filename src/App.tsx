@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import FlowChart from './components/FlowChart';
 import Toolbar from './components/Toolbar';
 import SidePanel from './components/panels/SidePanel';
@@ -8,30 +8,28 @@ import Toast from './components/Toast';
 import { useStore } from './store/useStore';
 import Onboarding from './components/Onboarding';
 import styles from './App.module.css';
-import { ONBOARDING_MODE_KEY } from './constants/onboarding';
-
-const QUICKSTART_SEEN_KEY = 'org-mapper-quickstart-seen';
+import { ONBOARDING_MODE_KEY, QUICKSTART_SEEN_KEY } from './constants/onboarding';
 
 function App() {
-  const nodes = useStore((state) => state.nodes);
   const [showQuickstart, setShowQuickstart] = useState(false);
-  const [hasCheckedInitial, setHasCheckedInitial] = useState(false);
+  const hasCheckedInitialRef = useRef(false);
   const [onboardingMode, setOnboardingMode] = useState<'regular' | 'post-quickstart' | undefined>(undefined);
 
   // Show quickstart wizard on first launch if there are no nodes and user hasn't seen it
   useEffect(() => {
-    if (!hasCheckedInitial) {
-      setHasCheckedInitial(true);
-      // Small delay to let the store hydrate from localStorage
-      const timer = setTimeout(() => {
-        const hasSeenQuickstart = localStorage.getItem(QUICKSTART_SEEN_KEY) === 'true';
-        if (nodes.length === 0 && !hasSeenQuickstart) {
-          setShowQuickstart(true);
-        }
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [hasCheckedInitial, nodes.length]);
+    if (hasCheckedInitialRef.current) return;
+    hasCheckedInitialRef.current = true;
+
+    // Small delay to let the store hydrate from localStorage
+    const timer = setTimeout(() => {
+      const hasSeenQuickstart = localStorage.getItem(QUICKSTART_SEEN_KEY) === 'true';
+      const currentNodes = useStore.getState().nodes;
+      if (currentNodes.length === 0 && !hasSeenQuickstart) {
+        setShowQuickstart(true);
+      }
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleOpenQuickstart = () => {
     setShowQuickstart(true);
