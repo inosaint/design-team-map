@@ -130,6 +130,7 @@ export default function Onboarding({ mode: propMode }: OnboardingProps) {
       setIsVisible(true);
     }, 1000);
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [propMode]);
 
   // Watch for card additions when waiting
@@ -193,7 +194,15 @@ export default function Onboarding({ mode: propMode }: OnboardingProps) {
       window.removeEventListener('scroll', findTarget, true);
       clearInterval(interval);
     };
-  }, [isVisible, currentStep]);
+  }, [isVisible, currentStep, steps]);
+
+  const handleComplete = useCallback(() => {
+    trackOnboardingCompleted(onboardingMode);
+    localStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
+    localStorage.removeItem(ONBOARDING_STEP_KEY);
+    setIsVisible(false);
+    setWaitingForCards(false);
+  }, [onboardingMode]);
 
   const handleNext = useCallback(() => {
     const nextStep = currentStep + 1;
@@ -215,7 +224,7 @@ export default function Onboarding({ mode: propMode }: OnboardingProps) {
 
     localStorage.setItem(ONBOARDING_STEP_KEY, nextStep.toString());
     setCurrentStep(nextStep);
-  }, [currentStep, cardCount]);
+  }, [currentStep, cardCount, steps, handleComplete]);
 
   const handleSkip = useCallback(() => {
     const step = steps[currentStep];
@@ -223,15 +232,7 @@ export default function Onboarding({ mode: propMode }: OnboardingProps) {
       trackOnboardingSkipped(step.id, onboardingMode);
     }
     handleComplete();
-  }, [currentStep, steps, onboardingMode]);
-
-  const handleComplete = useCallback(() => {
-    trackOnboardingCompleted(onboardingMode);
-    localStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
-    localStorage.removeItem(ONBOARDING_STEP_KEY);
-    setIsVisible(false);
-    setWaitingForCards(false);
-  }, [onboardingMode]);
+  }, [currentStep, steps, onboardingMode, handleComplete]);
 
   // Track when step is viewed
   useEffect(() => {

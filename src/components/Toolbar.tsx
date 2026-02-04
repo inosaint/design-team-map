@@ -18,9 +18,15 @@ export default function Toolbar() {
     }
   }, [isEditingName]);
 
+  // Sync editedName when settings.teamName changes externally
+  // This is intentional - we need to sync form state with external state changes
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    setEditedName(settings.teamName || 'My Team');
-  }, [settings.teamName]);
+    if (!isEditingName) {
+      setEditedName(settings.teamName || 'My Team');
+    }
+  }, [settings.teamName, isEditingName]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleAddTeamMember = () => {
     addTeamMember({

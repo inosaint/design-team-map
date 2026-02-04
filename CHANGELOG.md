@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.4] - 2026-02-04
+
+### Fixed
+- **Quickstart Not Triggering in Private Windows**: Fixed race condition in useEffect where state update triggered cleanup before the timer could fire. Now uses ref instead of state to prevent re-render interference.
+- **Quickstart Flag Not Cleared on Data Reset**: Quickstart seen flag is now cleared when user clears all data, allowing quickstart to show again for fresh starts.
+
+### Technical
+- Moved `QUICKSTART_SEEN_KEY` constant to shared `constants/onboarding.ts`
+- Fixed all pre-existing lint errors across multiple files:
+  - `Onboarding.tsx`: Fixed variable access before declaration
+  - `Toolbar.tsx`: Added eslint-disable for intentional setState pattern
+  - `SidePanel.tsx`: Fixed memoization dependencies, added eslint-disable for intentional effects
+  - `useStore.ts`: Replaced `any` type with proper type definition
+  - `calculations.ts`: Changed `let` to `const` for never-reassigned variable
+
 ## [1.0.3] - 2026-02-03
 
 ### Added

@@ -37,6 +37,8 @@ export default function SidePanel() {
   const [isVisible, setIsVisible] = useState(false);
 
   // Handle open/close animations
+  // This is intentional - we need to manage animation state based on panel state
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (isPanelOpen && selectedNode) {
       setIsVisible(true);
@@ -50,6 +52,7 @@ export default function SidePanel() {
       return () => clearTimeout(timer);
     }
   }, [isPanelOpen, selectedNode, isVisible]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const [formData, setFormData] = useState({
     name: '',
@@ -64,7 +67,7 @@ export default function SidePanel() {
   });
 
   // Helper to find level config ID from level + track
-  const getLevelConfigId = (level: number, track?: CareerTrack): string => {
+  const getLevelConfigId = useCallback((level: number, track?: CareerTrack): string => {
     const levels = getAvailableLevelsFlat(settings);
     // Find matching level config
     const config = levels.find(l => {
@@ -74,9 +77,17 @@ export default function SidePanel() {
       return false;
     });
     return config?.id || levels[0]?.id || '';
-  };
+  }, [settings]);
+
+  // Helper to get level config from ID
+  const getLevelConfigFromId = useCallback((id: string): LevelConfig | undefined => {
+    const levels = getAvailableLevelsFlat(settings);
+    return levels.find(l => l.id === id);
+  }, [settings]);
 
   // Sync form data when selected node changes
+  // This is intentional - we need to populate form when selection changes
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (selectedNode) {
       setFormData({
@@ -95,13 +106,8 @@ export default function SidePanel() {
         gender: selectedNode.gender,
       });
     }
-  }, [selectedNode, settings]);
-
-  // Helper to get level config from ID
-  const getLevelConfigFromId = (id: string): LevelConfig | undefined => {
-    const levels = getAvailableLevelsFlat(settings);
-    return levels.find(l => l.id === id);
-  };
+  }, [selectedNode, getLevelConfigId]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Auto-save with debounce
   const saveChanges = useCallback(() => {
@@ -130,7 +136,7 @@ export default function SidePanel() {
     }
 
     updateNode(selectedNode.id, updates);
-  }, [selectedNode, formData, settings, updateNode]);
+  }, [selectedNode, formData, getLevelConfigFromId, updateNode]);
 
   // Debounced save effect
   useEffect(() => {
