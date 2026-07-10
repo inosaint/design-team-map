@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useStore } from '../../store/useStore';
-import type { LevelConfig, DesignerTypeConfig } from '../../types';
+import type { LevelConfig, DesignerTypeConfig, TeamNode, Vertical, Settings, NodePosition } from '../../types';
 import { DEFAULT_SETTINGS } from '../../types';
 import { regenerateLevelsForSplitLevel, generateLevelId } from '../../utils/calculations';
 import {
@@ -15,6 +15,13 @@ import styles from './SettingsPanel.module.css';
 
 type TabType = 'levels' | 'types' | 'advanced' | 'about' | 'import-export';
 
+interface ImportData {
+  nodes: TeamNode[];
+  verticals: Vertical[];
+  settings: Settings;
+  nodePositions?: NodePosition[];
+}
+
 interface SettingsPanelProps {
   onOpenQuickstart?: () => void;
 }
@@ -25,6 +32,19 @@ export default function SettingsPanel({ onOpenQuickstart }: SettingsPanelProps) 
 
   const [activeTab, setActiveTab] = useState<TabType>('levels');
   const [expandedLevel, setExpandedLevel] = useState<number | null>(null);
+
+  const isImportData = (data: unknown): data is ImportData => {
+    if (!data || typeof data !== 'object') return false;
+
+    const candidate = data as Partial<ImportData>;
+    return (
+      Array.isArray(candidate.nodes) &&
+      Array.isArray(candidate.verticals) &&
+      !!candidate.settings &&
+      typeof candidate.settings === 'object' &&
+      (candidate.nodePositions === undefined || Array.isArray(candidate.nodePositions))
+    );
+  };
 
   if (!isSettingsOpen) return null;
 
@@ -233,11 +253,14 @@ export default function SettingsPanel({ onOpenQuickstart }: SettingsPanelProps) 
       try {
         const text = await file.text();
         const data = JSON.parse(text);
+        if (!isImportData(data)) {
+          throw new Error('Invalid import format');
+        }
         importData(data);
 
         // Track import event
-        const teamSize = data.nodes?.filter((n: { isPlannedHire: boolean }) => !n.isPlannedHire).length || 0;
-        const plannedHires = data.nodes?.filter((n: { isPlannedHire: boolean }) => n.isPlannedHire).length || 0;
+        const teamSize = data.nodes.filter((n) => !n.isPlannedHire).length;
+        const plannedHires = data.nodes.filter((n) => n.isPlannedHire).length;
         trackDataImported(teamSize, plannedHires);
       } catch {
         alert('Failed to import file. Please check the format.');
@@ -638,12 +661,6 @@ export default function SettingsPanel({ onOpenQuickstart }: SettingsPanelProps) 
                   <li>
                     <a href="https://zustand-demo.pmnd.rs" target="_blank" rel="noopener noreferrer">
                       Zustand
-                    </a>
-                    <span className={styles.attributionLicense}>MIT License</span>
-                  </li>
-                  <li>
-                    <a href="https://html2canvas.hertzen.com" target="_blank" rel="noopener noreferrer">
-                      html2canvas
                     </a>
                     <span className={styles.attributionLicense}>MIT License</span>
                   </li>

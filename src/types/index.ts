@@ -5,6 +5,21 @@ export type CareerTrack = 'ic' | 'manager';
 
 export type Gender = 'male' | 'female' | 'non-binary' | 'other' | 'prefer-not-to-say';
 
+export interface MeetingNote {
+  id: string;
+  date: string;
+  content: string;
+}
+
+export type GrowthPlanStatus = 'planned' | 'doing' | 'completed';
+
+export interface GrowthPlanItem {
+  id: string;
+  status: GrowthPlanStatus;
+  content: string;
+  details?: string;
+}
+
 export interface TeamMember {
   id: string;
   name: string;
@@ -16,6 +31,9 @@ export interface TeamMember {
   managerId?: string | null; // null for top-level, undefined for unassigned
   verticalId?: string;
   notes?: string; // Personal notes about the team member
+  growthPlan?: string; // Legacy free-text development plan
+  growthPlanItems?: GrowthPlanItem[]; // Kanban items for the Growth tab
+  meetingNotes?: MeetingNote[]; // Growth-related meeting notes
   gender?: Gender; // Optional, only shown if enabled in settings
   isPlannedHire: false;
 }

@@ -1,17 +1,31 @@
-import { useState, useEffect, useRef } from 'react';
+import { lazy, Suspense, useState, useEffect, useRef } from 'react';
 import FlowChart from './components/FlowChart';
+import type { AppView } from './components/Toolbar';
 import Toolbar from './components/Toolbar';
-import SidePanel from './components/panels/SidePanel';
-import SettingsPanel from './components/panels/SettingsPanel';
-import QuickstartWizard from './components/QuickstartWizard';
 import Toast from './components/Toast';
 import { useStore } from './store/useStore';
-import Onboarding from './components/Onboarding';
 import styles from './App.module.css';
-import { ONBOARDING_MODE_KEY, QUICKSTART_SEEN_KEY } from './constants/onboarding';
+import {
+  ONBOARDING_COMPLETED_KEY,
+  ONBOARDING_MODE_KEY,
+  QUICKSTART_SEEN_KEY,
+} from './constants/onboarding';
+
+const SidePanel = lazy(() => import('./components/panels/SidePanel'));
+const SettingsPanel = lazy(() => import('./components/panels/SettingsPanel'));
+const QuickstartWizard = lazy(() => import('./components/QuickstartWizard'));
+const Onboarding = lazy(() => import('./components/Onboarding'));
+const GrowthPlan = lazy(() => import('./components/GrowthPlan'));
 
 function App() {
+  const [activeView, setActiveView] = useState<AppView>('chart');
   const [showQuickstart, setShowQuickstart] = useState(false);
+  const [shouldLoadSettings, setShouldLoadSettings] = useState(
+    () => useStore.getState().isSettingsOpen
+  );
+  const [shouldLoadOnboarding, setShouldLoadOnboarding] = useState(
+    () => !localStorage.getItem(ONBOARDING_COMPLETED_KEY)
+  );
   const hasCheckedInitialRef = useRef(false);
   const [onboardingMode, setOnboardingMode] = useState<'regular' | 'post-quickstart' | undefined>(undefined);
 
@@ -31,8 +45,23 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    return useStore.subscribe((state) => {
+      if (state.isSettingsOpen) {
+        setShouldLoadSettings(true);
+      }
+    });
+  }, []);
+
   const handleOpenQuickstart = () => {
     setShowQuickstart(true);
+  };
+
+  const handleViewChange = (view: AppView) => {
+    setActiveView(view);
+    if (view === 'growth') {
+      useStore.getState().closePanel();
+    }
   };
 
   const handleCloseQuickstart = (completed: boolean) => {
@@ -48,19 +77,33 @@ function App() {
       setOnboardingMode('regular');
       localStorage.setItem(ONBOARDING_MODE_KEY, 'regular');
     }
+    setShouldLoadOnboarding(true);
   };
 
   return (
     <div className={styles.app}>
-      <Toolbar />
+      <Toolbar activeView={activeView} onViewChange={handleViewChange} />
       <main className={styles.main}>
-        <FlowChart />
+        <div className={`${styles.viewLayer} ${activeView === 'chart' ? styles.active : ''}`}>
+          <FlowChart />
+        </div>
+        {activeView === 'growth' && (
+          <Suspense fallback={null}>
+            <div className={`${styles.viewLayer} ${styles.active}`}>
+              <GrowthPlan />
+            </div>
+          </Suspense>
+        )}
       </main>
-      <SidePanel />
-      <SettingsPanel onOpenQuickstart={handleOpenQuickstart} />
+      <Suspense fallback={null}>
+        {activeView === 'chart' && <SidePanel />}
+        {shouldLoadSettings && <SettingsPanel onOpenQuickstart={handleOpenQuickstart} />}
+      </Suspense>
       <Toast />
-      {showQuickstart && <QuickstartWizard onClose={handleCloseQuickstart} />}
-      <Onboarding mode={onboardingMode} />
+      <Suspense fallback={null}>
+        {showQuickstart && <QuickstartWizard onClose={handleCloseQuickstart} />}
+        {activeView === 'chart' && shouldLoadOnboarding && <Onboarding mode={onboardingMode} />}
+      </Suspense>
     </div>
   );
 }

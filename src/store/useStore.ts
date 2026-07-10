@@ -57,8 +57,18 @@ interface TeamMapState {
   toggleSettings: () => void;
 
   // Data Actions
-  importData: (data: { nodes: TeamNode[]; verticals: Vertical[]; settings: Settings }) => void;
-  exportData: () => { nodes: TeamNode[]; verticals: Vertical[]; settings: Settings };
+  importData: (data: {
+    nodes: TeamNode[];
+    verticals: Vertical[];
+    settings: Settings;
+    nodePositions?: NodePosition[];
+  }) => void;
+  exportData: () => {
+    nodes: TeamNode[];
+    verticals: Vertical[];
+    settings: Settings;
+    nodePositions: NodePosition[];
+  };
   clearAll: () => void;
 }
 
@@ -282,10 +292,16 @@ export const useStore = create<TeamMapState>()(
 
       // Data Actions
       importData: (data) => {
+        const nodePositions = new Map(
+          data.nodePositions?.map(({ id, x, y }) => [id, { x, y }]) || []
+        );
         set({
           nodes: data.nodes,
           verticals: data.verticals,
           settings: { ...DEFAULT_SETTINGS, ...data.settings },
+          nodePositions,
+          selectedNodeId: null,
+          isPanelOpen: false,
         });
       },
 
@@ -295,6 +311,11 @@ export const useStore = create<TeamMapState>()(
           nodes: state.nodes,
           verticals: state.verticals,
           settings: state.settings,
+          nodePositions: Array.from(state.nodePositions.entries()).map(([id, position]) => ({
+            id,
+            x: position.x,
+            y: position.y,
+          })),
         };
       },
 

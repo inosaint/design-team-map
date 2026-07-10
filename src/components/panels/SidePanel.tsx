@@ -208,13 +208,7 @@ export default function SidePanel() {
     if (promotionInfo.eligible) {
       return { text: 'Ready for promotion', type: 'success' };
     }
-    if (promotionInfo.yearsUntilEligible > 0) {
-      return {
-        text: `${promotionInfo.yearsUntilEligible.toFixed(1)}y to next level`,
-        type: 'neutral',
-      };
-    }
-    return { text: 'At max level', type: 'muted' };
+    return null;
   };
 
   const growthTag = getGrowthStatusTag();

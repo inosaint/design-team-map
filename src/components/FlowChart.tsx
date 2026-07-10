@@ -169,7 +169,7 @@ function FlowChartInner() {
     if (isInitialMount.current && teamNodes.length > 0) {
       // Small delay to ensure nodes are rendered
       setTimeout(() => {
-        fitView({ padding: 0.2, duration: 200 });
+        fitView({ padding: 0.2, duration: 0 });
       }, 100);
       isInitialMount.current = false;
     } else if (nodesIncreased && onboardingActive) {

@@ -3,7 +3,14 @@ import { useStore } from '../store/useStore';
 import { trackTeamNameChanged } from '../utils/analytics';
 import styles from './Toolbar.module.css';
 
-export default function Toolbar() {
+export type AppView = 'chart' | 'growth';
+
+interface ToolbarProps {
+  activeView: AppView;
+  onViewChange: (view: AppView) => void;
+}
+
+export default function Toolbar({ activeView, onViewChange }: ToolbarProps) {
   const { addTeamMember, addPlannedHire, toggleSettings, settings, nodes, updateSettings } =
     useStore();
   const [showAddMenu, setShowAddMenu] = useState(false);
@@ -110,6 +117,28 @@ export default function Toolbar() {
             </span>
           )}
         </div>
+      </div>
+
+      <div className={styles.viewTabs} role="tablist" aria-label="Workspace view">
+        <button
+          type="button"
+          className={`${styles.viewTab} ${activeView === 'chart' ? styles.active : ''}`}
+          onClick={() => onViewChange('chart')}
+          role="tab"
+          aria-selected={activeView === 'chart'}
+        >
+          Chart
+        </button>
+        <button
+          type="button"
+          className={`${styles.viewTab} ${activeView === 'growth' ? styles.active : ''}`}
+          onClick={() => onViewChange('growth')}
+          role="tab"
+          aria-selected={activeView === 'growth'}
+        >
+          Growth Plan
+          <span className={styles.betaTag}>Beta</span>
+        </button>
       </div>
 
       <div className={styles.right}>

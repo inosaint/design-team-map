@@ -1,27 +1,60 @@
-import posthog from 'posthog-js'
+type PostHogClient = typeof import('posthog-js').default
+
+let posthogClient: PostHogClient | null = null
+let posthogLoadPromise: Promise<PostHogClient | null> | null = null
+
+const getPostHog = async (): Promise<PostHogClient | null> => {
+  if (posthogClient) {
+    return posthogClient
+  }
+
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  const token = import.meta.env.VITE_PUBLIC_POSTHOG_KEY || ''
+  if (!token) {
+    return null
+  }
+
+  if (!posthogLoadPromise) {
+    posthogLoadPromise = import('posthog-js')
+      .then(({ default: posthog }) => {
+        const host = import.meta.env.VITE_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com'
+
+        posthog.init(token, {
+          api_host: host,
+          capture_pageview: true,
+          capture_pageleave: true,
+          respect_dnt: false, // Set to false to ensure events fire during testing
+          loaded: (ph) => {
+            // Enable debug mode in development to see all events in console
+            if (import.meta.env.DEV) {
+              ph.debug()
+            }
+          },
+        })
+
+        // Expose to window for debugging
+        ;(window as unknown as { posthog: PostHogClient }).posthog = posthog
+        posthogClient = posthog
+        return posthog
+      })
+      .catch(() => null)
+  }
+
+  return posthogLoadPromise
+}
+
+const capture = (event: string, properties?: Record<string, unknown>) => {
+  void getPostHog().then((posthog) => {
+    posthog?.capture(event, properties)
+  })
+}
 
 // Initialize PostHog - call this once at app startup
 export const initPostHog = () => {
-  if (typeof window !== 'undefined') {
-    const token = import.meta.env.VITE_PUBLIC_POSTHOG_KEY || '';
-    const host = import.meta.env.VITE_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com';
-
-    posthog.init(token, {
-      api_host: host,
-      capture_pageview: true,
-      capture_pageleave: true,
-      respect_dnt: false, // Set to false to ensure events fire during testing
-      loaded: (ph) => {
-        // Enable debug mode in development to see all events in console
-        if (import.meta.env.DEV) {
-          ph.debug()
-        }
-      },
-    })
-
-    // Expose to window for debugging
-    ;(window as unknown as { posthog: typeof posthog }).posthog = posthog
-  }
+  void getPostHog()
 }
 
 // Analytics event types
@@ -68,7 +101,7 @@ export const AnalyticsEvents = {
 // Track card creation
 export const trackCardCreated = (cardType: 'team_member' | 'planned_hire', properties?: Record<string, unknown>) => {
   const event = cardType === 'planned_hire' ? AnalyticsEvents.PLANNED_HIRE_CREATED : AnalyticsEvents.CARD_CREATED
-  posthog.capture(event, {
+  capture(event, {
     card_type: cardType,
     ...properties,
   })
@@ -76,19 +109,19 @@ export const trackCardCreated = (cardType: 'team_member' | 'planned_hire', prope
 
 // Track card deletion
 export const trackCardDeleted = (isPlannedHire: boolean) => {
-  posthog.capture(AnalyticsEvents.CARD_DELETED, {
+  capture(AnalyticsEvents.CARD_DELETED, {
     card_type: isPlannedHire ? 'planned_hire' : 'team_member',
   })
 }
 
 // Track card conversion (planned hire to hired)
 export const trackCardConverted = () => {
-  posthog.capture(AnalyticsEvents.CARD_CONVERTED)
+  capture(AnalyticsEvents.CARD_CONVERTED)
 }
 
 // Track data export
 export const trackDataExported = (format: string, teamSize: number, plannedHires: number) => {
-  posthog.capture(AnalyticsEvents.DATA_EXPORTED, {
+  capture(AnalyticsEvents.DATA_EXPORTED, {
     format,
     team_size: teamSize,
     planned_hires: plannedHires,
@@ -97,7 +130,7 @@ export const trackDataExported = (format: string, teamSize: number, plannedHires
 
 // Track data import
 export const trackDataImported = (teamSize: number, plannedHires: number) => {
-  posthog.capture(AnalyticsEvents.DATA_IMPORTED, {
+  capture(AnalyticsEvents.DATA_IMPORTED, {
     team_size: teamSize,
     planned_hires: plannedHires,
   })
@@ -109,47 +142,47 @@ export const trackToggleChanged = (toggleName: 'showGender' | 'showMinimap', ena
     ? AnalyticsEvents.TOGGLE_SHOW_GENDER
     : AnalyticsEvents.TOGGLE_SHOW_MINIMAP
 
-  posthog.capture(event, {
+  capture(event, {
     enabled,
   })
 }
 
 // Track span of control change
 export const trackSpanOfControlChanged = (value: number) => {
-  posthog.capture(AnalyticsEvents.SPAN_OF_CONTROL_CHANGED, {
+  capture(AnalyticsEvents.SPAN_OF_CONTROL_CHANGED, {
     value,
   })
 }
 
 // Track track split level change
 export const trackTrackSplitLevelChanged = (value: number) => {
-  posthog.capture(AnalyticsEvents.TRACK_SPLIT_LEVEL_CHANGED, {
+  capture(AnalyticsEvents.TRACK_SPLIT_LEVEL_CHANGED, {
     value,
   })
 }
 
 // Track team name change
 export const trackTeamNameChanged = () => {
-  posthog.capture(AnalyticsEvents.TEAM_NAME_CHANGED)
+  capture(AnalyticsEvents.TEAM_NAME_CHANGED)
 }
 
 // Track data cleared
 export const trackDataCleared = () => {
-  posthog.capture(AnalyticsEvents.DATA_CLEARED)
+  capture(AnalyticsEvents.DATA_CLEARED)
 }
 
 // Track settings reset
 export const trackSettingsReset = () => {
-  posthog.capture(AnalyticsEvents.SETTINGS_RESET)
+  capture(AnalyticsEvents.SETTINGS_RESET)
 }
 
 // Quickstart tracking functions
 export const trackQuickstartStarted = () => {
-  posthog.capture(AnalyticsEvents.QUICKSTART_STARTED)
+  capture(AnalyticsEvents.QUICKSTART_STARTED)
 }
 
 export const trackQuickstartStepCompleted = (step: number, stepName: string) => {
-  posthog.capture(AnalyticsEvents.QUICKSTART_STEP_COMPLETED, {
+  capture(AnalyticsEvents.QUICKSTART_STEP_COMPLETED, {
     step,
     step_name: stepName,
   })
@@ -161,7 +194,7 @@ export const trackQuickstartCompleted = (properties: {
   structure: string;
   roleTypes: string[];
 }) => {
-  posthog.capture(AnalyticsEvents.QUICKSTART_COMPLETED, {
+  capture(AnalyticsEvents.QUICKSTART_COMPLETED, {
     industry: properties.industry,
     team_size: properties.teamSize,
     structure: properties.structure,
@@ -171,32 +204,32 @@ export const trackQuickstartCompleted = (properties: {
 }
 
 export const trackQuickstartDismissed = (step: number) => {
-  posthog.capture(AnalyticsEvents.QUICKSTART_DISMISSED, {
+  capture(AnalyticsEvents.QUICKSTART_DISMISSED, {
     dismissed_at_step: step,
   })
 }
 
 export const trackQuickstartIndustrySelected = (industry: string) => {
-  posthog.capture(AnalyticsEvents.QUICKSTART_INDUSTRY_SELECTED, {
+  capture(AnalyticsEvents.QUICKSTART_INDUSTRY_SELECTED, {
     industry,
   })
 }
 
 export const trackQuickstartTeamSizeSelected = (size: string, count: number) => {
-  posthog.capture(AnalyticsEvents.QUICKSTART_TEAM_SIZE_SELECTED, {
+  capture(AnalyticsEvents.QUICKSTART_TEAM_SIZE_SELECTED, {
     size_category: size,
     team_count: count,
   })
 }
 
 export const trackQuickstartStructureSelected = (structure: string) => {
-  posthog.capture(AnalyticsEvents.QUICKSTART_STRUCTURE_SELECTED, {
+  capture(AnalyticsEvents.QUICKSTART_STRUCTURE_SELECTED, {
     structure,
   })
 }
 
 export const trackQuickstartRoleTypeSelected = (roleTypes: string[]) => {
-  posthog.capture(AnalyticsEvents.QUICKSTART_ROLE_TYPE_SELECTED, {
+  capture(AnalyticsEvents.QUICKSTART_ROLE_TYPE_SELECTED, {
     role_types: roleTypes,
     count: roleTypes.length,
   })
@@ -204,7 +237,7 @@ export const trackQuickstartRoleTypeSelected = (roleTypes: string[]) => {
 
 // Onboarding tracking functions
 export const trackOnboardingStepViewed = (stepId: string, stepTitle: string, mode: string) => {
-  posthog.capture(AnalyticsEvents.ONBOARDING_STEP_VIEWED, {
+  capture(AnalyticsEvents.ONBOARDING_STEP_VIEWED, {
     step_id: stepId,
     step_title: stepTitle,
     onboarding_mode: mode,
@@ -212,17 +245,14 @@ export const trackOnboardingStepViewed = (stepId: string, stepTitle: string, mod
 }
 
 export const trackOnboardingCompleted = (mode: string) => {
-  posthog.capture(AnalyticsEvents.ONBOARDING_COMPLETED, {
+  capture(AnalyticsEvents.ONBOARDING_COMPLETED, {
     onboarding_mode: mode,
   })
 }
 
 export const trackOnboardingSkipped = (stepId: string, mode: string) => {
-  posthog.capture(AnalyticsEvents.ONBOARDING_SKIPPED, {
+  capture(AnalyticsEvents.ONBOARDING_SKIPPED, {
     skipped_at_step: stepId,
     onboarding_mode: mode,
   })
 }
-
-// Export posthog instance for direct access if needed
-export { posthog }

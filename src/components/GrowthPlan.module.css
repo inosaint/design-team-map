@@ -1,0 +1,461 @@
+.growthPlan {
+  height: 100%;
+  display: flex;
+  background-color: var(--bg-primary);
+}
+
+.roster {
+  width: 320px;
+  min-width: 280px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+}
+
+.memberList {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-2);
+}
+
+.memberItem {
+  width: 100%;
+  display: block;
+  padding: var(--space-3);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--border-radius);
+  text-align: left;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.memberRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.memberItem:hover {
+  background-color: var(--gray-50);
+}
+
+.memberItem.selected {
+  background-color: var(--orange-50);
+  border-color: var(--orange-200);
+}
+
+.memberName {
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.memberMeta {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.detail {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.editor {
+  max-width: 840px;
+  padding: var(--space-6);
+}
+
+.editorHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.nameButton,
+.nameInput {
+  min-width: 0;
+  max-width: 100%;
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--text-primary);
+}
+
+.nameButton {
+  padding: 2px 6px;
+  margin: -2px -6px;
+  background: transparent;
+  border: 0;
+  border-radius: var(--border-radius);
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nameButton:hover {
+  background-color: var(--gray-100);
+}
+
+.nameInput {
+  flex: 1;
+  padding: 2px 6px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--primary);
+  border-radius: var(--border-radius);
+  outline: none;
+}
+
+.editorHeader p {
+  flex-shrink: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-align: right;
+}
+
+.boardSection {
+  margin-bottom: var(--space-6);
+}
+
+.boardHeader {
+  margin-bottom: var(--space-3);
+}
+
+.boardHeader h3 {
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.boardColumn {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+}
+
+.columnHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.columnHeader h4 {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.columnHeader span {
+  min-width: 22px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-2);
+  border-radius: 999px;
+  background-color: var(--gray-100);
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.cardList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.growthCard {
+  padding: var(--space-3);
+  background-color: var(--gray-50);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.growthCard:hover {
+  border-color: var(--gray-300);
+}
+
+.growthCard.selectedCard {
+  background-color: var(--orange-50);
+  border-color: var(--orange-300);
+}
+
+.growthCard p {
+  white-space: pre-wrap;
+  font-size: 12px;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.cardActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.statusSelect {
+  min-width: 0;
+  flex: 1;
+  padding: 4px 24px 4px 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+}
+
+.cardInput,
+.noteInput {
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.cardInput {
+  min-height: 72px;
+  padding-bottom: 42px;
+}
+
+.inlineComposer {
+  position: relative;
+}
+
+.inlineComposer button {
+  position: absolute;
+  right: var(--space-2);
+  bottom: var(--space-2);
+  min-width: 64px;
+}
+
+.notesSection {
+  padding-top: var(--space-2);
+}
+
+.notesHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.notesHeader h3 {
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+.notesHeader span {
+  min-width: 24px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-2);
+  border-radius: 999px;
+  background-color: var(--gray-100);
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.noteComposer {
+  position: relative;
+  margin-bottom: var(--space-4);
+}
+
+.noteComposer button {
+  position: absolute;
+  right: var(--space-2);
+  bottom: var(--space-2);
+}
+
+.noteInput {
+  padding-bottom: 48px;
+}
+
+.notesList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.note {
+  padding: var(--space-4);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+}
+
+.noteHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.noteHeader time {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.deleteNote {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.deleteNote:hover {
+  color: var(--danger);
+}
+
+.note p {
+  white-space: pre-wrap;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.emptyRoster,
+.emptyDetail,
+.emptyNotes {
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
+.emptyRoster {
+  padding: var(--space-4);
+}
+
+.emptyDetail {
+  max-width: 440px;
+  padding: var(--space-8);
+}
+
+.emptyDetail h2 {
+  margin-bottom: var(--space-2);
+  font-size: 20px;
+}
+
+.emptyDetail p {
+  line-height: 1.6;
+}
+
+.emptyNotes {
+  padding: var(--space-4);
+  background-color: var(--bg-secondary);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--border-radius);
+}
+
+.taskPanel {
+  width: 340px;
+  min-width: 320px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-secondary);
+  border-left: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+}
+
+.taskPanelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.taskPanelHeader h3 {
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+.taskPanelContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-4);
+}
+
+.taskField {
+  margin-bottom: var(--space-4);
+}
+
+.taskTitleInput,
+.taskDetailsInput {
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.taskTitleInput {
+  min-height: 96px;
+}
+
+.taskDetailsInput {
+  min-height: 180px;
+}
+
+@media (max-width: 720px) {
+  .growthPlan {
+    flex-direction: column;
+  }
+
+  .roster {
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    max-height: 42%;
+    border-right: 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .editor {
+    padding: var(--space-4);
+  }
+
+  .board {
+    grid-template-columns: 1fr;
+  }
+
+  .taskPanel {
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    max-height: 50%;
+    border-left: 0;
+    border-top: 1px solid var(--border-color);
+  }
+}
