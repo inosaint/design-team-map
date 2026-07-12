@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2026-07-11
+
+### Added
+- **Growth Plan Beta**: Added a new Growth Plan workspace alongside the Chart view.
+  - Team-member roster for switching between hired team members
+  - Per-member growth plan Kanban board with Planned, Doing, and Completed columns
+  - Task detail panel for adding additional information to growth plan cards
+  - Meeting notes capture for growth conversations and 1:1s
+  - Inline member name editing from the Growth Plan detail view
+- **Growth Plan Tab Badge**: Added a compact orange Beta tag to the Growth Plan tab.
+
+### Changed
+- Chart and Growth Plan now use segmented top-level navigation.
+- Chart stays mounted while switching tabs to avoid camera refocus when returning from Growth Plan.
+- Initial chart fit on page refresh is now instant instead of animated.
+- Growth Plan excludes planned hires and only shows hired team members.
+- Meeting note and growth card add actions now live inside their text input areas to save vertical space.
+- Promotion status tag in the side panel now only appears when a member is ready for promotion.
+
+### Fixed
+- Chart right-side editor panel reliably opens when tapping a chart card.
+- Chart onboarding no longer appears while the Growth Plan tab is active.
+- JSON export/import now preserves node positions.
+- JSON import now validates shape before writing data into app state.
+- PostHog no longer initializes when no public key is configured.
+
+### Technical
+- Lazy-loaded analytics and secondary app surfaces to reduce the initial bundle size.
+- Removed unused `html2canvas` dependency and attribution.
+- Added persisted Growth Plan item and meeting note fields to team member data.
+
 ## [1.0.4] - 2026-02-04
 
 ### Fixed
