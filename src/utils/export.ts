@@ -15,6 +15,8 @@ const NODE_WIDTH = 180;
 const NODE_HEIGHT = 88;
 const NODE_GAP = 64;
 const HEADER_HEIGHT = 30;
+const MAX_EXPORT_DIMENSION = 2400;
+const EXPORT_PIXEL_RATIO = 2;
 const GROWTH_STATUSES = [
   { status: 'planned', label: 'Planned' },
   { status: 'doing', label: 'Doing' },
@@ -178,8 +180,11 @@ export const createChartSvg = (
   const maxX = Math.max(...exportNodes.map((node) => node.position.x + NODE_WIDTH));
   const maxY = Math.max(...exportNodes.map((node) => node.position.y + NODE_HEIGHT + NODE_GAP));
   const padding = 56;
-  const width = Math.ceil(maxX - minX + padding * 2);
-  const height = Math.ceil(maxY - minY + padding * 2);
+  const viewBoxWidth = Math.ceil(maxX - minX + padding * 2);
+  const viewBoxHeight = Math.ceil(maxY - minY + padding * 2);
+  const exportScale = Math.min(1, MAX_EXPORT_DIMENSION / Math.max(viewBoxWidth, viewBoxHeight));
+  const width = Math.ceil(viewBoxWidth * exportScale);
+  const height = Math.ceil(viewBoxHeight * exportScale);
   const offsetX = padding - minX;
   const offsetY = padding - minY;
   const nodeById = new Map(exportNodes.map((node) => [node.id, node]));
@@ -215,14 +220,14 @@ export const createChartSvg = (
     })
     .join('');
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
-    <rect width="${width}" height="${height}" fill="#ffffff"/>
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${viewBoxWidth} ${viewBoxHeight}">
+    <rect width="${viewBoxWidth}" height="${viewBoxHeight}" fill="#ffffff"/>
     <defs>
       <pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse">
         <circle cx="1" cy="1" r="1" fill="#e4e4e7"/>
       </pattern>
     </defs>
-    <rect width="${width}" height="${height}" fill="url(#dots)"/>
+    <rect width="${viewBoxWidth}" height="${viewBoxHeight}" fill="url(#dots)"/>
     ${edges}
     ${cards}
   </svg>`;
@@ -240,13 +245,12 @@ export const downloadSvgAsPng = async (svg: string, filename: string) => {
       image.src = url;
     });
 
-    const scale = 2;
     const canvas = document.createElement('canvas');
-    canvas.width = image.naturalWidth * scale;
-    canvas.height = image.naturalHeight * scale;
+    canvas.width = image.naturalWidth * EXPORT_PIXEL_RATIO;
+    canvas.height = image.naturalHeight * EXPORT_PIXEL_RATIO;
     const context = canvas.getContext('2d');
     if (!context) throw new Error('Canvas rendering is unavailable');
-    context.scale(scale, scale);
+    context.scale(EXPORT_PIXEL_RATIO, EXPORT_PIXEL_RATIO);
     context.drawImage(image, 0, 0);
 
     await new Promise<void>((resolve, reject) => {
