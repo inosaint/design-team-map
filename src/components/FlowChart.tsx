@@ -10,7 +10,7 @@ import {
   ReactFlowProvider,
   BackgroundVariant,
 } from '@xyflow/react';
-import type { Node, Edge, Connection, NodeTypes, EdgeTypes } from '@xyflow/react';
+import type { Node, Edge, Connection, FinalConnectionState, NodeTypes, EdgeTypes } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 import { useStore } from '../store/useStore';
@@ -35,6 +35,10 @@ const edgeTypes: EdgeTypes = {
   reporting: ReportingEdge,
 };
 
+const NEW_NODE_WIDTH = 180;
+const NEW_NODE_HEIGHT = 74;
+const GRID_SIZE = 20;
+
 // Generate a stable position for new nodes based on existing node count
 function getNewNodePosition(index: number, existingPositions: Map<string, { x: number; y: number }>) {
   // Place new nodes in a grid pattern
@@ -55,18 +59,45 @@ function getNewNodePosition(index: number, existingPositions: Map<string, { x: n
   };
 }
 
+function getClientPoint(event: MouseEvent | TouchEvent) {
+  if ('changedTouches' in event) {
+    const touchEvent = event as TouchEvent;
+    if (touchEvent.changedTouches.length === 0) {
+      return null;
+    }
+    return {
+      x: touchEvent.changedTouches[0].clientX,
+      y: touchEvent.changedTouches[0].clientY,
+    };
+  }
+
+  const mouseEvent = event as MouseEvent;
+  return {
+    x: mouseEvent.clientX,
+    y: mouseEvent.clientY,
+  };
+}
+
+function snapToGrid(position: { x: number; y: number }) {
+  return {
+    x: Math.round(position.x / GRID_SIZE) * GRID_SIZE,
+    y: Math.round(position.y / GRID_SIZE) * GRID_SIZE,
+  };
+}
+
 function FlowChartInner() {
   const {
     nodes: teamNodes,
     nodePositions,
     settings,
+    addTeamMember,
     selectNode,
     updateNodePosition,
     setNodeManager,
     removeManager,
   } = useStore();
 
-  const { fitView } = useReactFlow();
+  const { fitView, screenToFlowPosition } = useReactFlow();
   const isInitialMount = useRef(true);
   const prevNodeCount = useRef(teamNodes.length);
 
@@ -227,6 +258,35 @@ function FlowChartInner() {
     [setNodeManager, teamNodes, showToast]
   );
 
+  const onConnectEnd = useCallback(
+    (event: MouseEvent | TouchEvent, connectionState: FinalConnectionState) => {
+      if (!connectionState.fromNode || connectionState.toNode) return;
+      if (connectionState.fromHandle?.type !== 'source') return;
+
+      const sourceId = connectionState.fromNode.id;
+      const pointer = getClientPoint(event);
+      if (!pointer) return;
+      const flowPosition = screenToFlowPosition(pointer);
+      const position = snapToGrid({
+        x: flowPosition.x - NEW_NODE_WIDTH / 2,
+        y: flowPosition.y - NEW_NODE_HEIGHT / 2,
+      });
+
+      const newNodeId = addTeamMember({
+        name: 'New Member',
+        designerType: '',
+        level: 1,
+        yearsOfExperience: 0,
+        managerId: sourceId,
+      });
+
+      updateNodePosition(newNodeId, position);
+      selectNode(newNodeId);
+      showToast('New team member added', 'success');
+    },
+    [addTeamMember, screenToFlowPosition, selectNode, showToast, updateNodePosition]
+  );
+
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: Node) => {
       selectNode(node.id);
@@ -263,6 +323,7 @@ function FlowChartInner() {
         onNodesChange={handleNodesChange}
         onEdgesChange={handleEdgesChange}
         onConnect={onConnect}
+        onConnectEnd={onConnectEnd}
         onNodeClick={onNodeClick}
         onEdgeClick={onEdgeClick}
         onPaneClick={onPaneClick}

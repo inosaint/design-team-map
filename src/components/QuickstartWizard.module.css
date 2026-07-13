@@ -493,10 +493,6 @@
   justify-content: space-between;
 }
 
-.footerSpacer {
-  width: 60px; /* Approximate width of Back button */
-}
-
 /* Progress indicator absolutely centered in footer */
 .progress {
   position: absolute;

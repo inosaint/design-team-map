@@ -206,36 +206,34 @@ export default function GrowthPlan() {
         ) : (
           <div className={styles.editor}>
             <header className={styles.editorHeader}>
-              {isEditingName ? (
-                <input
-                  ref={nameInputRef}
-                  className={styles.nameInput}
-                  value={draftName}
-                  onChange={(e) => setDraftName(e.target.value)}
-                  onBlur={handleNameSave}
-                  onKeyDown={handleNameKeyDown}
-                />
-              ) : (
-                <button
-                  type="button"
-                  className={styles.nameButton}
-                  onClick={() => {
-                    setDraftName(selectedMember.name);
-                    setIsEditingName(true);
-                  }}
-                  title="Click to edit name"
-                >
-                  {selectedMember.name}
-                </button>
-              )}
-              <p>
-                {[
-                  getDesignerTypeName(selectedMember.designerType, settings),
-                  getLevelName(selectedMember.level, settings, selectedMember.track),
-                ]
-                  .filter(Boolean)
-                  .join(' · ')}
-              </p>
+              <div className={styles.identityBlock}>
+                {isEditingName ? (
+                  <input
+                    ref={nameInputRef}
+                    className={styles.nameInput}
+                    value={draftName}
+                    onChange={(e) => setDraftName(e.target.value)}
+                    onBlur={handleNameSave}
+                    onKeyDown={handleNameKeyDown}
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    className={styles.nameButton}
+                    onClick={() => {
+                      setDraftName(selectedMember.name);
+                      setIsEditingName(true);
+                    }}
+                    title="Click to edit name"
+                  >
+                    {selectedMember.name}
+                  </button>
+                )}
+                <div className={styles.roleLine}>
+                  <span>{getDesignerTypeName(selectedMember.designerType, settings)}</span>
+                  <span>{getLevelName(selectedMember.level, settings, selectedMember.track)}</span>
+                </div>
+              </div>
             </header>
 
             <div className={styles.boardSection}>
@@ -299,13 +297,16 @@ export default function GrowthPlan() {
                           placeholder={`Add ${column.title.toLowerCase()} item`}
                           rows={3}
                         />
-                        <button
-                          className="btn btn-secondary btn-sm"
-                          type="button"
-                          onClick={() => handleAddGrowthCard(column.status)}
-                        >
-                          Add
-                        </button>
+                        <div className={styles.composerActions}>
+                          <button
+                            className="btn btn-secondary btn-sm"
+                            type="button"
+                            onClick={() => handleAddGrowthCard(column.status)}
+                            disabled={!draftCards[column.status].trim()}
+                          >
+                            Add
+                          </button>
+                        </div>
                       </div>
                     </section>
                   );
@@ -327,9 +328,16 @@ export default function GrowthPlan() {
                   placeholder="Add notes from a growth conversation or 1:1."
                   rows={4}
                 />
-                <button className="btn btn-primary" type="button" onClick={handleAddNote}>
-                  Add Note
-                </button>
+                <div className={styles.composerActions}>
+                  <button
+                    className="btn btn-primary"
+                    type="button"
+                    onClick={handleAddNote}
+                    disabled={!draftNote.trim()}
+                  >
+                    Add Note
+                  </button>
+                </div>
               </div>
 
               <div className={styles.notesList}>

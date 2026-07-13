@@ -466,6 +466,26 @@
   border-radius: var(--border-radius);
 }
 
+.betaButton {
+  position: relative;
+}
+
+.betaTag {
+  position: absolute;
+  top: -8px;
+  right: -5px;
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background-color: var(--primary);
+  color: white;
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
 /* Toggle switch */
 .toggleField {
   display: flex;

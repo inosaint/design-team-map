@@ -11,10 +11,12 @@ An interactive web application for planning hiring and growth progression in des
 - **Interactive Org Chart** - Drag-and-drop flowchart visualization using React Flow
 - **Team Member Management** - Add team members and planned hires with detailed profiles
 - **Reporting Relationships** - Connect nodes to define manager-report structures
+- **Fast Connected Card Creation** - Drop a loose connection on the canvas to create a connected team member
 - **Span of Control Warnings** - Visual alerts when managers exceed configurable thresholds
 - **Promotion Tracking** - Automatic eligibility indicators based on tenure and level configuration
+- **Growth Planning** - Track Planned, Doing, and Completed growth items plus meeting notes for each team member
 - **Career Tracks** - Configurable IC/Manager split at any level
-- **Export Options** - Save as PNG, PDF, or JSON backup
+- **Export Options** - Save Chart JSON, Growth Plan JSON, or Chart PNG
 - **Auto-Arrange** - One-click hierarchical layout
 - **Persistent Storage** - All data saved to localStorage
 

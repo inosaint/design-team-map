@@ -41,6 +41,7 @@ A web app for planning hiring and growth progression for design teams with an in
 - [x] Notes field for each designer card
 - [x] Gender field (optional, configurable in Advanced settings)
 - [x] Growth status tag in side panel header
+- [x] Create a connected team member when a user drags a connection from a source handle and drops it on empty canvas
 
 ## Phase 5: Verticals/Teams Management
 - [ ] Add verticals directly on canvas
@@ -69,14 +70,32 @@ A web app for planning hiring and growth progression for design teams with an in
 - [ ] Succession planning hints (who can grow into which role)
 
 ## Phase 8: Export & Polish
-- [x] Export flowchart as PNG (using html2canvas)
+- [x] Export flowchart as PNG (generated SVG-to-PNG export, marked Beta)
 - [x] Export flowchart as PDF (via browser print with print styles)
-- [x] Export/Import team data as JSON (backup/restore)
+- [x] Export/Import team data as JSON (Chart JSON backup/restore)
+- [x] Export growth plan as structured JSON with planned/doing/completed sections and meeting notes
 - [x] Custom app logo and favicon
 - [x] Side panel closing animation
 - [ ] Responsive design adjustments
 - [ ] Keyboard shortcuts
-- [ ] Empty state and onboarding hints
+- [x] Empty state and onboarding hints
+- [x] Growth Plan tab supports hash URL (`#growth-plan`) so refresh keeps the active view
+- [x] Growth Plan add buttons stay disabled until text is entered
+- [x] Growth Plan textarea/button layout avoids resize-handle overlap
+- [x] Quickstart wizard has a skip setup path that suppresses the step-by-step onboarding tour
+
+## Phase 9: SEO, AEO & Agent Accessibility
+- [ ] Add core SEO metadata in `index.html`: title, description, canonical URL, Open Graph, and Twitter card tags for MapYour.Org
+- [ ] Add JSON-LD `SoftwareApplication` structured data describing MapYour.Org as a free web app for org charts, hiring plans, and growth planning
+- [ ] Add JSON-LD `FAQPage` structured data for core AEO questions: what MapYour.Org is, who it is for, whether it is free, what it exports, and where data is stored
+- [ ] Add crawlable homepage/landing copy with clear Q&A sections for answer engines
+- [ ] Create focused crawlable landing pages for high-value use cases: free org chart tool, design team org chart, team growth plan template, hiring plan org chart, and startup org chart tool
+- [ ] Add `/llms.txt` that explains the product, key URLs, import/export capabilities, and recommended agent workflows
+- [ ] Add `/agents.md` with instructions for agents to create Chart JSON, Growth Plan JSON, and planning templates for users
+- [ ] Add Markdown docs for import/export formats: `/docs/chart-json.md` and `/docs/growth-plan-json.md`
+- [ ] Add machine-readable JSON schemas for Chart JSON and Growth Plan JSON exports
+- [ ] Add example import files such as `/docs/examples/design-team.json` and `/docs/examples/startup-team.json`
+- [ ] Add an in-app import guidance flow with schema validation errors and links to examples
 
 ---
 
@@ -89,6 +108,8 @@ A web app for planning hiring and growth progression for design teams with an in
 - [ ] Test onboarding tour for new users
 - [ ] Verify analytics events are firing correctly
 - [ ] Test export functionality (PNG, PDF, JSON)
+- [ ] Test Growth Plan JSON export structure with planned, doing, completed, and meeting notes data
+- [ ] Test loose-connection card creation from drag-release on empty canvas
 - [ ] Test import/restore from JSON backup
 - [ ] Check mobile responsiveness
 - [ ] Run `npm run build` and verify no errors
@@ -128,7 +149,7 @@ MVP complete! Core features implemented:
 - Succession planning hints
 - Responsive design adjustments
 - Keyboard shortcuts
-- Empty state and onboarding hints
 - Distributed teams support (setting in Advanced)
 - Drag-and-drop reordering of level accordions
 - Fix glitchy tooltip on hover (span of control warning)
+- SEO/AEO landing pages and agent-readable docs (`llms.txt`, `agents.md`, schemas, examples)

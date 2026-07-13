@@ -358,8 +358,10 @@ const INDUSTRY_PRESETS: IndustryPreset[] = [
   },
 ];
 
+export type QuickstartCloseReason = 'completed' | 'dismissed' | 'skip-onboarding';
+
 interface QuickstartWizardProps {
-  onClose: (completed: boolean) => void;
+  onClose: (reason: QuickstartCloseReason) => void;
 }
 
 // SVG Illustrations for options
@@ -783,7 +785,12 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
 
   const handleDismiss = () => {
     trackQuickstartDismissed(step);
-    onClose(false);
+    onClose('dismissed');
+  };
+
+  const handleSkipOnboarding = () => {
+    trackQuickstartDismissed(step);
+    onClose('skip-onboarding');
   };
 
   const steps = [
@@ -833,7 +840,7 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
       roleTypes: selectedTypes,
     });
 
-    onClose(true); // Completed the wizard
+    onClose('completed'); // Completed the wizard
   };
 
   const handleTeamSizeChange = (size: TeamSize) => {
@@ -1058,7 +1065,9 @@ export default function QuickstartWizard({ onClose }: QuickstartWizardProps) {
                 Back
               </button>
             ) : (
-              <div className={styles.footerSpacer} />
+              <button className={styles.skipBtn} onClick={handleSkipOnboarding}>
+                Skip setup
+              </button>
             )}
 
             {/* Progress dots in center */}

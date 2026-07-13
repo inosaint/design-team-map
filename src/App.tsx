@@ -1,6 +1,7 @@
 import { lazy, Suspense, useState, useEffect, useRef } from 'react';
 import FlowChart from './components/FlowChart';
 import type { AppView } from './components/Toolbar';
+import type { QuickstartCloseReason } from './components/QuickstartWizard';
 import Toolbar from './components/Toolbar';
 import Toast from './components/Toast';
 import { useStore } from './store/useStore';
@@ -17,8 +18,13 @@ const QuickstartWizard = lazy(() => import('./components/QuickstartWizard'));
 const Onboarding = lazy(() => import('./components/Onboarding'));
 const GrowthPlan = lazy(() => import('./components/GrowthPlan'));
 
+const GROWTH_PLAN_HASH = '#growth-plan';
+
+const getViewFromHash = (): AppView =>
+  window.location.hash === GROWTH_PLAN_HASH ? 'growth' : 'chart';
+
 function App() {
-  const [activeView, setActiveView] = useState<AppView>('chart');
+  const [activeView, setActiveView] = useState<AppView>(getViewFromHash);
   const [showQuickstart, setShowQuickstart] = useState(false);
   const [shouldLoadSettings, setShouldLoadSettings] = useState(
     () => useStore.getState().isSettingsOpen
@@ -53,6 +59,24 @@ function App() {
     });
   }, []);
 
+  useEffect(() => {
+    const handleLocationChange = () => {
+      const nextView = getViewFromHash();
+      setActiveView(nextView);
+      if (nextView === 'growth') {
+        useStore.getState().closePanel();
+      }
+    };
+
+    window.addEventListener('hashchange', handleLocationChange);
+    window.addEventListener('popstate', handleLocationChange);
+
+    return () => {
+      window.removeEventListener('hashchange', handleLocationChange);
+      window.removeEventListener('popstate', handleLocationChange);
+    };
+  }, []);
+
   const handleOpenQuickstart = () => {
     setShowQuickstart(true);
   };
@@ -61,16 +85,28 @@ function App() {
     setActiveView(view);
     if (view === 'growth') {
       useStore.getState().closePanel();
+      if (window.location.hash !== GROWTH_PLAN_HASH) {
+        window.history.pushState(null, '', GROWTH_PLAN_HASH);
+      }
+    } else if (window.location.hash === GROWTH_PLAN_HASH) {
+      window.history.pushState(null, '', `${window.location.pathname}${window.location.search}`);
     }
   };
 
-  const handleCloseQuickstart = (completed: boolean) => {
+  const handleCloseQuickstart = (reason: QuickstartCloseReason) => {
     setShowQuickstart(false);
     // Mark as seen so it doesn't auto-show again
     localStorage.setItem(QUICKSTART_SEEN_KEY, 'true');
 
+    if (reason === 'skip-onboarding') {
+      localStorage.setItem(ONBOARDING_COMPLETED_KEY, 'true');
+      setOnboardingMode(undefined);
+      setShouldLoadOnboarding(false);
+      return;
+    }
+
     // Set onboarding mode based on whether quickstart was completed
-    if (completed) {
+    if (reason === 'completed') {
       setOnboardingMode('post-quickstart');
       localStorage.setItem(ONBOARDING_MODE_KEY, 'post-quickstart');
     } else {

@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2026-07-13
+
+### Added
+- **Loose Connection Card Creation**: Dragging a connection from a card and dropping it on empty canvas now creates a connected team member at the drop point.
+- **Growth Plan JSON Export**: Added structured Growth Plan export with per-member Planned, Doing, and Completed sections plus meeting notes.
+- **Chart PNG Export Beta**: Added generated chart image export that renders from stored chart data instead of DOM capture.
+- **Chart JSON Export Labeling**: Settings export actions now separate Chart JSON, Chart PNG, and Growth Plan JSON.
+- **Quickstart Skip Setup**: Added an explicit skip setup path that closes quickstart and suppresses the step-by-step onboarding tour.
+- **SEO/AEO Backlog**: Added todo items for crawlable landing pages, structured data, `llms.txt`, `agents.md`, schemas, and examples.
+
+### Changed
+- Growth Plan now supports `#growth-plan` URL routing so refresh keeps the active tab.
+- Growth Plan member header now groups the member name with role and level chips instead of floating role text on the right.
+- Growth Plan add buttons are disabled until text is entered.
+- Growth Plan composer buttons now sit below textareas to avoid resize-handle overlap.
+- Chart PNG export uses larger text, higher contrast headers, stronger edges, and higher-resolution canvas output for readability.
+- Import/Export settings button labels are shorter and grouped by chart exports first.
+
+### Fixed
+- Closing quickstart no longer unintentionally forces users through the tooltip onboarding when they choose to skip setup.
+- Chart PNG export text and header contrast are improved for generated images.
+
+### Technical
+- Added shared export utilities for safe filenames, downloads, Growth Plan JSON export, and data-generated chart SVG/PNG export.
+- Added React Flow connection-end handling with persisted drop-position placement for newly created connected team members.
+
 ## [1.1.0] - 2026-07-11
 
 ### Added

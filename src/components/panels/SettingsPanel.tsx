@@ -4,6 +4,13 @@ import type { LevelConfig, DesignerTypeConfig, TeamNode, Vertical, Settings, Nod
 import { DEFAULT_SETTINGS } from '../../types';
 import { regenerateLevelsForSplitLevel, generateLevelId } from '../../utils/calculations';
 import {
+  createChartSvg,
+  createGrowthPlanExport,
+  downloadBlob,
+  downloadSvgAsPng,
+  getSafeFileName,
+} from '../../utils/export';
+import {
   trackDataExported,
   trackDataImported,
   trackToggleChanged,
@@ -27,7 +34,7 @@ interface SettingsPanelProps {
 }
 
 export default function SettingsPanel({ onOpenQuickstart }: SettingsPanelProps) {
-  const { isSettingsOpen, toggleSettings, settings, updateSettings, exportData, importData, clearAll } =
+  const { isSettingsOpen, toggleSettings, nodes, nodePositions, settings, updateSettings, exportData, importData, clearAll } =
     useStore();
 
   const [activeTab, setActiveTab] = useState<TabType>('levels');
@@ -225,21 +232,47 @@ export default function SettingsPanel({ onOpenQuickstart }: SettingsPanelProps) 
   const handleExportJSON = () => {
     const data = exportData();
     const teamName = settings.teamName || 'design-team';
-    const safeName = teamName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const safeName = getSafeFileName(teamName, 'design-team');
     const blob = new Blob([JSON.stringify(data, null, 2)], {
       type: 'application/json',
     });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${safeName}-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadBlob(blob, `${safeName}-${new Date().toISOString().split('T')[0]}.json`);
 
     // Track export event
     const teamSize = data.nodes.filter((n) => !n.isPlannedHire).length;
     const plannedHires = data.nodes.filter((n) => n.isPlannedHire).length;
     trackDataExported('json', teamSize, plannedHires);
+  };
+
+  const handleExportGrowthPlan = () => {
+    const teamName = settings.teamName || 'design-team';
+    const safeName = getSafeFileName(teamName, 'design-team');
+    const growthPlan = createGrowthPlanExport(nodes, settings);
+    const blob = new Blob([JSON.stringify(growthPlan, null, 2)], {
+      type: 'application/json',
+    });
+    downloadBlob(blob, `${safeName}-growth-plan-${new Date().toISOString().split('T')[0]}.json`);
+    trackDataExported(
+      'growth-plan-json',
+      nodes.filter((n) => !n.isPlannedHire).length,
+      nodes.filter((n) => n.isPlannedHire).length
+    );
+  };
+
+  const handleExportChartPNG = async () => {
+    try {
+      const teamName = settings.teamName || 'design-team';
+      const safeName = getSafeFileName(teamName, 'design-team');
+      const svg = createChartSvg(nodes, nodePositions, settings);
+      await downloadSvgAsPng(svg, `${safeName}-chart-${new Date().toISOString().split('T')[0]}.png`);
+      trackDataExported(
+        'chart-png',
+        nodes.filter((n) => !n.isPlannedHire).length,
+        nodes.filter((n) => n.isPlannedHire).length
+      );
+    } catch {
+      alert('Failed to export chart image. Please try again.');
+    }
   };
 
   const handleImport = () => {
@@ -596,7 +629,7 @@ export default function SettingsPanel({ onOpenQuickstart }: SettingsPanelProps) 
             <div className={styles.section}>
               <div className={styles.aboutHeader}>
 <h3 className={styles.aboutTitle}>MapYour.Org</h3>
-                <span className={styles.version}>v1.1.0</span>
+                <span className={styles.version}>v1.2.0</span>
               </div>
 
               <p className={styles.aboutDesc}>
@@ -685,14 +718,23 @@ export default function SettingsPanel({ onOpenQuickstart }: SettingsPanelProps) 
               <div className={styles.field}>
                 <label className="label">Export</label>
                 <p className={styles.fieldDesc}>
-                  Download your team map data
+                  Download your team map, growth plan, or chart image
                 </p>
-                <button className="btn btn-secondary" onClick={handleExportJSON}>
-                  Export JSON
-                </button>
-                <p className={styles.fieldHint}>
-                  Other formats (PDF, Image) coming soon
-                </p>
+                <div className={styles.buttonGroup}>
+                  <button className="btn btn-secondary" onClick={handleExportJSON}>
+                    Chart JSON
+                  </button>
+                  <button
+                    className={`btn btn-secondary ${styles.betaButton}`}
+                    onClick={handleExportChartPNG}
+                  >
+                    Chart PNG
+                    <span className={styles.betaTag}>Beta</span>
+                  </button>
+                  <button className="btn btn-secondary" onClick={handleExportGrowthPlan}>
+                    Growth Plan JSON
+                  </button>
+                </div>
               </div>
 
               <div className={styles.field}>
