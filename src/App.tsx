@@ -5,6 +5,8 @@ import type { QuickstartCloseReason } from './components/QuickstartWizard';
 import Toolbar from './components/Toolbar';
 import Toast from './components/Toast';
 import { useStore } from './store/useStore';
+import { useToastStore } from './store/useToastStore';
+import { isImportData, decodeChartFromUrl } from './utils/importData';
 import styles from './App.module.css';
 import {
   ONBOARDING_COMPLETED_KEY,
@@ -40,15 +42,43 @@ function App() {
     if (hasCheckedInitialRef.current) return;
     hasCheckedInitialRef.current = true;
 
-    // Small delay to let the store hydrate from localStorage
-    const timer = setTimeout(() => {
+    // Small delay to let the store hydrate from localStorage.
+    // Note: no cleanup/clearTimeout here on purpose - in dev, StrictMode mounts this
+    // effect, cleans it up, then mounts it again; if we cleared the timer on that
+    // synthetic cleanup, the `hasCheckedInitialRef` guard would block the second
+    // mount from ever arming a new one, and this would silently never fire.
+    setTimeout(() => {
+      // A `?chart=` param lets an agent (or anyone) load a chart via link, reusing the
+      // same import contract as the JSON file import in Settings (see utils/importData.ts).
+      const chartParam = new URLSearchParams(window.location.search).get('chart');
+      if (chartParam) {
+        try {
+          const data = decodeChartFromUrl(chartParam);
+          if (!isImportData(data)) throw new Error('Invalid chart data');
+          useStore.getState().importData(data);
+          // Agents building a chart URL usually won't compute pixel positions -
+          // auto-arrange into a hierarchy unless positions were explicitly supplied.
+          if (!data.nodePositions) {
+            useStore.getState().autoArrangeNodes();
+          }
+          useToastStore.getState().showToast('Chart imported from link', 'success');
+        } catch (err) {
+          console.error('Failed to import chart from URL:', err);
+          useToastStore.getState().showToast('Failed to import chart from link', 'error');
+        } finally {
+          // Always strip `chart` from the URL, even if import failed, so a refresh
+          // or re-share doesn't repeatedly reattempt (or repeatedly fail) the same import.
+          window.history.replaceState(null, '', window.location.pathname + window.location.hash);
+        }
+        return;
+      }
+
       const hasSeenQuickstart = localStorage.getItem(QUICKSTART_SEEN_KEY) === 'true';
       const currentNodes = useStore.getState().nodes;
       if (currentNodes.length === 0 && !hasSeenQuickstart) {
         setShowQuickstart(true);
       }
     }, 100);
-    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -57,6 +87,32 @@ function App() {
         setShouldLoadSettings(true);
       }
     });
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isEditableTarget =
+        !!target &&
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+
+      if (isEditableTarget) return;
+
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        const { selectedNodeId, deleteNode } = useStore.getState();
+        if (selectedNodeId) {
+          deleteNode(selectedNodeId);
+        }
+      } else if (e.key === 'Escape') {
+        const { isPanelOpen, closePanel } = useStore.getState();
+        if (isPanelOpen) {
+          closePanel();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   useEffect(() => {
