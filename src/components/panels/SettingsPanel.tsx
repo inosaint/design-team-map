@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useStore } from '../../store/useStore';
-import type { LevelConfig, DesignerTypeConfig, TeamNode, Vertical, Settings, NodePosition } from '../../types';
+import type { LevelConfig, DesignerTypeConfig } from '../../types';
 import { DEFAULT_SETTINGS } from '../../types';
 import { regenerateLevelsForSplitLevel, generateLevelId } from '../../utils/calculations';
+import { isImportData } from '../../utils/importData';
 import {
   createChartSvg,
   createGrowthPlanExport,
@@ -22,13 +23,6 @@ import styles from './SettingsPanel.module.css';
 
 type TabType = 'levels' | 'types' | 'advanced' | 'about' | 'import-export';
 
-interface ImportData {
-  nodes: TeamNode[];
-  verticals: Vertical[];
-  settings: Settings;
-  nodePositions?: NodePosition[];
-}
-
 interface SettingsPanelProps {
   onOpenQuickstart?: () => void;
 }
@@ -39,19 +33,6 @@ export default function SettingsPanel({ onOpenQuickstart }: SettingsPanelProps) 
 
   const [activeTab, setActiveTab] = useState<TabType>('levels');
   const [expandedLevel, setExpandedLevel] = useState<number | null>(null);
-
-  const isImportData = (data: unknown): data is ImportData => {
-    if (!data || typeof data !== 'object') return false;
-
-    const candidate = data as Partial<ImportData>;
-    return (
-      Array.isArray(candidate.nodes) &&
-      Array.isArray(candidate.verticals) &&
-      !!candidate.settings &&
-      typeof candidate.settings === 'object' &&
-      (candidate.nodePositions === undefined || Array.isArray(candidate.nodePositions))
-    );
-  };
 
   if (!isSettingsOpen) return null;
 
@@ -629,7 +610,7 @@ export default function SettingsPanel({ onOpenQuickstart }: SettingsPanelProps) 
             <div className={styles.section}>
               <div className={styles.aboutHeader}>
 <h3 className={styles.aboutTitle}>MapYour.Org</h3>
-                <span className={styles.version}>v1.2.0</span>
+                <span className={styles.version}>v1.3.0</span>
               </div>
 
               <p className={styles.aboutDesc}>

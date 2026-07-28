@@ -58,6 +58,37 @@ npm run preview
 npm run lint
 ```
 
+## Loading a Chart via Link (for AI agents / automation)
+
+Anyone — a script, an AI agent, another tool — can build a chart and hand the user a link that loads it directly, no file upload needed. Open the app with a `chart` query param containing a base64url-encoded JSON payload, using the same shape as the "Import JSON" feature in Settings:
+
+```
+https://mapyour.org/?chart=<base64url(JSON.stringify(importData))>
+```
+
+Use `encodeChartForUrl` from `src/utils/importData.ts` to build this value (plain `encodeURIComponent(JSON.stringify(...))` also works but produces a much longer, uglier URL since JSON's quotes/braces each balloon into 3-character `%XX` sequences under percent-encoding).
+
+Where `importData` is:
+
+```json
+{
+  "nodes": [
+    { "id": "1", "name": "Priya Shah", "designerType": "ux", "level": 6, "yearsOfExperience": 8, "managerId": null, "isPlannedHire": false },
+    { "id": "2", "name": "Alex Kim", "designerType": "product", "level": 3, "yearsOfExperience": 2, "managerId": "1", "isPlannedHire": false }
+  ],
+  "verticals": [],
+  "settings": { "designerTypes": [...], "levels": [...], ... }
+}
+```
+
+- `nodes` — a flat list of `TeamMember`/`PlannedHire` records (see `src/types/index.ts`); `managerId: null` marks the top of the chart, any other `managerId` points at another node's `id`.
+- `settings` — the same `designerTypes`/`levels` config shown in Settings; the easiest way to get a valid one is to export an existing chart from the app (Settings → Import/Export → "Export JSON") and use its `settings` block as a starting point.
+- No pixel positions to compute: if `nodePositions` is omitted, the chart is auto-arranged into a hierarchy (same as the "Auto-Arrange" button) based on each node's `managerId`.
+- The whole payload is validated on load; if it doesn't match, the chart is left untouched and an error toast is shown instead.
+- This travels in a URL query string, so keep it to a reasonably small chart (tens of people) rather than an entire org.
+
+This reuses the exact same `importData` action and validation as the file-based JSON import — see `src/utils/importData.ts`.
+
 ## Tech Stack
 
 - **React 19** + TypeScript

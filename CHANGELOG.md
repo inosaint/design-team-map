@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0] - 2026-07-28
+
+### Added
+- **SEO Landing Pages**: Added 11 static, crawlable landing pages (`/design-org-chart/`, `/engineering-org-chart/`, `/product-org-chart/`, `/sales-org-chart/`, `/marketing-org-chart/`, `/hr-org-chart/`, `/finance-org-chart/`, `/healthcare-org-chart/`, `/legal-org-chart/`, `/construction-org-chart/`, `/education-org-chart/`), each with industry-specific meta tags, career levels, common roles, and a real example chart screenshot.
+- **Live Example Charts**: Each landing page's primary CTA opens a real, pre-filled example chart for that industry via the new URL import feature instead of a blank app.
+- **Load a Chart via Link**: Added a `?chart=` URL parameter that imports a chart directly from a base64url-encoded payload, reusing the existing JSON import contract (`src/utils/importData.ts`), with auto-arrange applied when no explicit positions are supplied. Documented in README for agents/automation to build shareable chart links.
+- **`sitemap.xml` / `robots.txt`**: Added for landing page discoverability.
+- **Keyboard Shortcuts**: `Delete`/`Backspace` deletes the selected card, `Escape` closes the side panel, `Tab`/`Shift+Tab` cycles a focus highlight between cards without opening the panel, and `Enter` opens the panel for the focused card.
+
+### Fixed
+- Static landing pages under `public/` now resolve correctly in both the Vite dev server and production static hosting (previously fell back to the SPA shell due to missing directory-index handling); all internal links now consistently use trailing-slash URLs.
+- Fixed a React StrictMode timing bug where the URL-based chart import could silently never run in development.
+
+### Technical
+- Extracted the shared `ImportData`/`isImportData` contract out of `SettingsPanel.tsx` into `src/utils/importData.ts`, used by both the file-based JSON import and the new URL-based import.
+- Added a dev-only Vite middleware plus `appType: 'mpa'` so local `npm run dev` serves the static SEO pages the same way production does.
+
 ## [1.2.0] - 2026-07-13
 
 ### Added

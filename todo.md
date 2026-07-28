@@ -77,7 +77,7 @@ A web app for planning hiring and growth progression for design teams with an in
 - [x] Custom app logo and favicon
 - [x] Side panel closing animation
 - [ ] Responsive design adjustments
-- [ ] Keyboard shortcuts
+- [x] Keyboard shortcuts (Delete/Backspace to delete selected card, Escape to close side panel, Tab/Shift+Tab to cycle focus between cards, Enter to open focused card)
 - [x] Empty state and onboarding hints
 - [x] Growth Plan tab supports hash URL (`#growth-plan`) so refresh keeps the active view
 - [x] Growth Plan add buttons stay disabled until text is entered
@@ -148,7 +148,6 @@ MVP complete! Core features implemented:
 - Verticals/teams management on canvas
 - Succession planning hints
 - Responsive design adjustments
-- Keyboard shortcuts
 - Distributed teams support (setting in Advanced)
 - Drag-and-drop reordering of level accordions
 - Fix glitchy tooltip on hover (span of control warning)

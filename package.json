@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate:seo": "node scripts/generate-seo-pages.mjs"
   },
   "dependencies": {
     "@xyflow/react": "^12.10.0",

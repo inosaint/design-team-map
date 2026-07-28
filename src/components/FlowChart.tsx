@@ -107,7 +107,7 @@ function FlowChartInner() {
   );
 
   // Convert team nodes to React Flow nodes with stable positions
-  const flowNodes = useMemo(() => {
+  const flowNodes = useMemo((): Node<FlowNodeData>[] => {
     let newNodeIndex = 0;
 
     return teamNodes.map((teamNode) => {
@@ -191,6 +191,44 @@ function FlowChartInner() {
   useEffect(() => {
     setEdges(flowEdges);
   }, [flowEdges, setEdges]);
+
+  // Tab/Shift+Tab moves a focus highlight between cards without opening the side
+  // panel; Enter opens the panel for whichever card is currently focused.
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isEditableTarget =
+        !!target &&
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+
+      if (isEditableTarget) return;
+
+      if (e.key === 'Tab') {
+        if (nodes.length === 0) return;
+        e.preventDefault();
+
+        const currentIndex = nodes.findIndex((n) => n.selected);
+        const direction = e.shiftKey ? -1 : 1;
+        const nextIndex =
+          currentIndex === -1
+            ? direction === 1
+              ? 0
+              : nodes.length - 1
+            : (currentIndex + direction + nodes.length) % nodes.length;
+        const nextId = nodes[nextIndex].id;
+
+        setNodes((current) => current.map((n) => ({ ...n, selected: n.id === nextId })));
+      } else if (e.key === 'Enter') {
+        const focused = nodes.find((n) => n.selected);
+        if (focused) {
+          selectNode(focused.id);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [nodes, setNodes, selectNode]);
 
   // Fit view when nodes are added
   useEffect(() => {
